@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% block style %}
+a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawesomelink:active {
+    color: inherit;
+    text-decoration: none;
+}
+{% endblock %}
+
 {% block breadcrumbs %}
 <li class="breadcrumb-item active" aria-current="page">PiJu</li>
 {% endblock %}
@@ -9,7 +16,7 @@
     {% for genre in genres %}
     <div class="col-3 my-4 mx-auto">
         <p class="text-center">
-            <i class="{{genre.icon}} fa-6x" aria-hidden ="true"></i><br>
+            <a href="/genre/{{ genre.displayed_name }}" class="fontawesomelink"> <i class="{{genre.icon}} fa-6x" aria-hidden ="true"></i></a><br>
             <a href="/genre/{{ genre.displayed_name }}">{{genre.displayed_name}}</a>
         </p>
     </div>
