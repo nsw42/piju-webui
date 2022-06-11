@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">PiJu</li>
+{% endblock %}
+
+{% block content %}
+<ul>
+    {% for genre in genres %}
+    <li>
+        <a href="/genre/{{ genre.displayed_name }}">{{genre.displayed_name}}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

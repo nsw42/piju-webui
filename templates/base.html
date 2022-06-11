@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+        <script src="https://kit.fontawesome.com/b06f37c98e.js" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <title>PiJu</title>
+    </head>
+    <body>
+        <div class="container">
+            <header class="navbar navbar-expand sticky-top d-block" style="height: 64px; background-color:royalblue">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        {% block breadcrumbs %}
+                        {% endblock %}
+                    </ol>
+                </nav>
+            </header>
+
+            {% block content %}
+            {% endblock %}
+
+            {# now playing footer #}
+            <div class="d-flex w-100 sticky-bottom justify-content-between" style="height: 128px; background-color:lightblue;">
+                <div class="my-auto d-flex flex-nowrap"> {# left #}
+                    <div class="my-auto">
+                        <div id="now_playing_artwork_padding" style="width: 100px; height: 100px; background-color: lightslategrey;" class="my-auto mx-3"></div>
+                        <a id="now_playing_album_link" href=""><img id="now_playing_artwork" style="width: 100px; height: 100px;" class="my-auto img-fluid d-none mx-3"></a>
+                    </div>
+
+                    <div class="my-auto">
+                        <div id="now_playing_artist" class="fs-2"></div>
+                        <div id="now_playing_track" class="fs-3 text-black-50"></div>
+                    </div>
+                </div>
+
+                <div class="my-auto"> {# right #}
+                    <button type="button" id="now_playing_pause" class="btn mx-3" onclick="send_pause()">
+                        <i class="fa fa-pause fa-6x" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" id="now_playing_resume" class="btn mx-3" onclick="send_resume()">
+                        <i class="fa fa-play fa-6x" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        setInterval(function() {
+            // update nowplaying
+            $.ajax({
+                url: "{{server}}",
+                success: function(result) {
+                    result = JSON.parse(result);
+                    current_track = result['CurrentTrack'];
+                    if (current_track) {
+                        const tmp = current_track['album'].split('/');
+                        album_id = tmp[tmp.length - 1];
+                        if (album_id != "") {
+                            album_link = "/albums/" + album_id;
+                            $("#now_playing_album_link").attr('href', album_link);
+                        }
+                        artwork_link = "{{server}}" + current_track['artwork'];
+                        if (artwork_link) {
+                            $("#now_playing_artwork_padding").addClass("d-none");
+                            $("#now_playing_artwork").removeClass("d-none").attr('src', artwork_link);
+                        } else {
+                            $("#now_playing_artwork_padding").removeClass("d-none");
+                            $("#now_playing_artwork").addClass("d-none");
+                        }
+                        $("#now_playing_artist").text(current_track['artist']);
+                        $("#now_playing_track").text(current_track['title']);
+
+                        if (result['PlayerStatus'] == "paused") {
+                            $("#now_playing_pause").addClass("d-none");
+                            $("#now_playing_resume").removeClass("d-none");
+                        } else {
+                            $("#now_playing_pause").removeClass("d-none");
+                            $("#now_playing_resume").addClass("d-none");
+                        }
+                    } else {
+                        $("#now_playing_artwork_padding").removeClass("d-none");
+                        $("#now_playing_artwork").addClass("d-none");
+                        $("#now_playing_artist").text("");
+                        $("#now_playing_track").text("<no track>");
+                    }
+                }
+            });
+        }, 1000);
+
+        function send_pause() {
+            $.ajax({
+                url: "{{server}}/player/pause",
+                method: "POST"
+            });
+        }
+
+        function send_resume() {
+            $.ajax({
+                url: "{{server}}/player/resume",
+                method: "POST"
+            });
+        }
+    </script>
+</html>

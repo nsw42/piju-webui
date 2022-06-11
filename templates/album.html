@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="/">PiJu</a></li>
+<!-- TODO: Album genre -->
+<li class="breadcrumb-item active">{{ album.title if album.title else "Unknown Album" }}</li>
+{% endblock %}
+
+
+{% block content %}
+    <div class="w-100 row">
+        <div class="col-3">
+            {% if album.artwork_link %}
+            <img src="{{server}}{{album.artwork_link}}" class="img-fluid">
+            {% endif %}
+        </div>
+        <div class="col align-middle">
+            <h2 class="display-2">{{ album.artist }}</h3>
+            <h3 class="display-3 text-muted">{{ album.title if album.title else "Unknown Album" }}</h2>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <tbody>
+            {% for track in album.tracks %}
+            <tr style="transform: rotate(0);">
+                <th style="width: 0px;">
+                    <a onclick='play("{{album.id}}", "{{track.id}}")' class="stretched-link"></a>
+                </th>
+                <td>
+                    {{loop.index}}
+                </td>
+                <td>{{track.title}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        function play(album_id, track_id) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/play/" + album_id + "/" + track_id, true);
+            xhttp.send();
+        }
+    </script>
+{% endblock %}

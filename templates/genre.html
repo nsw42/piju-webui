@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="/">PiJu</a></li>
+<li class="breadcrumb-item active">{{genre_name}}</li>
+{% endblock %}
+
+{% block content %}
+<table class="table table-hover">
+    <tbody>
+        {% for album in albums %}
+        <tr style="transform: rotate(0);"> {# apparently superfluous, but needed to make stretched-link work #}
+            <th><a href="/albums/{{album.id}}" class="stretched-link"></a></th>
+            <td>
+                {% if album.artwork_link %}
+                <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
+                {% else %}
+                <div style="width: 100px; height: 100px;"></div>
+                {% endif %}
+            </td>
+            <td class="align-middle">
+                <a href="/albums/{{album.id}}">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
