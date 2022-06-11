@@ -5,11 +5,14 @@
 {% endblock %}
 
 {% block content %}
-<ul>
+<div class="row">
     {% for genre in genres %}
-    <li>
-        <a href="/genre/{{ genre.displayed_name }}">{{genre.displayed_name}}</a>
-    </li>
+    <div class="col-3 my-4 mx-auto">
+        <p class="text-center">
+            <i class="{{genre.icon}} fa-6x" aria-hidden ="true"></i><br>
+            <a href="/genre/{{ genre.displayed_name }}">{{genre.displayed_name}}</a>
+        </p>
+    </div>
     {% endfor %}
-</ul>
+</div>
 {% endblock %}
