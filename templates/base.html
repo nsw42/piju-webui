@@ -5,6 +5,12 @@
         <script src="https://kit.fontawesome.com/b06f37c98e.js" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
         <title>PiJu</title>
+        <style>
+            .active-track {
+                color: red;
+                font-weight: bold;
+            }
+        </style>
     </head>
     <body>
         <div class="container">
@@ -46,6 +52,11 @@
         </div>
     </body>
     <script>
+        function id_from_link(link) {
+            const tmp = link.split('/');
+            return tmp[tmp.length - 1];
+        }
+        current_track_id = null;
         setInterval(function() {
             // update nowplaying
             $.ajax({
@@ -54,8 +65,7 @@
                     result = JSON.parse(result);
                     current_track = result['CurrentTrack'];
                     if (current_track) {
-                        const tmp = current_track['album'].split('/');
-                        album_id = tmp[tmp.length - 1];
+                        album_id = id_from_link(current_track['album']);
                         if (album_id != "") {
                             album_link = "/albums/" + album_id;
                             $("#now_playing_album_link").attr('href', album_link);
@@ -78,11 +88,18 @@
                             $("#now_playing_pause").removeClass("d-none");
                             $("#now_playing_resume").addClass("d-none");
                         }
+                        new_track_id = id_from_link(current_track['link']);
                     } else {
                         $("#now_playing_artwork_padding").removeClass("d-none");
                         $("#now_playing_artwork").addClass("d-none");
                         $("#now_playing_artist").text("");
                         $("#now_playing_track").text("<no track>");
+                        new_track_id = null;
+                    }
+                    if (new_track_id != current_track_id) {
+                        $("#track_"+current_track_id).removeClass("active-track");
+                        current_track_id = new_track_id;
+                        $("#track_"+current_track_id).addClass("active-track");
                     }
                 }
             });

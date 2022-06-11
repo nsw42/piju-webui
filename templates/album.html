@@ -22,12 +22,12 @@
     <table class="table table-hover">
         <tbody>
             {% for track in album.tracks %}
-            <tr style="transform: rotate(0);">
+            <tr id="track_{{track.id}}" style="transform: rotate(0);">
                 <th style="width: 0px;">
                     <a onclick='play("{{album.id}}", "{{track.id}}")' class="stretched-link"></a>
                 </th>
                 <td>
-                    {{loop.index}}
+                    {{track.tracknumber}}
                 </td>
                 <td>{{track.title}}</td>
             </tr>
