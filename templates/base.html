@@ -15,40 +15,41 @@
         </style>
     </head>
     <body>
-        <div class="container">
-            <header class="navbar navbar-expand sticky-top d-block" style="height: 64px; background-color:royalblue">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        {% block breadcrumbs %}
-                        {% endblock %}
-                    </ol>
-                </nav>
-            </header>
+        <div class="d-flex w-100 sticky-top display-3" style="background-color:steelblue; color:ghostwhite">
+            <div class="mx-auto">PiJu</div>
+        </div>
 
+        <div class="container">
             {% block content %}
             {% endblock %}
+        </div>
 
-            {# now playing footer #}
-            <div class="d-flex w-100 sticky-bottom justify-content-between" style="height: 128px; background-color:lightblue;">
-                <div class="my-auto d-flex flex-nowrap"> {# left #}
-                    <div class="my-auto">
-                        <div id="now_playing_artwork_padding" style="width: 100px; height: 100px; background-color: lightslategrey;" class="my-auto mx-3"></div>
-                        <a id="now_playing_album_link" href=""><img id="now_playing_artwork" style="width: 100px; height: 100px;" class="my-auto img-fluid d-none mx-3"></a>
-                    </div>
-
-                    <div class="my-auto">
-                        <div id="now_playing_artist" class="fs-2"></div>
-                        <div id="now_playing_track" class="fs-3 text-black-50"></div>
-                    </div>
+        {# now playing footer #}
+        <div class="d-flex w-100 fixed-bottom justify-content-between" style="height: 128px; background-color:steelblue;">
+            {# left #}
+            <div class="my-auto d-flex flex-nowrap">
+                <div style="width: 22vw;">
+                </div>
+                <div class="my-auto">
+                    <div id="now_playing_artwork_padding" style="width: 100px; height: 100px; background-color: lightslategrey;" class="my-auto mx-3"></div>
+                    <a id="now_playing_album_link" href=""><img id="now_playing_artwork" style="width: 100px; height: 100px;" class="my-auto img-fluid d-none mx-3"></a>
                 </div>
 
-                <div class="my-auto"> {# right #}
-                    <button type="button" id="now_playing_pause" class="btn mx-3" onclick="send_pause()">
-                        <i class="fa fa-pause fa-6x" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" id="now_playing_resume" class="btn mx-3" onclick="send_resume()">
-                        <i class="fa fa-play fa-6x" aria-hidden="true"></i>
-                    </button>
+                <div class="my-auto">
+                    <div id="now_playing_artist" class="fs-2"></div>
+                    <div id="now_playing_track" class="fs-3 text-black-50"></div>
+                </div>
+            </div>
+
+            {# right #}
+            <div class="my-auto d-flex flex-nowrap">
+                <button type="button" id="now_playing_pause" class="btn mx-3" onclick="send_pause()">
+                    <i class="fa fa-pause fa-6x" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="now_playing_resume" class="btn mx-3" onclick="send_resume()">
+                    <i class="fa fa-play fa-6x" aria-hidden="true"></i>
+                </button>
+                <div style="width: 22vw;">
                 </div>
             </div>
         </div>

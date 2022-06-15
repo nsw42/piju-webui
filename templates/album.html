@@ -1,12 +1,5 @@
 {% extends "base.html" %}
 
-{% block breadcrumbs %}
-<li class="breadcrumb-item"><a href="/">PiJu</a></li>
-<!-- TODO: Album genre -->
-<li class="breadcrumb-item active">{{ album.title if album.title else "Unknown Album" }}</li>
-{% endblock %}
-
-
 {% block content %}
     <div class="w-100 row">
         <div class="col-3">
