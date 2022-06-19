@@ -15,10 +15,12 @@
         </style>
     </head>
     <body>
-        <div class="d-flex w-100 sticky-top display-3" style="background-color:steelblue; color:ghostwhite">
-            <div class="mx-auto">PiJu</div>
+        {# header #}
+        <div class="d-flex w-100 sticky-top display-3" style="background-color:steelblue;">
+            <div class="mx-auto" style="color: ghostwhite">{{make_header(header_links)|safe}}</div>
         </div>
 
+        {# main content #}
         <div class="container">
             {% block content %}
             {% endblock %}
