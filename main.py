@@ -134,7 +134,7 @@ def play(album_id, track_id):
 
 
 def make_header(links):
-    return ' | '.join(f'<a href="{dest}" class="text-decoration-none" style="color: ghostwhite">{label}<a>' for (dest, label) in links)
+    return ' | '.join(f'<a href="{dest}" class="text-decoration-none" style="color: ghostwhite">{label}</a>' for (dest, label) in links)
 
 
 def parse_args():
