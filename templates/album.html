@@ -1,6 +1,6 @@
 {% set header_links=[("/", "PiJu")] +
                    ([("/genre/"+album.genre_name, album.genre_name)] if album.genre_name else []) +
-                    [("/albums/"+album.id, album.title if album.title else "Unknown Album")] %}
+                    [("#", album.artist if album.artist else "Unknown Artist")] %}
 {% extends "base.html" %}
 
 {% block content %}
@@ -10,9 +10,8 @@
             <img src="{{server}}{{album.artwork_link}}" class="img-fluid">
             {% endif %}
         </div>
-        <div class="col align-middle">
-            <h2 class="display-2">{{ album.artist }}</h3>
-            <h3 class="display-3 text-muted">{{ album.title if album.title else "Unknown Album" }}</h2>
+        <div class="col align-middle my-auto">
+            <h2 class="display-2">{{ album.title if album.title else "Unknown Album" }}</h2>
         </div>
     </div>
     <table class="table table-hover">
