@@ -27,32 +27,32 @@
         </div>
 
         {# now playing footer #}
-        <div class="d-flex w-100 fixed-bottom justify-content-between" style="height: 128px; background-color:steelblue;">
+        <div class="d-flex w-100 fixed-bottom justify-content-evenly" style="height: 128px; background-color:steelblue; color: ghostwhite">
             {# left #}
             <div class="my-auto d-flex flex-nowrap">
-                <div style="width: 22vw;">
-                </div>
                 <div class="my-auto">
                     <div id="now_playing_artwork_padding" style="width: 100px; height: 100px; background-color: lightslategrey;" class="my-auto mx-3"></div>
-                    <a id="now_playing_album_link" href=""><img id="now_playing_artwork" style="width: 100px; height: 100px;" class="my-auto img-fluid d-none mx-3"></a>
+                    <a id="now_playing_album_link" href="#"><img id="now_playing_artwork" style="width: 100px; height: 100px;" class="my-auto img-fluid d-none mx-3"></a>
                 </div>
 
                 <div class="my-auto">
                     <div id="now_playing_artist" class="fs-2"></div>
-                    <div id="now_playing_track" class="fs-3 text-black-50"></div>
+                    <div id="now_playing_track" class="fs-3"></div>
                 </div>
             </div>
 
             {# right #}
             <div class="my-auto d-flex flex-nowrap">
                 <button type="button" id="now_playing_pause" class="btn mx-3" onclick="send_pause()">
-                    <i class="fa fa-pause fa-6x" aria-hidden="true"></i>
+                    <span style="color: ghostwhite">
+                        <i class="fa fa-pause fa-6x" aria-hidden="true"></i>
+                    </span>
                 </button>
                 <button type="button" id="now_playing_resume" class="btn mx-3" onclick="send_resume()">
-                    <i class="fa fa-play fa-6x" aria-hidden="true"></i>
+                    <span style="color: ghostwhite">
+                        <i class="fa fa-play fa-6x" aria-hidden="true"></i>
+                    </span>
                 </button>
-                <div style="width: 22vw;">
-                </div>
             </div>
         </div>
     </body>
