@@ -14,7 +14,7 @@
             {% endblock %}
         </style>
     </head>
-    <body>
+    <body style="padding-bottom: 128px;">  {# padding needs to be the same size as the footer #}
         {# header #}
         <div class="d-flex w-100 sticky-top display-3 mb-2" style="background-color:steelblue;">
             <div class="mx-auto" style="color: ghostwhite">{{make_header(header_links)|safe}}</div>
