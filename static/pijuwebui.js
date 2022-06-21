@@ -58,6 +58,12 @@ function id_from_link(link) {
     return tmp[tmp.length - 1];
 }
 
+function play(album_id, track_id) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/play/" + album_id + "/" + track_id, true);
+    xhttp.send();
+}
+
 function send_pause() {
     $.ajax({
         url: server + "/player/pause",

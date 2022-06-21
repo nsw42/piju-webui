@@ -29,11 +29,4 @@
             {% endfor %}
         </tbody>
     </table>
-    <script>
-        function play(album_id, track_id) {
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("POST", "/play/" + album_id + "/" + track_id, true);
-            xhttp.send();
-        }
-    </script>
 {% endblock %}
