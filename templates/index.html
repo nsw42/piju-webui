@@ -11,7 +11,9 @@ a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawe
 {% block content %}
 <div class="row">
     {% for genre in genres %}
-    <div class="col-3 my-4 mx-auto">
+    {# small=4 of 12 units per column, ie 3 columns on screen #}
+    {# large=3 of 12 units per column, ie 4 columns on screen #}
+    <div class="col-sm-4 col-lg-3 my-4 mx-auto">
         <p class="text-center">
             <a href="/genre/{{ genre.displayed_name }}" class="fontawesomelink"> <i class="{{genre.icon}} fa-6x" aria-hidden ="true"></i></a><br>
             <a href="/genre/{{ genre.displayed_name }}">{{genre.displayed_name}}</a>
