@@ -6,14 +6,14 @@
     {% for album in albums %}
     <div class="d-block div-row-hover py-2 align-middle">
         <div class="position-relative">
-            <div class="d-inline ms-3 me-1">
+            <div class="d-table-cell ps-3 pe-1">
                 {% if album.artwork_link %}
                 <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
                 {% else %}
                 <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
                 {% endif %}
             </div>
-            <div class="d-inline align-middle">
+            <div class="d-table-cell align-middle ps-2">
                 <a href="/albums/{{album.id}}" class="stretched-link">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>
             </div>
         </div>
