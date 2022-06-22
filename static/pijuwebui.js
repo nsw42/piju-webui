@@ -37,11 +37,15 @@ setInterval(function() {
                     $("#now_playing_resume").addClass("d-none");
                 }
                 new_track_id = id_from_link(current_track['link']);
+                $("#now_playing_resume").removeClass("disabled");
             } else {
                 $("#now_playing_artwork_padding").removeClass("d-none");
                 $("#now_playing_artwork").addClass("d-none");
                 $("#now_playing_artist").text("");
                 $("#now_playing_track").text("<no track>");
+                $("#now_playing_pause").addClass("d-none");
+                $("#now_playing_resume").removeClass("d-none");
+                $("#now_playing_resume").addClass("disabled");
                 new_track_id = null;
             }
             if (new_track_id != current_track_id) {
