@@ -14,19 +14,21 @@
             <h2 class="display-2">{{ album.title if album.title else "Unknown Album" }}</h2>
         </div>
     </div>
-    <table class="table table-hover">
-        <tbody>
-            {% for track in album.tracks %}
-            <tr id="track_{{track.id}}" style="transform: rotate(0);">
-                <th style="width: 0px;">
+    <div class="d-block position-relative my-1">
+        {% for track in album.tracks %}
+        <div class="d-block div-row-hover py-2 align-middle" id="track_{{track.id}}">
+            <div class="position-relative">
+                <div class="d-inline-block" style="width: 0px;">
                     <a onclick='play("{{album.id}}", "{{track.id}}")' class="stretched-link"></a>
-                </th>
-                <td>
+                </div>
+                <div class="d-inline align-middle mx-1">
                     {{track.tracknumber}}
-                </td>
-                <td>{{track.title}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+                <div class="d-inline align-middle ms-2">
+                    {{track.title}}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 {% endblock %}

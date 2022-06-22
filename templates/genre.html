@@ -2,23 +2,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-<table class="table table-hover">
-    <tbody>
-        {% for album in albums %}
-        <tr style="transform: rotate(0);"> {# apparently superfluous, but needed to make stretched-link work #}
-            <th><a href="/albums/{{album.id}}" class="stretched-link"></a></th>
-            <td>
+<div class="d-block position-relative my-1">
+    {% for album in albums %}
+    <div class="d-block div-row-hover py-2 align-middle">
+        <div class="position-relative">
+            <div class="d-inline ms-3 me-1">
                 {% if album.artwork_link %}
                 <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
                 {% else %}
-                <div style="width: 100px; height: 100px;"></div>
+                <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
                 {% endif %}
-            </td>
-            <td class="align-middle">
-                <a href="/albums/{{album.id}}">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </div>
+            <div class="d-inline align-middle">
+                <a href="/albums/{{album.id}}" class="stretched-link">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}
