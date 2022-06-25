@@ -3,6 +3,11 @@ if (server == "") {
     alert("Server variable uninitalized");
 }
 
+State_Stopped = 0;
+State_Playing = 1;
+State_Paused = 2;
+
+current_state = State_Stopped;
 current_track_id = null;
 
 setInterval(function() {
@@ -29,25 +34,34 @@ setInterval(function() {
                 $("#now_playing_artist").text(current_track['artist']);
                 $("#now_playing_track").text(current_track['title']);
 
-                if (result['PlayerStatus'] == "paused") {
-                    $("#now_playing_pause").addClass("d-none");
-                    $("#now_playing_resume").removeClass("d-none");
-                } else {
-                    $("#now_playing_pause").removeClass("d-none");
-                    $("#now_playing_resume").addClass("d-none");
-                }
+                new_state = (result['PlayerStatus'] == "paused") ? State_Paused : State_Playing;
+
                 new_track_id = id_from_link(current_track['link']);
-                $("#now_playing_resume").removeClass("disabled");
             } else {
-                $("#now_playing_artwork_padding").removeClass("d-none");
-                $("#now_playing_artwork").addClass("d-none");
-                $("#now_playing_artist").text("");
-                $("#now_playing_track").text("<no track>");
-                $("#now_playing_pause").addClass("d-none");
-                $("#now_playing_resume").removeClass("d-none");
-                $("#now_playing_resume").addClass("disabled");
+                new_state = State_Stopped;
                 new_track_id = null;
             }
+
+            if (new_state != current_state) {
+                if (new_state == State_Stopped) {
+                    $("#footer_nothing_playing").removeClass("d-none");
+                    $("#footer_playing").addClass("d-none");
+                } else {
+                    $("#footer_nothing_playing").addClass("d-none");
+                    $("#footer_playing").removeClass("d-none");
+
+                    if (new_state == State_Paused) {
+                        $("#now_playing_pause").addClass("d-none");
+                        $("#now_playing_resume").removeClass("d-none");
+                    } else {
+                        $("#now_playing_pause").removeClass("d-none");
+                        $("#now_playing_resume").addClass("d-none");
+                    }
+                }
+
+                current_state = new_state;
+            }
+
             if (new_track_id != current_track_id) {
                 $("#track_"+current_track_id).removeClass("active-track");
                 current_track_id = new_track_id;
