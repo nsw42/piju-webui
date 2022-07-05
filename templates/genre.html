@@ -14,7 +14,7 @@
                 {% endif %}
             </div>
             <div class="d-table-cell align-middle ps-2">
-                <a href="/albums/{{album.id}}" class="stretched-link">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>
+                <a href="/albums/{{album.id}}" class="stretched-link">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>  {{("(%u)" % album.year) if album.year else ""}}
             </div>
         </div>
     </div>

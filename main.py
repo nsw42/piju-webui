@@ -9,7 +9,7 @@ import genre_view
 
 app = Flask(__name__)
 
-Album = namedtuple('Album', 'id, artist, title, artwork_link, genre_name, tracks')
+Album = namedtuple('Album', 'id, artist, title, year, artwork_link, genre_name, tracks')
 Track = namedtuple('Track', 'id, title, tracknumber')
 
 
@@ -54,6 +54,11 @@ class Cache:
             self.display_genres = [genre_view.GENRE_VIEWS[dn] for dn in self.display_names]
 
     def ensure_genre_contents_cache(self, genre_name) -> Optional[List[Album]]:
+        """
+        Ensure we have a cache of the contents of the given genre,
+        and return a list of the albums in that Genre.
+        Albums are sorted by artist then release year, and finally title
+        """
         self.ensure_genre_cache()
         if self.albums_in_genre.get(genre_name) is None:
             server_links = self.genre_links.get(genre_name)  # Could be a request for an unknown genre name
@@ -74,7 +79,7 @@ class Cache:
                 artist = artist.lower()
                 title = album.title if album.title else "ZZZZZZZZZZZ"
                 title = title.lower()
-                return (artist, title)  # TODO: Sort by album year instead of title
+                return (artist, album.year or 0, title)
             self.albums_in_genre[genre_name].sort(key=get_album_sort_order)
         return self.albums_in_genre[genre_name]
 
@@ -94,6 +99,7 @@ class Cache:
         album_details = Album(id=album_id,
                               artist=album_json['artist'],
                               title=album_json['title'],
+                              year=album_json['releasedate'],
                               artwork_link=album_json['artwork']['link'],
                               genre_name=genre_name,
                               tracks=[Track(id=id_from_link(track_json['link']),
