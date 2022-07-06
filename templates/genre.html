@@ -3,21 +3,46 @@
 
 {% block content %}
 <div class="d-block position-relative my-1">
-    {% for album in albums %}
-    <div class="d-block div-row-hover py-2 align-middle">
-        <div class="position-relative">
-            <div class="d-table-cell ps-3 pe-1">
-                {% if album.artwork_link %}
-                <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
-                {% else %}
-                <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
-                {% endif %}
+    {# left #}
+    <div class="d-inline-block">
+        {% for album in albums %}
+        {% if first_album_for_anchor[album.anchor] == album.id %}
+        <a name="{{album.anchor}}" style="scroll-margin-top: 80px;"></a>
+        {% endif %}
+        <div class="d-block div-row-hover py-2 align-middle">
+            <div class="position-relative">
+                <div class="d-table-cell ps-3 pe-1">
+                    {% if album.artwork_link %}
+                    <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
+                    {% else %}
+                    <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                    {% endif %}
+                </div>
+                <div class="d-table-cell align-middle ps-2">
+                    <a href="/albums/{{album.id}}" class="stretched-link">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>  {{("(%u)" % album.year) if album.year else ""}}
+                </div>
             </div>
-            <div class="d-table-cell align-middle ps-2">
-                <a href="/albums/{{album.id}}" class="stretched-link">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>  {{("(%u)" % album.year) if album.year else ""}}
+        </div>
+        {% endfor %}
+    </div>
+
+    {# right #}
+    <div class="d-inline-block">
+        <div class="position-fixed" style="width: 1em; height: 100vh; right: 22vw; top: 96px;">
+            <div class="d-flex flex-column justify-content-between" style="height: calc(100vh - 96px - 128px);">
+                {% for letter in letters %}
+                    {% set anchor='num' if letter == '#' else letter %}
+                    <div>
+                        {% if have_anchors[anchor] %}
+                            <a href="#{{anchor}}">{{letter}}</a>
+                        {% else %}
+                            {{letter}}
+                        {% endif %}
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>
-    {% endfor %}
+
 </div>
 {% endblock %}

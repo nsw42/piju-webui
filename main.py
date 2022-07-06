@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from collections import defaultdict, namedtuple
+import string
 from typing import List, Optional
 
 from flask import Flask, abort, render_template
@@ -9,7 +10,7 @@ import genre_view
 
 app = Flask(__name__)
 
-Album = namedtuple('Album', 'id, artist, title, year, artwork_link, genre_name, tracks')
+Album = namedtuple('Album', 'id, artist, title, year, artwork_link, genre_name, tracks, anchor')
 Track = namedtuple('Track', 'id, title, tracknumber')
 
 
@@ -96,8 +97,12 @@ class Cache:
         album_id = id_from_link(album_json['link'])
         first_genre = album_json['genres'][0] if album_json['genres'] else None
         genre_name = self.genre_names_from_links[first_genre] if first_genre else None
+        artist = album_json['artist']
+        anchor = artist[0].upper() if artist else 'U'
+        if anchor not in string.ascii_uppercase:
+            anchor = 'num'
         album_details = Album(id=album_id,
-                              artist=album_json['artist'],
+                              artist=artist,
                               title=album_json['title'],
                               year=album_json['releasedate'],
                               artwork_link=album_json['artwork']['link'],
@@ -105,7 +110,8 @@ class Cache:
                               tracks=[Track(id=id_from_link(track_json['link']),
                                             title=track_json['title'],
                                             tracknumber=track_json['tracknumber'])
-                                      for track_json in album_json['tracks']])
+                                      for track_json in album_json['tracks']],
+                              anchor=anchor)
         self.album_details[album_id] = album_details
         return album_details
 
@@ -121,7 +127,20 @@ def get_genre(genre_name):
     albums = app.cache.ensure_genre_contents_cache(genre_name)
     if albums is None:
         abort(404)
-    return render_template('genre.html', **app.default_template_args, genre_name=genre_name, albums=albums)
+    anchors = set(album.anchor for album in albums)
+    letters = "#" + string.ascii_uppercase
+    anchor_names = ['num'] + list(string.ascii_uppercase)
+    have_anchors = dict([(anchor, anchor in anchors) for anchor in anchor_names])
+    first_album_for_anchor = {}
+    for album in albums:
+        if album.anchor not in first_album_for_anchor:
+            first_album_for_anchor[album.anchor] = album.id
+    return render_template('genre.html', **app.default_template_args,
+                           genre_name=genre_name,
+                           albums=albums,
+                           letters=letters,
+                           have_anchors=have_anchors,
+                           first_album_for_anchor=first_album_for_anchor)
 
 
 @app.route("/albums/<album_id>")
