@@ -22,7 +22,7 @@
                     <a href="#" onclick='play("{{album.id}}", "{{track.id}}")' class="stretched-link"></a>
                 </div>
                 <div class="d-inline align-middle mx-1">
-                    {{track.tracknumber}}
+                    {{track.tracknumber if track.tracknumber else ''}}
                 </div>
                 <div class="d-inline align-middle ms-2">
                     {{track.title}}
