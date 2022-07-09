@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from flask import Flask, abort, render_template
 import requests
+import unidecode
 
 import genre_view
 
@@ -77,8 +78,10 @@ class Cache:
             def get_album_sort_order(album):
                 artist = album.artist if album.artist else "Unknown Artist"
                 artist = artist.replace('"', '')
+                artist = unidecode.unidecode(artist)
                 artist = artist.lower()
                 title = album.title if album.title else "ZZZZZZZZZZZ"
+                title = unidecode.unidecode(title)
                 title = title.lower()
                 return (artist, album.year or 0, title)
             self.albums_in_genre[genre_name].sort(key=get_album_sort_order)
@@ -99,6 +102,7 @@ class Cache:
         genre_name = self.genre_names_from_links[first_genre] if first_genre else None
         artist = album_json['artist']
         anchor = artist[0].upper() if artist else 'U'
+        anchor = unidecode.unidecode(anchor)
         if anchor not in string.ascii_uppercase:
             anchor = 'num'
         album_details = Album(id=album_id,
