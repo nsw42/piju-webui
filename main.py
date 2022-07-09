@@ -66,6 +66,9 @@ class Cache:
             server_links = self.genre_links.get(genre_name)  # Could be a request for an unknown genre name
             if server_links is None:
                 return None
+            albums = {}  # indexed by album id to avoid duplication
+            # (eg for the scenario of an album in two genres, both of which are displayed under the same
+            # genre displayname)
             for link in server_links:
                 response = requests.get(app.server + link + '?albums=all')
                 if response.status_code != 200:
@@ -73,7 +76,7 @@ class Cache:
                 genre_json = response.json()
                 for album_json in genre_json['albums']:
                     album = self.add_album_from_json(album_json)
-                    self.albums_in_genre[genre_name].append(album)
+                    albums[album.id] = album
 
             def get_album_sort_order(album):
                 artist = album.artist if album.artist else "Unknown Artist"
@@ -84,7 +87,9 @@ class Cache:
                 title = unidecode.unidecode(title)
                 title = title.lower()
                 return (artist, album.year or 0, title)
-            self.albums_in_genre[genre_name].sort(key=get_album_sort_order)
+            albums = list(albums.values())
+            albums.sort(key=get_album_sort_order)
+            self.albums_in_genre[genre_name] = albums
         return self.albums_in_genre[genre_name]
 
     def ensure_album_cache(self, album_id) -> Optional[Album]:
