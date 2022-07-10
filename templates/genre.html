@@ -32,7 +32,7 @@
             <div class="d-flex flex-column justify-content-between" style="height: calc(100vh - 96px - 128px);">
                 {% for letter in letters %}
                     {% set anchor='num' if letter == '#' else letter %}
-                    <div>
+                    <div class="text-center">
                         {% if have_anchors[anchor] %}
                             <a href="#{{anchor}}">{{letter}}</a>
                         {% else %}
