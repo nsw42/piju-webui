@@ -12,7 +12,7 @@ import genre_view
 app = Flask(__name__)
 
 Album = namedtuple('Album', 'id, artist, title, year, artwork_link, genre_name, tracks, anchor')
-Track = namedtuple('Track', 'id, title, tracknumber')
+Track = namedtuple('Track', 'id, title, disknumber, tracknumber')
 
 
 def id_from_link(link):
@@ -110,16 +110,19 @@ class Cache:
         anchor = unidecode.unidecode(anchor)
         if anchor not in string.ascii_uppercase:
             anchor = 'num'
+        tracks = [Track(id=id_from_link(track_json['link']),
+                        title=track_json['title'],
+                        disknumber=track_json['disknumber'],
+                        tracknumber=track_json['tracknumber'])
+                  for track_json in album_json['tracks']]
+        tracks.sort(key=lambda t: (t.disknumber, t.tracknumber))
         album_details = Album(id=album_id,
                               artist=artist,
                               title=album_json['title'],
                               year=album_json['releasedate'],
                               artwork_link=album_json['artwork']['link'],
                               genre_name=genre_name,
-                              tracks=[Track(id=id_from_link(track_json['link']),
-                                            title=track_json['title'],
-                                            tracknumber=track_json['tracknumber'])
-                                      for track_json in album_json['tracks']],
+                              tracks=tracks,
                               anchor=anchor)
         self.album_details[album_id] = album_details
         return album_details
