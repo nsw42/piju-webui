@@ -11,7 +11,7 @@ import genre_view
 
 app = Flask(__name__)
 
-Album = namedtuple('Album', 'id, artist, title, year, artwork_link, genre_name, tracks, anchor')
+Album = namedtuple('Album', 'id, artist, title, year, artwork_link, genre_name, numberdisks, tracks, anchor')
 Track = namedtuple('Track', 'id, title, disknumber, tracknumber')
 
 
@@ -122,6 +122,7 @@ class Cache:
                               year=album_json['releasedate'],
                               artwork_link=album_json['artwork']['link'],
                               genre_name=genre_name,
+                              numberdisks=album_json['numberdisks'],
                               tracks=tracks,
                               anchor=anchor)
         self.album_details[album_id] = album_details
