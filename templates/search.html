@@ -2,12 +2,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="w-100 mt-3">
+<div class="w-100 my-2">
     <input type="text" id="searchstring" maxlength="100" autofocus class="w-100">
 </div>
 
 <div id="results" class="w-100">
-    <div id="album_results">
+    <div id="album_results" class="mt-1">
         <div class="w-100"><h3>Albums (<span id="nr_album_results"></span>)</h3></div>
         <template id="one_album_search_result">
             <div class="d-block div-row-hover py-2 align-middle">
@@ -25,7 +25,7 @@
         <div id="album_results_inner">
         </div>
     </div>
-    <div id="track_results">
+    <div id="track_results" class="mt-1">
         <div class="w-100"><h3>Tracks (<span id="nr_track_results"></span>)</h3></div>
         <template id="one_track_search_result">
             <div class="d-block div-row-hover py-2 align-middle">
