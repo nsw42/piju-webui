@@ -15,7 +15,11 @@
     <body>
         {# header #}
         <div class="d-flex w-100 sticky-top display-3 header">
-            <div class="mx-auto">{{make_header(header_links)|safe}}</div>
+            <div class="d-flex container justify-content-between">
+                <div class="d-inline-block">{# padding #}</div>
+                <div class="d-inline-block">{{make_header(header_links)|safe}}</div>
+                <div class="d-inline-block"><a href="/search" class="fontawesomelink"><i class="fa fa-magnifying-glass"></i></a></div>
+            </div>
         </div>
 
         {# main content #}

@@ -1,0 +1,50 @@
+{% set header_links=[("/", "PiJu"), ("/search", "Search")] %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="w-100 mt-3">
+    <input type="text" id="searchstring" maxlength="100" autofocus class="w-100">
+</div>
+
+<div id="results" class="w-100">
+    <div id="album_results">
+        <div class="w-100"><h3>Albums (<span id="nr_album_results"></span>)</h3></div>
+        <template id="one_album_search_result">
+            <div class="d-block div-row-hover py-2 align-middle">
+                <div class="position-relative" style="width: 55vw">
+                    <div class="d-table-cell ps-3 pe-1">
+                        <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100">
+                        <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                    </div>
+                    <div class="d-table-cell align-middle ps-2">
+                        <a id="album_artist_title" href="" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <div id="album_results_inner">
+        </div>
+    </div>
+    <div id="track_results">
+        <div class="w-100"><h3>Tracks (<span id="nr_track_results"></span>)</h3></div>
+        <template id="one_track_search_result">
+            <div class="d-block div-row-hover py-2 align-middle">
+                <div class="position-relative" style="width: 55vw">
+                    <div class="d-table-cell ps-3 pe-1">
+                        <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100">
+                        <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                    </div>
+                    <div class="d-table-cell align-middle ps-2">
+                        <a id="album_artist_title" href="" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <div id="track_results_inner">
+
+        </div>
+    </div>
+</div>
+
+<script src="/static/search.js"></script>
+{% endblock %}

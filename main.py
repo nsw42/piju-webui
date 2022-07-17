@@ -172,6 +172,11 @@ def play(album_id, track_id):
     return ('', 204)
 
 
+@app.route("/search")
+def search():
+    return render_template('search.html', **app.default_template_args)
+
+
 def make_header(links):
     return ' | '.join(make_header_component(dest, label) for (dest, label) in links)
 
