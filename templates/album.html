@@ -19,7 +19,7 @@
         <div class="d-block div-row-hover py-2 align-middle" id="track_{{track.id}}">
             <div class="position-relative">
                 <div class="d-inline-block" style="width: 0px;">
-                    <button onclick='play("{{album.id}}", "{{track.id}}")' class="stretched-link invisible-button"></button>
+                    <button onclick='play("{{album.id}}", "{{track.id}}")' class="stretched-link btn btn-link"></button>
                 </div>
                 <div class="d-inline align-middle mx-1">
                     {% if ((album.numberdisks and album.numberdisks > 1) or (not album.numberdisks)) and track.disknumber %}

@@ -28,12 +28,6 @@ body {
     background-color:lightgray;
 }
 
-/* for album.html */
-.invisible-button {
-    background-color: inherit;
-    border-width: 0px;
-}
-
 /* for index.html */
 a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawesomelink:active {
     color: inherit;
