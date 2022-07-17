@@ -104,9 +104,9 @@ function show_track_results(tracks) {
         if (title == null || title == "")  {
             title = "Unknown Track";  // ?!
         }
-        album_artist_title = div.querySelector("#album_artist_title");
-        album_artist_title.setAttribute('href', track['album']);
-        album_artist_title.innerHTML = artist + ": " + title;
+        track_artist_title = div.querySelector("#track_artist_title");
+        track_artist_title.setAttribute('href', track['album']);
+        track_artist_title.innerHTML = artist + ": " + title;
 
         $("#track_results_inner").append(div);
     }
