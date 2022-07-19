@@ -144,14 +144,15 @@ class Cache:
 
     def add_artist_from_json(self, artist_json):
         # We'd normally only expect a single artist in the response
-        # but this works if there are multiple
+        # but this works if there are multiple, which can happen if
+        # there are multiple capitalisations of an artist
+        albums = []
         for artist_name, albums_json in artist_json.items():
-            albums = []
             for album_json in albums_json:
                 albums.append(self.add_album_from_json(album_json))
-            albums.sort(key=lambda album: album.year if album.year else 9999)
-            artist = Artist(artist_name, albums)
-            self.artist_details[artist_name.lower()] = artist
+        albums.sort(key=lambda album: album.year if album.year else 9999)
+        artist = Artist(artist_name, albums)
+        self.artist_details[artist_name.lower()] = artist
 
 
 @app.route("/")
