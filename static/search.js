@@ -43,8 +43,8 @@ function hide_track_results() {
 
 function show_album_results(albums) {
     $("#album_results").removeClass("d-none");
-    $("#album_results_inner").empty();
     $("#nr_album_results").text(albums.length);
+    $("#album_results_inner").empty();
     for (album of albums) {
         let template = document.querySelector('#one_album_search_result');
         div = template.content.cloneNode(true);
@@ -81,8 +81,8 @@ function show_album_results(albums) {
 
 function show_track_results(tracks) {
     $("#track_results").removeClass("d-none");
-    $("#track_results_inner").empty();
     $("#nr_track_results").text(tracks.length);
+    $("#track_results_inner").empty();
     for (track of tracks) {
         let template = document.querySelector('#one_track_search_result');
         div = template.content.cloneNode(true);
