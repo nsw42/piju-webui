@@ -22,7 +22,7 @@
                     <button onclick='play("{{album.id}}", "{{track.id}}")' class="stretched-link btn btn-link"></button>
                 </div>
                 <div class="d-inline align-middle mx-1">
-                    {% if ((album.numberdisks and album.numberdisks > 1) or (not album.numberdisks)) and track.disknumber -%}
+                    {%- if ((album.numberdisks and album.numberdisks > 1) or (not album.numberdisks)) and track.disknumber -%}
                     {{track.disknumber}}-
                     {%- endif -%}
                     {{track.tracknumber if track.tracknumber else ''}}
