@@ -1,0 +1,24 @@
+{% set header_links=[("/", "PiJu"), ("/artists/"+artist.name, artist.name)] %}
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="w-100 row">
+    {% for album in artist.albums %}
+    <div class="d-block div-row-hover py-2 align-middle">
+        <div class="position-relative" style="width: 55vw">
+            <div class="d-table-cell ps-3 pe-1">
+                {% if album.artwork_link %}
+                <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
+                {% else %}
+                <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                {% endif %}
+            </div>
+            <div class="d-table-cell align-middle ps-2">
+                <a href="/albums/{{album.id}}" class="stretched-link">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>  {{("(%u)" % album.year) if album.year else ""}}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

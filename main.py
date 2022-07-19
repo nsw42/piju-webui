@@ -12,6 +12,7 @@ import genre_view
 app = Flask(__name__)
 
 Album = namedtuple('Album', 'id, artist, title, year, artwork_link, genre_name, numberdisks, tracks, anchor')
+Artist = namedtuple('Artist', 'name, albums')
 Track = namedtuple('Track', 'id, title, disknumber, tracknumber')
 
 
@@ -29,6 +30,8 @@ class Cache:
         self.albums_in_genre = defaultdict(list)  # map from genre_name to list of Album
         # The following instance variables are populated by ensure_album_cache(album_id)
         self.album_details = {}
+        # The following instance variables are populated by ensure_artist_cache(artist)
+        self.artist_details = {}
 
     def ensure_genre_cache(self):
         app.logger.debug("ensure_genre_cache")
@@ -101,6 +104,16 @@ class Cache:
             self.add_album_from_json(response.json())  # updates self.album_details[album_id]
         return self.album_details[album_id]
 
+    def ensure_artist_cache(self, artist) -> Optional[Artist]:
+        self.ensure_genre_cache()  # Needed for the genre_name in add_album_from_json
+        artist_lookup = artist.lower()
+        if self.artist_details.get(artist_lookup) is None:
+            response = requests.get(f'{app.server}/artists/{artist}?tracks=all')
+            if response.status_code != 200:
+                abort(404)  # TODO: Error handling
+            self.add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
+        return self.artist_details[artist_lookup]
+
     def add_album_from_json(self, album_json):
         album_id = id_from_link(album_json['link'])
         first_genre = album_json['genres'][0] if album_json['genres'] else None
@@ -128,6 +141,17 @@ class Cache:
                               anchor=anchor)
         self.album_details[album_id] = album_details
         return album_details
+
+    def add_artist_from_json(self, artist_json):
+        # We'd normally only expect a single artist in the response
+        # but this works if there are multiple
+        for artist_name, albums_json in artist_json.items():
+            albums = []
+            for album_json in albums_json:
+                albums.append(self.add_album_from_json(album_json))
+            albums.sort(key=lambda album: album.year if album.year else 9999)
+            artist = Artist(artist_name, albums)
+            self.artist_details[artist_name.lower()] = artist
 
 
 @app.route("/")
@@ -163,6 +187,14 @@ def get_album(album_id):
     if album is None:
         abort(404)
     return render_template('album.html', **app.default_template_args, album=album)
+
+
+@app.route("/artists/<artist>")
+def get_artist(artist):
+    artist = app.cache.ensure_artist_cache(artist)
+    if artist is None:
+        abort(404)
+    return render_template('artist.html', **app.default_template_args, artist=artist)
 
 
 @app.route("/play/<album_id>/<track_id>", methods=["POST"])
