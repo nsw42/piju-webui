@@ -5,6 +5,7 @@ $("#searchstring").on('input', function(e) {
     let searchstring = $("#searchstring").val();
     if (searchstring === "") {
         hide_album_results();
+        hide_artist_results();
         hide_track_results();
     } else {
         console.log("Searching for " + searchstring);
@@ -12,6 +13,15 @@ $("#searchstring").on('input', function(e) {
             "url": server + "/search/" + searchstring,
             "success": function(data) {
                 data = $.parseJSON(data);
+
+                artists = data['artists'];
+                console.log("  " + artists.length + " artists");
+                if (0 == artists.length) {
+                    hide_artist_results();
+                } else {
+                    show_artist_results(artists);
+                }
+
                 albums = data['albums'];
                 console.log("  " + albums.length + " albums");
                 if (0 == albums.length) {
@@ -35,6 +45,10 @@ active_search = null;
 
 function hide_album_results() {
     $("#album_results").addClass("d-none");
+}
+
+function hide_artist_results() {
+    $("#artist_results").addClass("d-none");
 }
 
 function hide_track_results() {
@@ -79,6 +93,22 @@ function show_album_results(albums) {
     }
 }
 
+function show_artist_results(artists) {
+    $("#artist_results").removeClass("d-none");
+    $("#nr_artist_results").text(artists.length);
+    $("#artist_results_inner").empty();
+    for (artist of artists) {
+        let template = document.querySelector('#one_artist_search_result');
+        div = template.content.cloneNode(true);
+
+        artist_name = div.querySelector("#artist_name");
+        artist_name.setAttribute("href", artist['link']);
+        artist_name.innerHTML = artist['name'];
+
+        $("#artist_results_inner").append(div);
+    }
+}
+
 function show_track_results(tracks) {
     $("#track_results").removeClass("d-none");
     $("#nr_track_results").text(tracks.length);
@@ -113,4 +143,5 @@ function show_track_results(tracks) {
 }
 
 hide_album_results();
+hide_artist_results();
 hide_track_results();

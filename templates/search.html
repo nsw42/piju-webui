@@ -7,6 +7,23 @@
 </div>
 
 <div id="results" class="w-100">
+    <div id="artist_results" class="mt-1">
+        <div class="w-100"><h3>Artists (<span id="nr_artist_results"></span>)</h3></div>
+        <template id="one_artist_search_result">
+            <div class="d-block div-row-hover py-2 align-middle">
+                <div class="position-relative" style="width: 55vw">
+                    <div class="d-table-cell ps-3 pe-1">
+                        <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                    </div>
+                    <div class="d-table-cell align-middle ps-2">
+                        <a id="artist_name" href="" class="stretched-link"></a>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <div id="artist_results_inner">
+        </div>
+    </div>
     <div id="album_results" class="mt-1">
         <div class="w-100"><h3>Albums (<span id="nr_album_results"></span>)</h3></div>
         <template id="one_album_search_result">
