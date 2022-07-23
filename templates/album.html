@@ -1,6 +1,6 @@
 {% set header_links=[("/", "PiJu")] +
                    ([("/genre/"+album.genre_name, album.genre_name)] if album.genre_name else []) +
-                    [("#", album.artist if album.artist else "Unknown Artist")] %}
+                    [("/artists/"+album.artist, album.artist) if album.artist else ("#", "Unknown Artist")] %}
 {% extends "base.html" %}
 
 {% block content %}
