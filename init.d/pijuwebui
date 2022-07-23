@@ -1,0 +1,16 @@
+#!/sbin/openrc-run
+
+command="/usr/bin/python3"
+command_args="main.py 192.168.0.91:5000"
+command_args_foreground="${command_args}"
+command_user="piju:piju"
+command_background=true
+directory="/home/piju/pijuwebui"
+pidfile="/run/$RC_SVCNAME.pid"
+output_log="/var/log/pijuwebui/pijuwebui.log"
+error_log="/var/log/pijuwebui/pijuwebui.err"
+
+start_pre()
+{
+  echo 0 > /proc/sys/net/ipv4/ip_unprivileged_port_start
+}
