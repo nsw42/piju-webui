@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 from collections import defaultdict, namedtuple
+from itertools import zip_longest
+import logging
 import string
 from typing import List, Optional
 
@@ -233,6 +235,45 @@ def parse_args():
     return args
 
 
+def connection_test(server, required_api_version):
+    try:
+        response = requests.get(server + "/")
+    except requests.exceptions.ConnectionError:
+        logging.error("Unable to connect to the specified server")
+        return
+    if response.status_code != 200:
+        logging.warning("Unable to connect to the specified server")
+        return
+    data = response.json()
+    api_version = data.get('ApiVersion')
+    if not api_version:
+        logging.warning("Server response did not include an API protocol version. "
+                        "Probably an old or incompatible server")
+        return
+    required_api_version_fragments = required_api_version.split('.')
+    detected_api_version_fragments = api_version.split('.')
+    for (required_fragment, detected_fragment) in zip_longest(required_api_version_fragments,
+                                                              detected_api_version_fragments,
+                                                              fillvalue='0'):
+        if not required_fragment.isdigit() or not detected_fragment.isdigit():
+            logging.warning("Non-numeric version string fragment encountered")  # NB not fully semver compatible
+            continue
+        required_fragment = int(required_fragment)
+        detected_fragment = int(detected_fragment)
+        if required_fragment == detected_fragment:
+            pass
+        elif required_fragment < detected_fragment:
+            msg = "Server is using a newer protocol version than the UI requires: may be incompatible. "
+            msg += f"Required: {required_api_version}; detected: {api_version}"
+            logging.warning(msg)
+            return
+        elif required_fragment > detected_fragment:
+            msg = "Server is using an older protocol version than required by the UI: likely to be incompatible. "
+            msg += f"Required: {required_api_version}; detected: {api_version}"
+            logging.error(msg)
+            return
+
+
 def main():
     args = parse_args()
     app.server = args.server
@@ -241,6 +282,7 @@ def main():
         "server": app.server,
         "make_header": make_header
     }
+    connection_test(app.server, required_api_version='2.0')
     app.run(host='0.0.0.0', port=80, debug=True)
 
 
