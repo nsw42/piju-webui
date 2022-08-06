@@ -1,47 +1,94 @@
-$("#searchstring").on('input', function(e) {
+$("#searchinput").on('input', function(e) {
     if (active_search != null) {
         active_search.abort();
     }
-    let searchstring = $("#searchstring").val();
+    let searchstring = $("#searchinput").val();
     if (searchstring === "") {
         hide_album_results();
         hide_artist_results();
         hide_track_results();
+        $("#searchspinner").addClass("d-none");
     } else {
-        console.log("Searching for " + searchstring);
-        active_search = $.ajax({
-            "url": server + "/search/" + searchstring,
-            "success": function(data) {
-                data = $.parseJSON(data);
-
-                artists = data['artists'];
-                console.log("  " + artists.length + " artists");
-                if (0 == artists.length) {
-                    hide_artist_results();
-                } else {
-                    show_artist_results(artists);
-                }
-
-                albums = data['albums'];
-                console.log("  " + albums.length + " albums");
-                if (0 == albums.length) {
-                    hide_album_results();
-                } else {
-                    show_album_results(albums);
-                }
-
-                tracks = data['tracks'];
-                console.log("  " + tracks.length + " tracks");
-                if (0 == tracks.length) {
-                    hide_track_results();
-                } else {
-                    show_track_results(tracks);
-                }
-            },
-        });
+        $("#searchspinner").removeClass("d-none");
+        start_search(searchstring, 0);
     }
 });
 active_search = null;
+
+function start_search(searchstring, search_state) {
+    let search_args = "";
+    search_args += "artists=" + (search_state == 0 ? "true" : "false");
+    search_args += "&albums=" + (search_state == 1 ? "true" : "false");
+    search_args += "&tracks=" + (search_state == 2 ? "true" : "false");
+
+    console.log("Searching for " + searchstring + " (args: " + search_args + ")");
+
+    let callback;
+    switch (search_state) {
+        case 0:
+            callback = artist_result_callback;
+            break;
+        case 1:
+            callback = album_result_callback;
+            break;
+        case 2:
+            callback = track_result_callback;
+            break;
+    }
+
+    active_search = $.ajax({
+        "url": server + "/search/" + searchstring + "?" + search_args,
+        "success": function(data) {
+            callback(searchstring, data);
+        }
+    });
+}
+
+function artist_result_callback(searchstring, data) {
+    // console.log("artist_result_callback: " + searchstring + " -> " + data);
+    data = $.parseJSON(data);
+
+    artists = data['artists'];
+    console.log("  " + artists.length + " artists");
+    if (0 == artists.length) {
+        hide_artist_results();
+    } else {
+        show_artist_results(artists);
+    }
+
+    start_search(searchstring, 1);
+}
+
+function album_result_callback(searchstring, data) {
+    // console.log("album_result_callback: " + data);
+    data = $.parseJSON(data);
+
+    albums = data['albums'];
+    console.log("  " + albums.length + " albums");
+    if (0 == albums.length) {
+        hide_album_results();
+    } else {
+        show_album_results(albums);
+    }
+
+    start_search(searchstring, 2);
+}
+
+function track_result_callback(searchstring, data) {
+    // console.log("track_result_callback: " + data);
+    data = $.parseJSON(data);
+
+    tracks = data['tracks'];
+    console.log("  " + tracks.length + " tracks");
+    if (0 == tracks.length) {
+        hide_track_results();
+    } else {
+        show_track_results(tracks);
+    }
+
+    active_search = null;
+    $("#searchspinner").addClass("d-none");
+}
 
 function hide_album_results() {
     $("#album_results").addClass("d-none");
@@ -145,3 +192,4 @@ function show_track_results(tracks) {
 hide_album_results();
 hide_artist_results();
 hide_track_results();
+$("#searchspinner").addClass("d-none");
