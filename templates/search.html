@@ -11,7 +11,7 @@
 
 <div id="results" class="w-100">
     <div id="artist_results" class="mt-1">
-        <div class="w-100"><h3>Artists (<span id="nr_artist_results"></span>)</h3></div>
+        <div class="w-100"><button type="button" class="undecorated" onclick="toggleArtistCollapse()"><h3><i id="artist_result_expander" class="fa-solid fa-angle-down"></i> Artists (<span id="nr_artist_results"></span>)</h3></button></div>
         <template id="one_artist_search_result">
             <div class="d-block div-row-hover py-2 align-middle">
                 <div class="position-relative" style="width: 55vw">
@@ -28,7 +28,7 @@
         </div>
     </div>
     <div id="album_results" class="mt-1">
-        <div class="w-100"><h3>Albums (<span id="nr_album_results"></span>)</h3></div>
+        <div class="w-100"><button type="button" class="undecorated" onclick="toggleAlbumCollapse();"><h3><i id="album_result_expander" class="fa-solid fa-angle-down"></i> Albums (<span id="nr_album_results"></span>)</h3></button></div>
         <template id="one_album_search_result">
             <div class="d-block div-row-hover py-2 align-middle">
                 <div class="position-relative" style="width: 55vw">
@@ -46,7 +46,7 @@
         </div>
     </div>
     <div id="track_results" class="mt-1">
-        <div class="w-100"><h3>Tracks (<span id="nr_track_results"></span>)</h3></div>
+        <div class="w-100"><button type="button" class="undecorated" onclick="toggleTrackCollapse();"><h3><i id="track_result_expander" class="fa-solid fa-angle-down"></i> Tracks (<span id="nr_track_results"></span>)</h3></button></div>
         <template id="one_track_search_result">
             <div class="d-block div-row-hover py-2 align-middle">
                 <div class="position-relative" style="width: 55vw">

@@ -189,7 +189,27 @@ function show_track_results(tracks) {
     }
 }
 
-hide_album_results();
-hide_artist_results();
-hide_track_results();
-$("#searchspinner").addClass("d-none");
+function toggleArtistCollapse() {
+    $('#artist_results_inner').collapse('toggle');
+    $('#artist_result_expander').toggleClass('fa-rotate-180');
+}
+
+function toggleAlbumCollapse() {
+    $('#album_results_inner').collapse('toggle');
+    $('#album_result_expander').toggleClass('fa-rotate-180');
+}
+
+function toggleTrackCollapse() {
+    $('#track_results_inner').collapse('toggle');
+    $('#track_result_expander').toggleClass('fa-rotate-180');
+}
+
+$(function() {
+    hide_album_results();
+    hide_artist_results();
+    hide_track_results();
+    $("#searchspinner").addClass("d-none");
+    $('#artist_results_inner').collapse();
+    $('#album_results_inner').collapse();
+    $('#track_results_inner').collapse();
+});

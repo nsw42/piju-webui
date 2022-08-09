@@ -28,6 +28,11 @@ body {
   color: ghostwhite;
 }
 
+button.undecorated {
+  background-color: inherit;
+  border: none;
+}
+
 .div-row-hover:hover {
   background-color: lightgray;
 }
