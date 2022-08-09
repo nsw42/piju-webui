@@ -68,17 +68,16 @@ Press Ctrl-C if you want to stop the process.
 (The logrotate package will already be installed if you followed
 <https://github.com/nsw42/piju-server/blob/main/doc/deploy.md>)
 
-Either copy `/etc/logrotate.d/piju` to `/etc/logrotate.d/pijuwebui`,
-and change piju to pijuwebui, so the new file looks like the block
-below, or simply add this block to `/etc/logrotate.d/piju`:
+If so, you can simply add the two pijuwebui .log and .err files
+to the list of files to process using the rules in `/etc/logrotate.d/piju`
+The file should start like this:
 
 ```text
-/var/log/pijuwebui/pijuwebui.* {
-    su piju piju
-    daily
-    missingok
-    notifempty
-    compress
-    copytruncate
-}
+/var/log/piju/piju.log
+/var/log/piju/piju.err
+/var/log/pijuwebui/pijuwebui.log
+/var/log/pijuwebui/pijuwebui.err
+{
 ```
+
+
