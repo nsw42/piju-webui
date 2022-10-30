@@ -21,6 +21,9 @@ def id_from_link(link):
 class Cache:
     def __init__(self, app):
         self.app = app
+        self.flush()
+
+    def flush(self):
         # The following instance variables are populated by ensure_genre_cache()
         self.display_genres = None
         self.genre_links = None
