@@ -18,6 +18,22 @@ def root():
     return render_template('index.html', **app.default_template_args, genres=app.cache.display_genres)
 
 
+@app.route("/albums/<album_id>")
+def get_album(album_id):
+    album = app.cache.ensure_album_cache(album_id)
+    if album is None:
+        abort(404)
+    return render_template('album.html', **app.default_template_args, album=album)
+
+
+@app.route("/artists/<artist>")
+def get_artist(artist):
+    artist = app.cache.ensure_artist_cache(artist)
+    if artist is None:
+        abort(404)
+    return render_template('artist.html', **app.default_template_args, artist=artist)
+
+
 @app.route("/genre/<genre_name>")
 def get_genre(genre_name):
     albums = app.cache.ensure_genre_contents_cache(genre_name)
@@ -37,22 +53,6 @@ def get_genre(genre_name):
                            letters=letters,
                            have_anchors=have_anchors,
                            first_album_for_anchor=first_album_for_anchor)
-
-
-@app.route("/albums/<album_id>")
-def get_album(album_id):
-    album = app.cache.ensure_album_cache(album_id)
-    if album is None:
-        abort(404)
-    return render_template('album.html', **app.default_template_args, album=album)
-
-
-@app.route("/artists/<artist>")
-def get_artist(artist):
-    artist = app.cache.ensure_artist_cache(artist)
-    if artist is None:
-        abort(404)
-    return render_template('artist.html', **app.default_template_args, artist=artist)
 
 
 @app.route("/play/<album_id>/<track_id>", methods=["POST"])
