@@ -120,7 +120,11 @@ function show_album_results(albums) {
 
         artist = album['artist'];
         if (artist == null || artist == "") {
-            artist = "Unknown Artist";
+            if (album['iscompilation']) {
+                artist = "Various Artists";
+            } else {
+                artist = "Unknown Artist";
+            }
         }
 
         title = album['title'];
