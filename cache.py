@@ -9,7 +9,8 @@ import unidecode
 import genre_view
 
 
-Album = namedtuple('Album', 'id, artist, title, year, artwork_link, genre_name, numberdisks, tracks, anchor')
+Album = namedtuple('Album',
+                   'id, artist, title, year, artwork_link, is_compilation, genre_name, numberdisks, tracks, anchor')
 Artist = namedtuple('Artist', 'name, albums')
 Track = namedtuple('Track', 'id, title, disknumber, tracknumber')
 
@@ -84,7 +85,7 @@ class Cache:
                     albums[album.id] = album
 
             def get_album_sort_order(album):
-                artist = album.artist if album.artist else "Unknown Artist"
+                artist = album.artist
                 artist = artist.replace('"', '')
                 artist = unidecode.unidecode(artist)
                 artist = artist.lower()
@@ -120,8 +121,11 @@ class Cache:
         album_id = id_from_link(album_json['link'])
         first_genre = album_json['genres'][0] if album_json['genres'] else None
         genre_name = self.genre_names_from_links[first_genre] if first_genre else None
+        is_compilation = album_json['iscompilation']
         artist = album_json['artist']
-        anchor = artist[0].upper() if artist else 'U'
+        if not artist:
+            artist = 'Various Artists' if is_compilation else 'Unknown Artist'
+        anchor = artist[0].upper()
         anchor = unidecode.unidecode(anchor)
         if anchor not in string.ascii_uppercase:
             anchor = 'num'
@@ -137,6 +141,7 @@ class Cache:
                               title=album_json['title'],
                               year=album_json['releasedate'],
                               artwork_link=album_json['artwork']['link'],
+                              is_compilation=is_compilation,
                               genre_name=genre_name,
                               numberdisks=album_json['numberdisks'],
                               tracks=tracks,
