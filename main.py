@@ -3,7 +3,7 @@ from itertools import zip_longest
 import logging
 import string
 
-from flask import Flask, abort, render_template
+from flask import Flask, abort, redirect, render_template
 import requests
 
 from cache import Cache
@@ -16,6 +16,18 @@ app = Flask(__name__)
 def root():
     app.cache.ensure_genre_cache()
     return render_template('index.html', **app.default_template_args, genres=app.cache.display_genres)
+
+
+@app.route("/admin/")
+def get_admin_page():
+    return render_template('admin.html', **app.default_template_args)
+
+
+@app.post("/admin/empty_cache")
+def empty_cache():
+    app.cache.flush()
+    app.cache.ensure_genre_cache()
+    return redirect("/")
 
 
 @app.route("/albums/<album_id>")
