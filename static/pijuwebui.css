@@ -7,6 +7,10 @@ body {
   padding-bottom: 128px;
 }
 
+.fullscreen-content {
+  height: calc(100vh - 96px - 128px);
+}
+
 .header {
   background-color: steelblue;
   color: ghostwhite;

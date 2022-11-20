@@ -1,9 +1,9 @@
 from argparse import ArgumentParser
 from itertools import zip_longest
+import json
 import logging
-import string
 
-from flask import Flask, abort, redirect, render_template
+from flask import Flask, abort, redirect, render_template, request
 import requests
 
 from cache import Cache
@@ -48,23 +48,31 @@ def get_artist(artist):
 
 @app.route("/genre/<genre_name>")
 def get_genre(genre_name):
-    albums = app.cache.ensure_genre_contents_cache(genre_name)
+    return render_template('genre.html', **app.default_template_args,
+                           genre_name=genre_name)
+
+
+@app.route("/genre_contents/<genre_name>")
+def get_genre_content(genre_name):
+    timeout = int(request.args.get('timeout', 5000))
+    albums = app.cache.ensure_genre_contents_cache(genre_name, timeout)
     if albums is None:
         abort(404)
-    anchors = set(album.anchor for album in albums)
-    letters = "#" + string.ascii_uppercase
-    anchor_names = ['num'] + list(string.ascii_uppercase)
-    have_anchors = dict([(anchor, anchor in anchors) for anchor in anchor_names])
     first_album_for_anchor = {}
     for album in albums:
         if album.anchor not in first_album_for_anchor:
             first_album_for_anchor[album.anchor] = album.id
-    return render_template('genre.html', **app.default_template_args,
-                           genre_name=genre_name,
-                           albums=albums,
-                           letters=letters,
-                           have_anchors=have_anchors,
-                           first_album_for_anchor=first_album_for_anchor)
+    return json.dumps({
+        "albums": [{
+            "id": a.id,
+            "anchor": a.anchor,
+            "artwork_link": a.artwork_link,
+            "artist": a.artist,
+            "title": a.title,
+            "year": a.year,
+        } for a in albums],
+        "anchors": first_album_for_anchor
+    })
 
 
 @app.route("/play/<album_id>/<track_id>", methods=["POST"])

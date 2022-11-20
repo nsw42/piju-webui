@@ -3,46 +3,31 @@
 
 {% block content %}
 <div class="d-block position-relative my-1">
-    {# left #}
-    <div class="d-inline-block">
-        {% for album in albums %}
-        {% if first_album_for_anchor[album.anchor] == album.id %}
-        <a name="{{album.anchor}}" style="scroll-margin-top: 80px;"></a>
-        {% endif %}
-        <div class="d-block div-row-hover py-2 align-middle">
-            <div class="position-relative" style="width: 55vw">
-                <div class="d-table-cell ps-3 pe-1">
-                    {% if album.artwork_link %}
-                    <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
-                    {% else %}
-                    <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
-                    {% endif %}
+    <div id="loading-indicator-parent" class="w-100 fullscreen-content">
+        <div class="d-flex position-absolute top-50 start-50 translate-middle">
+            <div class="d-block">
+                <div class="spinner-border d-block" role="status" style="width: 5rem; height: 5rem;">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
-                <div class="d-table-cell align-middle ps-2">
-                    <a href="/albums/{{album.id}}" class="stretched-link">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>  {{("(%u)" % album.year) if album.year else ""}}
+                <div class="d-block text-center">
+                    Loading...
                 </div>
             </div>
         </div>
-        {% endfor %}
+    </div>
+
+    {# left #}
+    <div class="d-inline-block d-none" id="genre-content">
     </div>
 
     {# right #}
-    <div class="d-inline-block">
+    <div class="d-inline-block d-none" id="anchor-parent">
         <div class="position-fixed" style="width: 1em; height: 100vh; right: 22vw; top: 96px;">
-            <div class="d-flex flex-column justify-content-between" style="height: calc(100vh - 96px - 128px);">
-                {% for letter in letters %}
-                    {% set anchor='num' if letter == '#' else letter %}
-                    <div class="text-center">
-                        {% if have_anchors[anchor] %}
-                            <a href="#{{anchor}}">{{letter}}</a>
-                        {% else %}
-                            {{letter}}
-                        {% endif %}
-                    </div>
-                {% endfor %}
+            <div class="d-flex flex-column justify-content-between" style="height: calc(100vh - 96px - 128px);" id="anchor-content">
             </div>
         </div>
     </div>
-
 </div>
+
+<script src="/static/genre.js"></script>
 {% endblock %}

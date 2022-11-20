@@ -1,4 +1,5 @@
 from collections import defaultdict, namedtuple
+import datetime
 import string
 from typing import List, Optional
 
@@ -31,6 +32,7 @@ class Cache:
         self.genre_names_from_links = {}
         # The following instance variables are populated by ensure_genre_contents_cache(genre_name)
         self.albums_in_genre = defaultdict(list)  # map from genre_name to list of Album
+        self.partial_cache = {}
         # The following instance variables are populated by ensure_album_cache(album_id)
         self.album_details = {}
         # The following instance variables are populated by ensure_artist_cache(artist)
@@ -61,12 +63,13 @@ class Cache:
             self.display_names = list(sorted(display_names_set, key=lambda dn: genre_view.GENRE_SORT_ORDER[dn]))
             self.display_genres = [genre_view.GENRE_VIEWS[dn] for dn in self.display_names]
 
-    def ensure_genre_contents_cache(self, genre_name) -> Optional[List[Album]]:
+    def ensure_genre_contents_cache(self, genre_name, timeout) -> Optional[List[Album]]:
         """
         Ensure we have a cache of the contents of the given genre,
         and return a list of the albums in that Genre.
         Albums are sorted by artist then release year, and finally title
         """
+        start = datetime.datetime.now()
         self.ensure_genre_cache()
         if self.albums_in_genre.get(genre_name) is None:
             server_links = self.genre_links.get(genre_name)  # Could be a request for an unknown genre name
@@ -76,10 +79,19 @@ class Cache:
             # (eg for the scenario of an album in two genres, both of which are displayed under the same
             # genre displayname)
             for link in server_links:
-                response = requests.get(self.app.server + link + '?albums=all')
-                if response.status_code != 200:
-                    abort(500)  # TODO: Error handling
-                genre_json = response.json()
+                time_delta = datetime.datetime.now() - start
+                ms_elapsed = (time_delta.seconds * 1000) + time_delta.microseconds / 1000
+                if ms_elapsed > timeout:
+                    abort(504)  # gateway timeout, sort of accurate
+                self.app.logger.debug(link)
+                if link in self.partial_cache:
+                    genre_json = self.partial_cache[link]
+                else:
+                    response = requests.get(self.app.server + link + '?albums=all', timeout=timeout)
+                    if response.status_code != 200:
+                        abort(500)  # TODO: Error handling
+                    genre_json = response.json()
+                    self.partial_cache[link] = genre_json
                 for album_json in genre_json['albums']:
                     album = self.add_album_from_json(album_json)
                     albums[album.id] = album
