@@ -1,3 +1,4 @@
+$header-height: 96px
 $footer-height: 128px
 $headerfooter-background: steelblue
 $headerfooter-foreground: ghostwhite
@@ -8,6 +9,9 @@ $headerfooter-foreground: ghostwhite
 
 body
     padding-bottom: $footer-height
+
+.fullscreen-content
+    height: calc(100vh - $header-height - $footer-height)
 
 .header
     background-color: $headerfooter-background
