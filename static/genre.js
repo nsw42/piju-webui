@@ -2,11 +2,13 @@ $(function() {
     var url = window.location.href;
     var slash = url.lastIndexOf('/');
     var leaf = url.substring(slash + 1);
-    startAjaxRequest(leaf, 5000);
+    startAjaxRequest(leaf, 30000);
 });
 
 
 function startAjaxRequest(leaf, timeout) {
+    var now = new Date();
+    console.log(`${now.getHours()}:${now.getMinutes()}:${now.getSeconds()} starting ajax request (timeout=${timeout})`);
     $.ajax({
         url: "/genre_contents/" + leaf + '?timeout=' + timeout,
         success: function(result) {
@@ -61,8 +63,8 @@ function startAjaxRequest(leaf, timeout) {
         },
         error: function() {
             console.log("Failed to get genre contents. Retrying");
-            startAjaxRequest(leaf, timeout + 5000);
+            startAjaxRequest(leaf, timeout + 30000);
         },
-        timeout: timeout,
+        timeout: timeout * 3,
     });
 }
