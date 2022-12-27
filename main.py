@@ -114,10 +114,10 @@ def connection_test(server, required_api_version):
     try:
         response = requests.get(server + "/")
     except requests.exceptions.ConnectionError:
-        logging.error("Unable to connect to the specified server")
+        logging.error(f"Unable to connect to server {server}")
         return
     if response.status_code != 200:
-        logging.warning("Unable to connect to the specified server")
+        logging.warning(f"Unable to connect to server {server}")
         return
     data = response.json()
     api_version = data.get('ApiVersion')
