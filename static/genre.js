@@ -26,7 +26,7 @@ function startAjaxRequest(leaf, timeout) {
                 genre_contents = genre_contents.concat(
                     '<div class="d-block div-row-hover py-2 align-middle">',
                     '<div class="position-relative" style="width: 55vw">',
-                    '<div class="d-table-cell ps-3 pe-1">'
+                    '<div class="d-table-cell ps-3 pe-1 album-row">'
                 );
                 if (album['artwork_link'] != null) {
                     genre_contents = genre_contents.concat(

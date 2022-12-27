@@ -37,6 +37,10 @@ button.undecorated {
   border: none;
 }
 
+.album-row {
+  height: 100px;
+}
+
 .div-row-hover:hover {
   background-color: lightgray;
 }
