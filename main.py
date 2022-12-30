@@ -9,6 +9,8 @@ import requests
 from cache import Cache
 
 
+RANDOM_COOKIE_NAME = 'random'
+
 app = Flask(__name__)
 
 
@@ -48,7 +50,10 @@ def get_artist(artist):
 
 @app.route("/genre/<genre_name>")
 def get_genre(genre_name):
+    random_subset_selected = parse_bool(request.cookies.get(RANDOM_COOKIE_NAME))
     return render_template('genre.html', **app.default_template_args,
+                           include_random_toggle=True,
+                           random_enabled=random_subset_selected,
                            genre_name=genre_name)
 
 
@@ -108,6 +113,16 @@ def parse_args():
     if args.server[-1] == '/':
         args.server = args.server[:-1]
     return args
+
+
+def parse_bool(str, default=False):
+    if str is None:
+        return default
+    if str.lower() == 'true':
+        return True
+    elif str.lower() == 'false':
+        return False
+    return default
 
 
 def connection_test(server, required_api_version):
