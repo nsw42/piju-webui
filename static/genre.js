@@ -106,7 +106,9 @@ function show_all_genre_contents() {
 
 
 function show_genre_subset() {
-    let nr_albums_to_show = 8;  // TODO
+    // TODO: This contains the sizing constants from the css
+    // 116 = 100 (row height) + 16 (row padding)
+    let nr_albums_to_show = Math.round(($(window).height() - 96 - 128) / 116);
     let all_albums = genre_fetch_results['albums'];
     if (all_albums.length <= nr_albums_to_show) {
         show_albums(all_albums);

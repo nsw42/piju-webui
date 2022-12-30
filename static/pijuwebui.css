@@ -8,10 +8,11 @@ body {
 }
 
 .fullscreen-content {
-  height: calc(100vh - 96px - 128px);
+  height: calc(100vh - 86px - 128px);
 }
 
 .header {
+  height: 86px;
   background-color: steelblue;
   color: ghostwhite;
 }
