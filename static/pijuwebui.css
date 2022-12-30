@@ -51,4 +51,8 @@ a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawe
   text-decoration: none;
 }
 
+.toggle-handle, .toggle-handle:hover {
+  background-color: white;
+}
+
 /*# sourceMappingURL=pijuwebui.css.map */
