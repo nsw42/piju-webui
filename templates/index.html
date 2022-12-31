@@ -8,10 +8,18 @@
     {# large=3 of 12 units per column, ie 4 columns on screen #}
     <div class="col-sm-4 col-lg-3 my-4 mx-auto">
         <p class="text-center">
-            <a href="/genre/{{ genre.displayed_name }}" class="fontawesomelink"> <i class="{{genre.icon}} fa-6x" aria-hidden ="true"></i></a><br>
+            <a href="/genre/{{ genre.displayed_name }}" class="fontawesomelink"> <i class="{{genre.icon}} fa-6x" aria-hidden="true"></i></a><br>
             <a href="/genre/{{ genre.displayed_name }}">{{genre.displayed_name}}</a>
         </p>
     </div>
     {% endfor %}
+    {% if has_playlists %}
+    <div class="col-sm-4 col-lg-3 my-4 mx-auto">
+        <p class="text-center">
+            <a href="/playlists" class="fontawesomelink"> <i class="fa-solid fa-music fa-6x" aria-hidden="true"></i></a><br>
+            <a href="/playlists">Playlists</a>
+        </p>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

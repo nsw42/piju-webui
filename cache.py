@@ -13,6 +13,8 @@ import genre_view
 Album = namedtuple('Album',
                    'id, artist, title, year, artwork_link, is_compilation, genre_name, numberdisks, tracks, anchor')
 Artist = namedtuple('Artist', 'name, albums')
+Playlist = namedtuple('Playlist', 'id, server_link, title, tracks')
+PlaylistSummary = namedtuple('PlaylistSummary', 'id, server_link, title')
 Track = namedtuple('Track', 'id, title, disknumber, tracknumber')
 
 
@@ -37,11 +39,7 @@ class Cache:
         anchor = unidecode.unidecode(anchor)
         if anchor not in string.ascii_uppercase:
             anchor = 'num'
-        tracks = [Track(id=id_from_link(track_json['link']),
-                        title=track_json['title'],
-                        disknumber=track_json['disknumber'],
-                        tracknumber=track_json['tracknumber'])
-                  for track_json in album_json['tracks']]
+        tracks = self.track_list_from_json(album_json['tracks'])
         tracks.sort(key=lambda t: (t.disknumber if (t.disknumber is not None) else 9999,
                                    t.tracknumber if (t.tracknumber is not None) else 0))
         album_details = Album(id=album_id,
@@ -68,6 +66,17 @@ class Cache:
         albums.sort(key=lambda album: album.year if album.year else 9999)
         artist = Artist(artist_name, albums)
         self.artist_details[artist_name.lower()] = artist
+
+    def add_playlist_from_json(self, playlist_json):
+        link = playlist_json['link']
+        playlist_id = id_from_link(link)
+        tracks = self.track_list_from_json(playlist_json['tracks'])
+        playlist_details = Playlist(id=playlist_id,
+                                    server_link=link,
+                                    title=playlist_json['title'],
+                                    tracks=tracks)
+        self.playlist_details[playlist_id] = playlist_details
+        return playlist_details
 
     def ensure_album_cache(self, album_id) -> Optional[Album]:
         self.ensure_genre_cache()  # Needed for the genre_name in add_album_from_json
@@ -160,6 +169,29 @@ class Cache:
             self.albums_in_genre[genre_name] = albums
         return self.albums_in_genre[genre_name]
 
+    def ensure_playlist_cache(self, playlist_id):
+        self.app.logger.debug(f"ensure_playlist_cache({playlist_id}")
+        if self.playlist_details.get(playlist_id) is None:
+            response = requests.get(f'{self.app.server}/playlists/{playlist_id}?tracks=all')
+            if response.status_code != 200:
+                abort(500)  # TODO: Error handling
+            self.add_playlist_from_json(response.json())
+        return self.playlist_details[playlist_id]
+
+    def ensure_playlist_summary(self):
+        self.app.logger.debug("ensure_playlist_summary")
+        if not self.playlist_summaries:
+            response = requests.get(self.app.server + '/playlists')
+            if response.status_code != 200:
+                raise Exception('Unable to connect to server')  # TODO: Error handling
+            self.playlist_summaries = {}  # map from id to PlaylistSummary
+            playlists_json = response.json()
+            for playlist_json in playlists_json:
+                title = playlist_json['title']
+                link = playlist_json['link']
+                id = id_from_link(link)
+                self.playlist_summaries[id] = PlaylistSummary(id, link, title)
+
     def flush(self):
         # The following instance variables are populated by ensure_genre_cache()
         self.display_genres = None
@@ -172,3 +204,15 @@ class Cache:
         self.album_details = {}
         # The following instance variables are populated by ensure_artist_cache(artist)
         self.artist_details = {}
+        # The following instance variables are populated by ensure_playlist_summary()
+        self.playlist_summaries = {}
+        # The following instance variables are populated by ensure_playlist_cache()
+        self.playlist_details = {}
+
+    def track_list_from_json(self, tracks_json):
+        tracks = [Track(id=id_from_link(track_json['link']),
+                        title=track_json['title'],
+                        disknumber=track_json['disknumber'],
+                        tracknumber=track_json['tracknumber'])
+                  for track_json in tracks_json]
+        return tracks

@@ -17,7 +17,11 @@ app = Flask(__name__)
 @app.route("/")
 def root():
     app.cache.ensure_genre_cache()
-    return render_template('index.html', **app.default_template_args, genres=app.cache.display_genres)
+    app.cache.ensure_playlist_summary()
+    return render_template('index.html',
+                           **app.default_template_args,
+                           genres=app.cache.display_genres,
+                           has_playlists=len(app.cache.playlist_summaries) > 0)
 
 
 @app.route("/admin/")
@@ -80,11 +84,35 @@ def get_genre_content(genre_name):
     })
 
 
-@app.route("/play/<album_id>/<track_id>", methods=["POST"])
-def play(album_id, track_id):
+@app.route("/play_album/<album_id>/<track_id>", methods=["POST"])
+def play_album(album_id, track_id):
     requests.post(f"{app.server}/player/play",
                   json={'album': album_id, 'track': track_id})
     return ('', 204)
+
+
+@app.route("/play_playlist/<playlist_id>/<track_id>", methods=["POST"])
+def play_playlist(playlist_id, track_id):
+    requests.post(f"{app.server}/player/play",
+                  json={'playlist': playlist_id, 'track': track_id})
+    return ('', 204)
+
+
+@app.route("/playlists")
+def playlists():
+    app.cache.ensure_playlist_summary()
+    return render_template('playlists.html', **app.default_template_args,
+                           playlists=sorted(app.cache.playlist_summaries.values(), key=lambda p: p.title))
+
+
+@app.route("/playlist/<playlist_id>")
+def get_playlist(playlist_id):
+    playlist = app.cache.ensure_playlist_cache(playlist_id)
+    if playlist is None:
+        abort(404)
+    return render_template('playlist.html', **app.default_template_args,
+                           enumerate=enumerate,
+                           playlist=playlist)
 
 
 @app.route("/search")
