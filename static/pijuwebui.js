@@ -76,9 +76,15 @@ function id_from_link(link) {
     return tmp[tmp.length - 1];
 }
 
-function play(album_id, track_id) {
+function play_album(album_id, track_id) {
     var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/play/" + album_id + "/" + track_id, true);
+    xhttp.open("POST", "/play_album/" + album_id + "/" + track_id, true);
+    xhttp.send();
+}
+
+function play_playlist(playlist_id, track_id) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/play_playlist/" + playlist_id + "/" + track_id, true);
     xhttp.send();
 }
 
