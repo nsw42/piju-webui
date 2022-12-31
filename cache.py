@@ -40,6 +40,8 @@ class Cache:
         if anchor not in string.ascii_uppercase:
             anchor = 'num'
         tracks = self.track_list_from_json(album_json['tracks'])
+        tracks.sort(key=lambda t: (t.disknumber if (t.disknumber is not None) else 9999,
+                                   t.tracknumber if (t.tracknumber is not None) else 0))
         album_details = Album(id=album_id,
                               artist=artist,
                               title=album_json['title'],
@@ -213,6 +215,4 @@ class Cache:
                         disknumber=track_json['disknumber'],
                         tracknumber=track_json['tracknumber'])
                   for track_json in tracks_json]
-        tracks.sort(key=lambda t: (t.disknumber if (t.disknumber is not None) else 9999,
-                                   t.tracknumber if (t.tracknumber is not None) else 0))
         return tracks
