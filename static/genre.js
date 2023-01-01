@@ -51,41 +51,39 @@ $('#random-toggle').change(function() {
 
 
 function show_albums(albums) {
-    var genre_contents = '';
+    var genre_content_node = document.getElementById("genre-content");
     var selected_anchors = {};
     for (var album of albums) {
         var album_anchor = album['anchor'];
         if (selected_anchors[album_anchor] == null) {
-            genre_contents = genre_contents.concat(
-                `<a name="${album_anchor}" style="scroll-margin-top: 80px;"></a>`
-            );
+            anchor = document.getElementById("anchor-template").content.cloneNode(true);
+            anchor.querySelector("a").setAttribute("name", album_anchor);
+            genre_content_node.appendChild(anchor);
             selected_anchors[album_anchor] = true;
         }
-        genre_contents = genre_contents.concat(
-            '<div class="d-block div-row-hover py-2 align-middle">',
-            '<div class="position-relative" style="width: 55vw">',
-            '<div class="d-table-cell ps-3 pe-1 album-row">'
-        );
+
+        var album_row = document.getElementById("album-template").content.cloneNode(true);
         if (album['artwork_link'] != null) {
-            genre_contents = genre_contents.concat(
-                `<img src="${server + album['artwork_link']}" class="img-fluid rounded float-left pr-4" width="100">`
-            )
+            // We have artwork: remove the spacer
+            album_row.querySelector("#artwork-spacer").remove();
+            album_row.querySelector("#album-artwork").setAttribute("src", server + album['artwork_link']);
         } else {
-            genre_contents = genre_contents.concat(
-                '<div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>'
-            )
+            // No artwork: remove the img node
+            album_row.querySelector("#album-artwork").remove();
         }
-        genre_contents = genre_contents.concat(
-            '</div>',
-            '<div class="d-table-cell align-middle ps-2">',
-            `<a href="/albums/${album['id']}" class="stretched-link">${album['artist'] != null ? album['artist'] : "Unknown Artist"}: ${album['title'] != null ? album['title'] : "Unknown Album"}</a>  ${album['year'] != null ? "(" + album['year'] + ")" : ""}`,
-            '</div>',
-            '</div>',
-            '</div>'
-        )
+        var album_href = album_row.querySelector("#album-href");
+        album_href.setAttribute("href", `/albums/${album['id']}`);
+        album_href.innerText = (album['artist'] != null ? album['artist'] : "Unknown Artist") + ": " + (album['title'] != null ? album['title'] : "Unknown Album");
+        if (album['year'] != null) {
+            var album_year_node = album_row.querySelector("#album-year");
+            album_year_node.innerText = " (" + album['year'] + ")";
+        }
+        genre_content_node.appendChild(album_row);
     }
-    $('#genre-content').removeClass('d-none').html(genre_contents);
+    genre_content_node.classList.remove('d-none');
+
     var letters = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var anchor_content_node = document.getElementById("anchor-content");
     var anchors_contents ='';
     for (var letter of letters) {
         var anchor = (letter == '#' ? 'num' : letter);
