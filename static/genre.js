@@ -52,6 +52,9 @@ $('#random-toggle').change(function() {
 
 function show_albums(albums) {
     var genre_content_node = document.getElementById("genre-content");
+    while (genre_content_node.hasChildNodes()) {
+        genre_content_node.removeChild(genre_content_node.firstChild);
+    }
     var selected_anchors = {};
     for (var album of albums) {
         var album_anchor = album['anchor'];
