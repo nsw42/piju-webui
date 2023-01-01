@@ -4,6 +4,11 @@
   --album-row-height: 100px;
 }
 
+.search-result {
+  background-color: yellow;
+  font-weight: bold;
+}
+
 .active-track {
   color: red;
   font-weight: bold;

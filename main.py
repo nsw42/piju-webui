@@ -69,7 +69,8 @@ def get_album(album_id):
     album = app.cache.ensure_album_cache(album_id)
     if album is None:
         abort(404)
-    return render_template('album.html', **app.default_template_args, album=album)
+    to_highlight = request.args.get('highlight', None)
+    return render_template('album.html', **app.default_template_args, album=album, to_highlight=to_highlight)
 
 
 @app.route("/artists/<artist>")
