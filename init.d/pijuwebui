@@ -1,6 +1,6 @@
 #!/sbin/openrc-run
 
-command="./run.sh"
+command="/home/piju/pijuwebui/run.sh"
 command_args="192.168.0.91:5000"
 command_args_foreground="${command_args}"
 command_user="piju:piju"
