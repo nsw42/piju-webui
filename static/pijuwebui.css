@@ -58,7 +58,12 @@ a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawe
 }
 
 .toggle-handle, .toggle-handle:hover {
-  background-color: white;
+  background-color: ghostwhite !important;
+}
+
+.toggle.btn-default {
+  border-color: ghostwhite !important;
+  color: ghostwhite !important;
 }
 
 /*# sourceMappingURL=pijuwebui.css.map */
