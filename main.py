@@ -17,7 +17,7 @@ from cache import Cache
 RANDOM_COOKIE_NAME = 'random'
 
 app = Flask(__name__)
-exiting = False
+exit_code = None
 
 
 @app.route("/")
@@ -55,8 +55,8 @@ def check_for_updates():
         result_message = git_output.strip()[:-1]
     else:
         logging.debug(f"git pull returned:\n{git_output}.\nExiting.")
-        global exiting
-        exiting = True
+        global exit_code
+        exit_code = 0
         if app.dev_reload:
             result_message = 'Updates found. Restarting suppressed in dev mode.'
         else:
@@ -241,14 +241,15 @@ def main():
         webui = make_server(host, port, app)
         thread = threading.Thread(target=webui.serve_forever)
         thread.start()
-        global exiting
-        while not exiting:
+        global exit_code
+        while exit_code is None:
             try:
                 time.sleep(1)
             except KeyboardInterrupt:
-                exiting = True
+                exit_code = 1
         webui.shutdown()
         thread.join()
+        exit(exit_code)
 
 
 if __name__ == '__main__':
