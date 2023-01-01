@@ -3,11 +3,15 @@
 
 {% block content %}
 
+{% for label, action, extra in [ ("Empty UI cache", "empty_cache", ""), ("Check for updates", "check_for_updates", check_for_updates_result) ] %}
 <div class="row row-cols-1 text-center my-5">
     <div class="col">
-        <form action="/admin/empty_cache" method="post">
-            <button class="btn btn-primary btn-lg" name="empty_cache" value="empty_cache">Empty UI cache</button>
+        <form action="/admin/{{action}}" method="post">
+            <button class="btn btn-primary btn-lg" name="{{action}}" value="{{action}}">{{label}}</button>
+            <p>{{extra}}</p>
         </form>
     </div>
 </div>
+{% endfor %}
+
 {% endblock %}

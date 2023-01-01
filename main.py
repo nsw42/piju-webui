@@ -1,9 +1,14 @@
 from argparse import ArgumentParser
+import datetime
 from itertools import zip_longest
 import json
 import logging
+import subprocess
+import threading
+import time
 
 from flask import Flask, abort, redirect, render_template, request
+from werkzeug.serving import make_server
 import requests
 
 from cache import Cache
@@ -12,6 +17,7 @@ from cache import Cache
 RANDOM_COOKIE_NAME = 'random'
 
 app = Flask(__name__)
+exiting = False
 
 
 @app.route("/")
@@ -34,6 +40,29 @@ def empty_cache():
     app.cache.flush()
     app.cache.ensure_genre_cache()
     return redirect("/")
+
+
+@app.post("/admin/check_for_updates")
+def check_for_updates():
+    try:
+        git_output = subprocess.check_output(['git', 'pull'], text=True)
+    except subprocess.CalledProcessError as e:
+        logging.debug(f"git error: {e}")
+        git_output = ''
+    if not git_output:
+        result_message = 'Check failed'
+    elif git_output.strip() == 'Already up to date.':
+        result_message = git_output.strip()[:-1]
+    else:
+        logging.debug(f"git pull returned:\n{git_output}.\nExiting.")
+        global exiting
+        exiting = True
+        if app.dev_reload:
+            result_message = 'Updates found. Restarting suppressed in dev mode.'
+        else:
+            result_message = 'Updates found. Restarting.'
+    return render_template('admin.html', **app.default_template_args,
+                           check_for_updates_result=result_message)
 
 
 @app.route("/albums/<album_id>")
@@ -130,10 +159,12 @@ def make_header_component(dest, label):
 
 def parse_args():
     parser = ArgumentParser()
+    parser.add_argument('--dev-reload', action='store_true',
+                        help="Enable development reloader")
     parser.add_argument('server', type=str, nargs='?',
                         help="Piju server hostname or IP address. "
                              "Port may optionally be specified as :PORT")
-    parser.set_defaults(server='piju:5000')
+    parser.set_defaults(dev_reload=False, server='piju:5000')
     args = parser.parse_args()
     # TODO: Error checking on args.server
     if not args.server.startswith('http'):
@@ -194,6 +225,7 @@ def connection_test(server, required_api_version):
 
 def main():
     args = parse_args()
+    app.dev_reload = args.dev_reload
     app.server = args.server
     app.cache = Cache(app)
     app.default_template_args = {
@@ -201,7 +233,22 @@ def main():
         "make_header": make_header
     }
     connection_test(app.server, required_api_version='2.0')
-    app.run(host='0.0.0.0', port=80, debug=True)
+    host, port = '0.0.0.0', 80
+    if args.dev_reload:
+        app.run(host=host, port=port, debug=True)
+    else:
+        print(f"Server started at {datetime.datetime.now()}. Listening on {host}:{port}")
+        webui = make_server(host, port, app)
+        thread = threading.Thread(target=webui.serve_forever)
+        thread.start()
+        global exiting
+        while not exiting:
+            try:
+                time.sleep(1)
+            except KeyboardInterrupt:
+                exiting = True
+        webui.shutdown()
+        thread.join()
 
 
 if __name__ == '__main__':
