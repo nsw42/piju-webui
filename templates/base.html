@@ -15,6 +15,10 @@
             server = "{{server}}";
         </script>
         <script src="/static/pijuwebui.js"></script>
+        {% if redirect_to_front_screen %}
+          {# Primarily for /admin/check_for_updates #}
+          <meta content="5; url=/" http-equiv="refresh">
+        {% endif %}
     </head>
     <body>
         {# header #}

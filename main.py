@@ -51,8 +51,10 @@ def check_for_updates():
         git_output = ''
     if not git_output:
         result_message = 'Check failed'
+        redirect_to_front_screen = False
     elif git_output.strip() == 'Already up to date.':
         result_message = git_output.strip()[:-1]
+        redirect_to_front_screen = False
     else:
         logging.debug(f"git pull returned:\n{git_output}.\nExiting.")
         app.exit_code = 0
@@ -60,8 +62,10 @@ def check_for_updates():
             result_message = 'Updates found. Restarting suppressed in dev mode.'
         else:
             result_message = 'Updates found. Restarting.'
+        redirect_to_front_screen = True
     return render_template('admin.html', **app.default_template_args,
-                           check_for_updates_result=result_message)
+                           check_for_updates_result=result_message,
+                           redirect_to_front_screen=redirect_to_front_screen)
 
 
 @app.route("/albums/<album_id>")
