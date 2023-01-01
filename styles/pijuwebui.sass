@@ -1,7 +1,14 @@
 $header-height: 86px
 $footer-height: 128px
+$album-row-height: 100px
 $headerfooter-background: steelblue
 $headerfooter-foreground: ghostwhite
+
+// Expose constants to JS
+:root
+    --header-height: #{$header-height}
+    --footer-height: #{$footer-height}
+    --album-row-height: #{$album-row-height}
 
 .active-track
     color: red
@@ -37,7 +44,7 @@ button.undecorated
 
 
 .album-row
-    height: 100px
+    height: $album-row-height
 
 // tables
 .div-row-hover:hover

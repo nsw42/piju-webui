@@ -1,3 +1,9 @@
+:root {
+  --header-height: 86px;
+  --footer-height: 128px;
+  --album-row-height: 100px;
+}
+
 .active-track {
   color: red;
   font-weight: bold;

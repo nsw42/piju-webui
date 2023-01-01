@@ -106,10 +106,13 @@ function show_all_genre_contents() {
 }
 
 
+const piju_header_height = parseInt(getCSSVariable("--header-height"));
+const piju_footer_height = parseInt(getCSSVariable("--footer-height"));
+const piju_album_row_height = parseInt(getCSSVariable("--album-row-height"));
+const piju_row_height_with_padding = piju_album_row_height + 16; // 16 because of 'py2' on the top div of album-template
+
 function show_genre_subset() {
-    // TODO: This contains the sizing constants from the css
-    // 116 = 100 (row height) + 16 (row padding)
-    let nr_albums_to_show = Math.round(($(window).height() - 96 - 128) / 116);
+    let nr_albums_to_show = Math.round(($(window).height() - piju_header_height - piju_footer_height) / piju_row_height_with_padding);
     let all_albums = genre_fetch_results['albums'];
     if (all_albums.length <= nr_albums_to_show) {
         show_albums(all_albums);

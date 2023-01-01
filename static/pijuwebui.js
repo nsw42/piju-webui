@@ -71,6 +71,12 @@ setInterval(function() {
     });
 }, 1000);
 
+function getCSSVariable(varName) {
+    // Credit to https://levelup.gitconnected.com/stop-duplicating-constants-between-js-and-css-40efd253a945
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue(varName);
+}
+
 function id_from_link(link) {
     const tmp = link.split('/');
     return tmp[tmp.length - 1];
