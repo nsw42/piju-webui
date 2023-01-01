@@ -29,11 +29,7 @@
                 <div class="d-inline-block">
                     <div class="d-flex align-items-center">
                         {% if include_random_toggle %}
-                        <input id="random-toggle" type="checkbox"
-                          {% if random_enabled %}
-                          checked
-                          {% endif %}
-                         data-toggle="toggle" data-on="Random" data-off="All">
+                        <input id="random-toggle" type="checkbox" {{"checked" if random_enabled else ""}} data-toggle="toggle" data-on="Random" data-off="All">
                         {% endif %}
                         <a href="/search" class="fontawesomelink px-1"><i class="fa fa-magnifying-glass"></i></a>
                         <a href="/admin" class="fontawesomelink"><i class="fa-solid fa-wrench"></i></a>
