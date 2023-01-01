@@ -1,7 +1,7 @@
 #!/sbin/openrc-run
 
-command="/usr/bin/python3"
-command_args="main.py 192.168.0.91:5000"
+command="./run.sh"
+command_args="192.168.0.91:5000"
 command_args_foreground="${command_args}"
 command_user="piju:piju"
 command_background=true
