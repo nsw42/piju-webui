@@ -54,7 +54,7 @@ button.undecorated {
 }
 
 .div-row-hover:hover {
-  background-color: lightgray;
+  background-color: dimgray;
 }
 
 a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawesomelink:active {
@@ -71,4 +71,4 @@ a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawe
   color: ghostwhite !important;
 }
 
-/*# sourceMappingURL=pijuwebui.css.map */
+/*# sourceMappingURL=pijuwebui-dark.css.map */
