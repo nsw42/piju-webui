@@ -84,7 +84,7 @@ def set_theme():
     theme = request.form.get('theme', '')
     if theme not in ('dark', 'light'):
         abort(400)
-    response = redirect("/")
+    response = redirect("/admin/")
     response.set_cookie('theme', theme)
     return response
 
