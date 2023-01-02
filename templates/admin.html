@@ -3,6 +3,16 @@
 
 {% block content %}
 
+<div class="row row-cols-2 text-center my-5">
+    {% for theme in ("dark", "light") %}
+    <div class="col">
+        <form action="/admin/set_theme" method="post">
+            <button class="btn btn-primary btn-lg" name="theme" value="{{theme}}">Set {{theme}} theme</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
 {% for label, action, extra in [ ("Empty UI cache", "empty_cache", ""), ("Check for updates", "check_for_updates", check_for_updates_result) ] %}
 <div class="row row-cols-1 text-center my-5">
     <div class="col">

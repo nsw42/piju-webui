@@ -20,19 +20,30 @@ app = Flask(__name__)
 app.exit_code = None
 
 
+def get_default_template_args():
+    theme = request.cookies.get('theme')
+    if theme not in ('dark', 'light'):
+        theme = 'light'
+    return {
+        "theme": theme,
+        "server": app.server,
+        "make_header": make_header
+    }
+
+
 @app.route("/")
 def root():
     app.cache.ensure_genre_cache()
     app.cache.ensure_playlist_summary()
     return render_template('index.html',
-                           **app.default_template_args,
+                           **get_default_template_args(),
                            genres=app.cache.display_genres,
                            has_playlists=len(app.cache.playlist_summaries) > 0)
 
 
 @app.route("/admin/")
 def get_admin_page():
-    return render_template('admin.html', **app.default_template_args)
+    return render_template('admin.html', **get_default_template_args())
 
 
 @app.post("/admin/empty_cache")
@@ -63,9 +74,19 @@ def check_for_updates():
         else:
             result_message = 'Updates found. Restarting.'
         redirect_to_front_screen = True
-    return render_template('admin.html', **app.default_template_args,
+    return render_template('admin.html', **get_default_template_args(),
                            check_for_updates_result=result_message,
                            redirect_to_front_screen=redirect_to_front_screen)
+
+
+@app.post("/admin/set_theme")
+def set_theme():
+    theme = request.form.get('theme', '')
+    if theme not in ('dark', 'light'):
+        abort(400)
+    response = redirect("/")
+    response.set_cookie('theme', theme)
+    return response
 
 
 @app.route("/albums/<album_id>")
@@ -74,7 +95,7 @@ def get_album(album_id):
     if album is None:
         abort(404)
     to_highlight = request.args.get('highlight', None)
-    return render_template('album.html', **app.default_template_args, album=album, to_highlight=to_highlight)
+    return render_template('album.html', **get_default_template_args(), album=album, to_highlight=to_highlight)
 
 
 @app.route("/artists/<artist>")
@@ -82,13 +103,13 @@ def get_artist(artist):
     artist = app.cache.ensure_artist_cache(artist)
     if artist is None:
         abort(404)
-    return render_template('artist.html', **app.default_template_args, artist=artist)
+    return render_template('artist.html', **get_default_template_args(), artist=artist)
 
 
 @app.route("/genre/<genre_name>")
 def get_genre(genre_name):
     random_subset_selected = parse_bool(request.cookies.get(RANDOM_COOKIE_NAME))
-    return render_template('genre.html', **app.default_template_args,
+    return render_template('genre.html', **get_default_template_args(),
                            include_random_toggle=True,
                            random_enabled=random_subset_selected,
                            genre_name=genre_name)
@@ -134,7 +155,7 @@ def play_playlist(playlist_id, track_id):
 @app.route("/playlists")
 def playlists():
     app.cache.ensure_playlist_summary()
-    return render_template('playlists.html', **app.default_template_args,
+    return render_template('playlists.html', **get_default_template_args(),
                            playlists=sorted(app.cache.playlist_summaries.values(), key=lambda p: p.title))
 
 
@@ -143,14 +164,14 @@ def get_playlist(playlist_id):
     playlist = app.cache.ensure_playlist_cache(playlist_id)
     if playlist is None:
         abort(404)
-    return render_template('playlist.html', **app.default_template_args,
+    return render_template('playlist.html', **get_default_template_args(),
                            enumerate=enumerate,
                            playlist=playlist)
 
 
 @app.route("/search")
 def search():
-    return render_template('search.html', **app.default_template_args)
+    return render_template('search.html', **get_default_template_args())
 
 
 def make_header(links):
@@ -232,10 +253,6 @@ def main():
     app.dev_reload = args.dev_reload
     app.server = args.server
     app.cache = Cache(app)
-    app.default_template_args = {
-        "server": app.server,
-        "make_header": make_header
-    }
     connection_test(app.server, required_api_version='2.0')
     host, port = '0.0.0.0', 80
     if args.dev_reload:
