@@ -1,8 +1,13 @@
+// Constants
 $header-height: 86px
 $footer-height: 128px
 $album-row-height: 100px
-$headerfooter-background: steelblue
-$headerfooter-foreground: ghostwhite
+
+// Configurable parameters
+$headerfooter-background: #000 !default
+$headerfooter-foreground: #000 !default
+$searchresult-background: #000 !default
+$table-hover-background: #000 !default
 
 // Expose constants to JS
 :root
@@ -11,7 +16,7 @@ $headerfooter-foreground: ghostwhite
     --album-row-height: #{$album-row-height}
 
 .search-result
-    background-color: yellow
+    background-color: $searchresult-background
     font-weight: bold
 
 .active-track
@@ -52,7 +57,7 @@ button.undecorated
 
 // tables
 .div-row-hover:hover
-    background-color: lightgray
+    background-color: $table-hover-background
 
 
 // FontAwesome buttons
@@ -68,3 +73,4 @@ a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawe
 .toggle.btn-default
     border-color: $headerfooter-foreground  !important
     color: $headerfooter-foreground  !important
+
