@@ -6,8 +6,8 @@ Genre = namedtuple('Genre', 'displayed_name, icon, mp3_genres')
 
 
 class Icons:
-    library_music = "fa-solid fa-music"
-    radio = "fa-solid fa-radio"
+    library_music = "las la-music"
+    radio = "las la-broadcast-tower"
 
 
 GENRE_SORT_ORDERS = [

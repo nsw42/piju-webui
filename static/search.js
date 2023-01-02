@@ -195,17 +195,17 @@ function show_track_results(tracks) {
 
 function toggleArtistCollapse() {
     $('#artist_results_inner').collapse('toggle');
-    $('#artist_result_expander').toggleClass('fa-rotate-180');
+    $('#artist_result_expander').toggleClass('la-rotate-180');
 }
 
 function toggleAlbumCollapse() {
     $('#album_results_inner').collapse('toggle');
-    $('#album_result_expander').toggleClass('fa-rotate-180');
+    $('#album_result_expander').toggleClass('la-rotate-180');
 }
 
 function toggleTrackCollapse() {
     $('#track_results_inner').collapse('toggle');
-    $('#track_result_expander').toggleClass('fa-rotate-180');
+    $('#track_result_expander').toggleClass('la-rotate-180');
 }
 
 $(function() {

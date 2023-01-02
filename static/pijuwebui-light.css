@@ -57,7 +57,7 @@ button.undecorated {
   background-color: lightgray;
 }
 
-a.fontawesomelink, a.fontawesomelink:hover, a.fontawesomelink:visited, a.fontawesomelink:active {
+a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawesomelink:active {
   color: inherit;
   text-decoration: none;
 }
