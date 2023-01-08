@@ -12,6 +12,7 @@ from werkzeug.serving import make_server
 import requests
 
 from cache import Cache
+import genre_view
 
 
 RANDOM_COOKIE_NAME = 'random'
@@ -248,6 +249,19 @@ def connection_test(server, required_api_version):
             return
 
 
+def populate_cache(cache: Cache, shutdown_event: threading.Event):
+    logging.debug("Populating overall genre cache")
+    cache.ensure_genre_cache()
+    for display_genre in genre_view.GENRE_VIEWS.keys():
+        logging.debug("Populating genre cache for " + display_genre)
+        cache.ensure_genre_contents_cache(display_genre, timeout=None)
+        if shutdown_event.is_set():
+            logging.debug("Populating cache interrupted")
+            break
+    else:
+        logging.debug("Cache populated")
+
+
 def main():
     args = parse_args()
     app.dev_reload = args.dev_reload
@@ -260,15 +274,20 @@ def main():
     else:
         print(f"Server started at {datetime.datetime.now()}. Listening on {host}:{port}")
         webui = make_server(host, port, app)
-        thread = threading.Thread(target=webui.serve_forever)
-        thread.start()
+        server_thread = threading.Thread(target=webui.serve_forever)
+        server_thread.start()
+        cache_shutdown_event = threading.Event()
+        cache_thread = threading.Thread(target=populate_cache, args=(app.cache, cache_shutdown_event))
+        cache_thread.start()
         while app.exit_code is None:
             try:
                 time.sleep(1)
             except KeyboardInterrupt:
                 app.exit_code = 1
         webui.shutdown()
-        thread.join()
+        cache_shutdown_event.set()
+        server_thread.join()
+        cache_thread.join()
         exit(app.exit_code)
 
 

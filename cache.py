@@ -140,7 +140,7 @@ class Cache:
             for link in server_links:
                 time_delta = datetime.datetime.now() - start
                 ms_elapsed = (time_delta.seconds * 1000) + time_delta.microseconds / 1000
-                if ms_elapsed > timeout:
+                if (timeout is not None) and (ms_elapsed > timeout):
                     abort(504)  # gateway timeout, sort of accurate
                 self.app.logger.debug(link)
                 if link in self.partial_cache:
