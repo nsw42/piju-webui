@@ -273,7 +273,7 @@ def main():
         app.run(host=host, port=port, debug=True)
     else:
         print(f"Server started at {datetime.datetime.now()}. Listening on {host}:{port}")
-        webui = make_server(host, port, app)
+        webui = make_server(host, port, app, threaded=True)
         server_thread = threading.Thread(target=webui.serve_forever)
         server_thread.start()
         cache_shutdown_event = threading.Event()
