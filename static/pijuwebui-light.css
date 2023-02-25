@@ -57,9 +57,9 @@ button.undecorated {
   background-color: lightgray;
 }
 
-.stretched-link-overlay {
-  position: relative;
-  z-index: 5000;
+.stretched-link:focus, .stretched-link:hover, .stretched-link:active {
+  outline: none;
+  border: none;
 }
 
 a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawesomelink:active {
