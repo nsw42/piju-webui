@@ -22,10 +22,14 @@ app.exit_code = None
 
 
 def get_default_template_args():
-    theme = request.cookies.get('theme')
+    theme = request.cookies.get('theme', '').lower()
     if theme not in ('dark', 'light'):
         theme = 'light'
+    mode = request.cookies.get('mode', '').lower()
+    if mode not in ('remote', 'local'):
+        mode = 'remote'
     return {
+        "remote_mode_enabled": mode == 'remote',
         "theme": theme,
         "server": app.server,
         "make_header": make_header
@@ -82,7 +86,7 @@ def check_for_updates():
 
 @app.post("/admin/set_theme")
 def set_theme():
-    theme = request.form.get('theme', '')
+    theme = request.form.get('theme', '').lower()
     if theme not in ('dark', 'light'):
         abort(400)
     response = redirect("/admin/")

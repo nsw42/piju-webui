@@ -6,6 +6,8 @@
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
         <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js" integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <title>PiJu</title>
         {% if theme == "dark" %}
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/slate/bootstrap.min.css" integrity="sha256-VHeArc9kdO/1rwrV+DWV2nLoqS3ZLIb1KeUjmSK0HBE=" crossorigin="anonymous">
@@ -28,12 +30,17 @@
         {# header #}
         <div class="d-flex w-100 sticky-top header">
             <div class="d-flex container justify-content-between">
-                <div class="d-inline-block">{# padding #}</div>
+                <div class="d-inline-block">
+                    <a href="#" class="lineawesomelink" onclick="togglemode()">
+                        <i id="mode-indicator-remote" class="las la-volume-up la-5x {{'' if remote_mode_enabled else 'd-none'}}"></i>
+                        <i id="mode-indicator-local" class="las la-headphones la-5x {{'d-none' if remote_mode_enabled else ''}}"></i>
+                    </a>
+                </div>
                 <div class="d-inline-block display-3">{{make_header(header_links)|safe}}</div>
                 <div class="d-inline-block">
                     <div class="d-flex align-items-center">
                         {% if include_random_toggle %}
-                        <input id="random-toggle" type="checkbox" {{"checked" if random_enabled else ""}} data-toggle="toggle" data-on="Random" data-off="All">
+                        <input id="random-toggle" type="checkbox" {{'checked' if random_enabled else ''}} data-toggle="toggle" data-on="Random" data-off="All">
                         {% endif %}
                         <a href="/search" class="lineawesomelink px-1"><i class="las la-search la-5x"></i></a>
                         <a href="/admin" class="lineawesomelink"><i class="las la-tools la-5x"></i></a>
@@ -48,7 +55,7 @@
             {% endblock %}
         </div>
 
-        {# now playing footer #}
+        {# Remote control footer (two variants: one for 'there is something playing', one for 'player is idle' #}
         <div id="footer_nothing_playing" class="w-100 fixed-bottom footer"></div>
         <div id="footer_playing" class="d-flex w-100 fixed-bottom justify-content-evenly footer d-none">
             {# left #}
@@ -72,6 +79,19 @@
                     <i class="las la-pause la-6x la-fw footer-button" aria-hidden="true"></i>
                 </button>
                 <button type="button" id="now_playing_resume" class="btn mx-3 d-none border-0" onclick="send_resume()">
+                    <i class="las la-play la-6x la-fw footer-button" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        {# Local playback footer (audio controls) #}
+        <div id="footer-local-playback" class="d-flex w-100 fixed-bottom justify-content-evenly footer">
+            {# centre #}
+            <div class="my-auto d-flex flex-nowrap">
+                <button type="button" id="local-pause" class="btn mx-3 d-none border-0" onclick="local_pause()">
+                    <i class="las la-pause la-6x la-fw footer-button" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="local-resume" class="btn mx-3 d-none border-0" onclick="local_resume()">
                     <i class="las la-play la-6x la-fw footer-button" aria-hidden="true"></i>
                 </button>
             </div>

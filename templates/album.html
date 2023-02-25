@@ -17,13 +17,10 @@
     <div class="d-block position-relative my-1">
         {% for track in album.tracks %}
         <div class="d-block">
-            <div class="stretched-link-overlay float-end align-middle mx-2 pt-2 z-3">
-                <a class="stretched-link-overlay" href="{{server}}/mp3/{{track.id}}"><i class="las la-headphones"></i></a>
-            </div>
             <div class="d-block div-row-hover py-2 align-middle {{"search-result" if to_highlight == track.id else ""}}" id="track_{{track.id}}">
                 <div class="position-relative">
                     <div class="d-inline-block" style="width: 0px;">
-                        <button onclick='play_album("{{album.id}}", "{{track.id}}")' class="stretched-link btn btn-link"></button>
+                        <button onclick='play_album("{{album.id}}", "{{track.id}}", {{loop.index0}})' class="stretched-link btn btn-link"></button>
                     </div>
                     <div class="d-inline align-middle mx-1">
                         {%- if ((album.numberdisks and album.numberdisks > 1) or (not album.numberdisks)) and track.disknumber -%}
@@ -39,4 +36,9 @@
         </div>
         {% endfor %}
     </div>
+
+    <script>
+        playlist_track_ids = [{{ album.tracks | map(attribute="id") | join(',')}}];
+        playlist_track_ids = playlist_track_ids.map(x => x.toString());
+    </script>
 {% endblock %}
