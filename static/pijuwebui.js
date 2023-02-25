@@ -119,6 +119,7 @@ function play_playlist(playlist_id, track_id, playlist_index) {
 
 function local_play(playlist_index) {
     if (local_player != null) {
+        $("#track_"+current_track_id).removeClass('active-track');
         local_player.stop();
     }
     track_id = playlist_track_ids[playlist_index];
@@ -139,6 +140,7 @@ function local_play(playlist_index) {
             }
         },
     });
+    $('#local-resume').addClass('d-none');
     $('#local-pause').removeClass('d-none');
     local_track_index = playlist_index;
     current_track_id = track_id;
