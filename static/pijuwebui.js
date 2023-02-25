@@ -3,12 +3,17 @@ if (server == "") {
     alert("Server variable uninitalized");
 }
 
+// Contants
 State_Stopped = 0;
 State_Playing = 1;
 State_Paused = 2;
 
+// Globals
 current_state = State_Stopped;
 current_track_id = null;
+current_mode_remote_control_str = Cookies.get('mode');
+current_mode_remote_control = (current_mode_remote_control_str == 'remote');
+local_player = null;
 
 setInterval(function() {
     // update nowplaying
@@ -106,4 +111,21 @@ function send_resume() {
         url: server + "/player/resume",
         method: "POST"
     });
+}
+
+function togglemode() {
+    current_mode_remote_control = !current_mode_remote_control;
+    Cookies.set('mode', current_mode_remote_control ? 'remote' : 'local');
+    $('#mode-indicator-remote').toggleClass('d-none');
+    $('#mode-indicator-local').toggleClass('d-none');
+
+    if (current_mode_remote_control) {
+        $('#footer_nothing_playing').removeClass('d-none');
+        $('#footer_playing').removeClass('d-none');
+        $('#footer-local-playing').addClass('d-none');
+    } else {
+        $('#footer_nothing_playing').addClass('d-none');
+        $('#footer_playing').addClass('d-none');
+        $('#footer-local-playing').removeClass('d-none');
+    }
 }
