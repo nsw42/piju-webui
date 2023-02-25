@@ -103,29 +103,37 @@ function play_album(album_id, track_id) {
         xhttp.open("POST", "/play_album/" + album_id + "/" + track_id, true);
         xhttp.send();
     } else {
-        local_player = new Howl({
-            src: [server + '/mp3/' + track_id],
-            autoplay: true,
-            format: ["mp3"],
-            html5: false,  // resume doesn't work as expected with html5: true
-                           // presumably due to a limitation of the flask server
-            onend: function() {
-                $('#track_'+track_id).removeClass('active-track');
-                $('#local-pause').addClass('d-none');
-                $('#local-resume').addClass('d-none');
-                current_track_id = local_track_id = null;
-            },
-        });
-        $('#local-pause').removeClass('d-none');
-        local_track_id = current_track_id = track_id;
-        $("#track_"+current_track_id).addClass('active-track');
+        local_play(track_id);
     }
 }
 
 function play_playlist(playlist_id, track_id) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/play_playlist/" + playlist_id + "/" + track_id, true);
-    xhttp.send();
+    if (current_mode_remote_control) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/play_playlist/" + playlist_id + "/" + track_id, true);
+        xhttp.send();
+    } else {
+        local_play(track_id);
+    }
+}
+
+function local_play(track_id) {
+    local_player = new Howl({
+        src: [server + '/mp3/' + track_id],
+        autoplay: true,
+        format: ["mp3"],
+        html5: false,  // resume doesn't work as expected with html5: true
+                       // presumably due to a limitation of the flask server
+        onend: function() {
+            $('#track_'+track_id).removeClass('active-track');
+            $('#local-pause').addClass('d-none');
+            $('#local-resume').addClass('d-none');
+            current_track_id = local_track_id = null;
+        },
+    });
+    $('#local-pause').removeClass('d-none');
+    local_track_id = current_track_id = track_id;
+    $("#track_"+current_track_id).addClass('active-track');
 }
 
 function local_pause(resumable) {
