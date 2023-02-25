@@ -15,7 +15,7 @@ current_track_id = null;
 current_mode_remote_control_str = Cookies.get('mode');
 current_mode_remote_control = (current_mode_remote_control_str == 'remote');
 local_player = null;
-local_track_id = null;
+local_track_index = null;
 
 setInterval(function() {
     if (!current_mode_remote_control) {
@@ -97,27 +97,28 @@ function id_from_link(link) {
     return tmp[tmp.length - 1];
 }
 
-function play_album(album_id, track_id) {
+function play_album(album_id, track_id, playlist_index) {
     if (current_mode_remote_control) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", "/play_album/" + album_id + "/" + track_id, true);
         xhttp.send();
     } else {
-        local_play(track_id);
+        local_play(playlist_index);
     }
 }
 
-function play_playlist(playlist_id, track_id) {
+function play_playlist(playlist_id, track_id, playlist_index) {
     if (current_mode_remote_control) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", "/play_playlist/" + playlist_id + "/" + track_id, true);
         xhttp.send();
     } else {
-        local_play(track_id);
+        local_play(playlist_index);
     }
 }
 
-function local_play(track_id) {
+function local_play(playlist_index) {
+    track_id = playlist_track_ids[playlist_index];
     local_player = new Howl({
         src: [server + '/mp3/' + track_id],
         autoplay: true,
@@ -126,13 +127,18 @@ function local_play(track_id) {
                        // presumably due to a limitation of the flask server
         onend: function() {
             $('#track_'+track_id).removeClass('active-track');
-            $('#local-pause').addClass('d-none');
-            $('#local-resume').addClass('d-none');
-            current_track_id = local_track_id = null;
+            if (local_track_index + 1 < playlist_track_ids.length) {
+                local_play(local_track_index + 1);
+            } else {
+                $('#local-pause').addClass('d-none');
+                $('#local-resume').addClass('d-none');
+                current_track_id = local_track_index = null;
+            }
         },
     });
     $('#local-pause').removeClass('d-none');
-    local_track_id = current_track_id = track_id;
+    local_track_index = playlist_index;
+    current_track_id = track_id;
     $("#track_"+current_track_id).addClass('active-track');
 }
 
@@ -186,8 +192,8 @@ function togglemode() {
         $('#footer_playing').removeClass('d-none');
         $('#footer-local-playback').addClass('d-none');
     } else {
-        current_track_id = local_track_id;
-        if (current_track_id != null) {
+        if (local_track_index != null) {
+            current_track_id = playlist_track_ids[local_track_index];
             $("#track_"+current_track_id).addClass('active-track');
             local_resume();
         }
