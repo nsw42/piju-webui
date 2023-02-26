@@ -7,7 +7,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
         <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js" integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="/static/howler.core.js"></script>
         <title>PiJu</title>
         {% if theme == "dark" %}
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/slate/bootstrap.min.css" integrity="sha256-VHeArc9kdO/1rwrV+DWV2nLoqS3ZLIb1KeUjmSK0HBE=" crossorigin="anonymous">
@@ -88,10 +88,10 @@
         <div id="footer-local-playback" class="d-flex w-100 fixed-bottom justify-content-evenly footer">
             {# centre #}
             <div class="my-auto d-flex flex-nowrap">
-                <button type="button" id="local-pause" class="btn mx-3 d-none border-0" onclick="local_pause()">
+                <button type="button" id="local-pause" class="btn mx-3 d-none border-0" onclick="localPause(true)">
                     <i class="las la-pause la-6x la-fw footer-button" aria-hidden="true"></i>
                 </button>
-                <button type="button" id="local-resume" class="btn mx-3 d-none border-0" onclick="local_resume()">
+                <button type="button" id="local-resume" class="btn mx-3 d-none border-0" onclick="localResume()">
                     <i class="las la-play la-6x la-fw footer-button" aria-hidden="true"></i>
                 </button>
             </div>

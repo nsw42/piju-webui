@@ -127,8 +127,10 @@ function local_play(playlist_index) {
         src: [server + '/mp3/' + track_id],
         autoplay: true,
         format: ["mp3"],
-        html5: false,  // resume doesn't work as expected with html5: true
-                       // presumably due to a limitation of the flask server
+        html5: true,
+        onplayerror: function(soundId, errorCode) {
+            console.log("howlerjs reported error code " + errorCode);
+        },
         onend: function() {
             $('#track_'+track_id).removeClass('active-track');
             if (local_track_index + 1 < playlist_track_ids.length) {
@@ -139,30 +141,56 @@ function local_play(playlist_index) {
                 current_track_id = local_track_index = null;
             }
         },
+        onpause: function() {
+            showPlaybackPaused(true);
+        },
+        onplay: function() {
+            showPlaybackActive();
+        },
     });
-    $('#local-resume').addClass('d-none');
-    $('#local-pause').removeClass('d-none');
     local_track_index = playlist_index;
     current_track_id = track_id;
     $("#track_"+current_track_id).addClass('active-track');
+    showPlaybackActive();
+    navigator.mediaSession.setActionHandler("pause", mediaPause);
+    navigator.mediaSession.setActionHandler("play", mediaResume);
 }
 
-function local_pause(resumable) {
+function mediaPause() {
+    localPause(true);
+}
+
+function mediaResume() {
+    localResume();
+}
+
+function localPause(resumable) {
     if (local_player != null) {
         local_player.pause();
-        $('#local-pause').addClass('d-none');
-        if (resumable == true || resumable == null) {
-            $('#local-resume').removeClass('d-none');
-        }
+        showPlaybackPaused(resumable);
     }
 }
 
-function local_resume() {
+function localResume() {
     if (local_player != null) {
         local_player.play();
-        $('#local-pause').removeClass('d-none');
-        $('#local-resume').addClass('d-none');
     }
+}
+
+function showPlaybackPaused(resumable) {
+    $('#local-pause').addClass('d-none');
+    if (resumable) {
+        $('#local-resume').removeClass('d-none');
+        navigator.mediaSession.playbackState = "paused";
+    } else {
+        navigator.mediaSession.playbackState = "none";
+    }
+}
+
+function showPlaybackActive() {
+    navigator.mediaSession.playbackState = "playing";
+    $('#local-pause').removeClass('d-none');
+    $('#local-resume').addClass('d-none');
 }
 
 function send_pause() {
@@ -190,7 +218,7 @@ function togglemode() {
     }
 
     if (current_mode_remote_control) {
-        local_pause(false);
+        localPause(false);
         current_state = State_Unknown;  // Ensure display updates when the timer next fires
         current_track_id = null;  // ditto
         $('#footer_nothing_playing').removeClass('d-none');
@@ -200,7 +228,7 @@ function togglemode() {
         if (local_track_index != null) {
             current_track_id = playlist_track_ids[local_track_index];
             $("#track_"+current_track_id).addClass('active-track');
-            local_resume();
+            localResume();
         }
         $('#footer_nothing_playing').addClass('d-none');
         $('#footer_playing').addClass('d-none');
