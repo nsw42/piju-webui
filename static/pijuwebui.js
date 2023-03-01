@@ -13,7 +13,7 @@ State_Paused = 2;
 current_state = State_Stopped;
 current_track_id = null;
 current_mode_remote_control_str = Cookies.get('mode');
-current_mode_remote_control = (current_mode_remote_control_str == 'remote');
+current_mode_remote_control = (current_mode_remote_control_str === undefined || current_mode_remote_control_str == 'remote');
 local_player = null;
 local_track_index = null;
 
