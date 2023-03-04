@@ -88,11 +88,17 @@
         <div id="footer-local-playback" class="d-flex w-100 fixed-bottom justify-content-evenly footer {{'d-none' if remote_mode_enabled else ''}}">
             {# centre #}
             <div class="my-auto d-flex flex-nowrap">
+                <button type="button" id="local-previous" class="btn mx-3 d-none border-0" onclick="localPrevious()">
+                    <i class="las la-step-backward la-6x la-fw footer-button"></i>
+                </button>
                 <button type="button" id="local-pause" class="btn mx-3 d-none border-0" onclick="localPause(true)">
                     <i class="las la-pause la-6x la-fw footer-button" aria-hidden="true"></i>
                 </button>
                 <button type="button" id="local-resume" class="btn mx-3 d-none border-0" onclick="localResume()">
                     <i class="las la-play la-6x la-fw footer-button" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="local-next" class="btn mx-3 d-none border-0" onclick="localNext()">
+                    <i class="las la-step-forward la-6x la-fw footer-button"></i>
                 </button>
             </div>
         </div>

@@ -14,8 +14,9 @@ current_state = State_Stopped;
 current_track_id = null;
 current_mode_remote_control_str = Cookies.get('mode');
 current_mode_remote_control = (current_mode_remote_control_str === undefined || current_mode_remote_control_str == 'remote');
-local_player = null;
+local_players = null;
 local_track_index = null;
+// playlist_track_ids is also declared in script blocks in the html pages that support local playback
 
 setInterval(function() {
     if (!current_mode_remote_control) {
@@ -117,15 +118,11 @@ function play_playlist(playlist_id, track_id, playlist_index) {
     }
 }
 
-function local_play(playlist_index) {
-    if (local_player != null) {
-        $("#track_"+current_track_id).removeClass('active-track');
-        local_player.stop();
-    }
-    track_id = playlist_track_ids[playlist_index];
-    local_player = new Howl({
+function setupLocalPlayers() {
+    local_players = playlist_track_ids.map(track_id => new Howl({
         src: [server + '/mp3/' + track_id],
-        autoplay: true,
+        preload: false,
+        autoplay: false,
         format: ["mp3"],
         html5: true,
         onplayerror: function(soundId, errorCode) {
@@ -136,8 +133,10 @@ function local_play(playlist_index) {
             if (local_track_index + 1 < playlist_track_ids.length) {
                 local_play(local_track_index + 1);
             } else {
+                $('#local-previous').addClass('d-none');
                 $('#local-pause').addClass('d-none');
                 $('#local-resume').addClass('d-none');
+                $('#local-next').addClass('d-none');
                 current_track_id = local_track_index = null;
             }
         },
@@ -147,13 +146,37 @@ function local_play(playlist_index) {
         onplay: function() {
             showPlaybackActive();
         },
-    });
+    }));
+}
+
+function local_play(playlist_index) {
+    if (local_players === null) {
+        setupLocalPlayers();  // Creating these here means that we create them in response to a user interaction event
+    }
+    let setMediaHandlers = true;
+    if (local_track_index != null) {
+        $("#track_"+current_track_id).removeClass('active-track');
+        local_players[local_track_index].stop();
+        setMediaHandlers = false;  // Setting the same handlers a second time bizarrely seems to stop the handlers being called
+    }
+    navigator.mediaSession.setPositionState({duration: 1000000, position: 0}); // Simulate an incredibly long track so 'fast forward' will always be invoked, and we can map it to 'next track'
     local_track_index = playlist_index;
-    current_track_id = track_id;
+    current_track_id = playlist_track_ids[playlist_index];
     $("#track_"+current_track_id).addClass('active-track');
+    local_players[playlist_index].play();
     showPlaybackActive();
-    navigator.mediaSession.setActionHandler("pause", mediaPause);
-    navigator.mediaSession.setActionHandler("play", mediaResume);
+    if (setMediaHandlers) {
+        for (const action of ['seekbackward', 'previoustrack']) {
+            navigator.mediaSession.setActionHandler(action, () => { localPrevious(); } );
+        }
+        navigator.mediaSession.setActionHandler('pause', mediaPause);
+        navigator.mediaSession.setActionHandler('play', mediaResume);
+        for (const action of ['seekforward', 'nexttrack']) {
+            navigator.mediaSession.setActionHandler(action, () => { localNext(); } );
+        }
+    }
+    $('#local-previous').prop('disabled', (local_track_index == 0));
+    $('#local-next').prop('disabled', (local_track_index + 1 >= playlist_track_ids.length));
 }
 
 function mediaPause() {
@@ -164,16 +187,30 @@ function mediaResume() {
     localResume();
 }
 
+function localPrevious() {
+    if (local_track_index > 0) {
+        localPause();  // Avoids synchronisation problems on multiple skips
+        local_play(local_track_index - 1);
+    }
+}
+
+function localNext() {
+    if (local_track_index + 1 < playlist_track_ids.length) {
+        localPause();  // Avoids synchronisation problems on multiple skips
+        local_play(local_track_index + 1);
+    }
+}
+
 function localPause(resumable) {
-    if (local_player != null) {
-        local_player.pause();
+    if (local_track_index != null) {
+        local_players[local_track_index].pause();
         showPlaybackPaused(resumable);
     }
 }
 
 function localResume() {
-    if (local_player != null) {
-        local_player.play();
+    if (local_track_index != null) {
+        local_players[local_track_index].play();
     }
 }
 
@@ -189,8 +226,10 @@ function showPlaybackPaused(resumable) {
 
 function showPlaybackActive() {
     navigator.mediaSession.playbackState = "playing";
+    $('#local-previous').removeClass('d-none');
     $('#local-pause').removeClass('d-none');
     $('#local-resume').addClass('d-none');
+    $('#local-next').removeClass('d-none');
 }
 
 function send_pause() {
