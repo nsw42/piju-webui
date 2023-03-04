@@ -16,6 +16,7 @@ current_mode_remote_control_str = Cookies.get('mode');
 current_mode_remote_control = (current_mode_remote_control_str === undefined || current_mode_remote_control_str == 'remote');
 local_players = null;
 local_track_index = null;
+fetching = false;
 // playlist_track_ids is also declared in script blocks in the html pages that support local playback
 
 setInterval(function() {
@@ -135,15 +136,19 @@ function setupLocalPlayers() {
             } else {
                 $('#local-previous').addClass('d-none');
                 $('#local-pause').addClass('d-none');
+                $('#local-fetching').addClass('d-none');
                 $('#local-resume').addClass('d-none');
                 $('#local-next').addClass('d-none');
                 current_track_id = local_track_index = null;
             }
         },
         onpause: function() {
-            showPlaybackPaused(true);
+            if (!fetching) {
+                showPlaybackPaused(true);
+            }
         },
         onplay: function() {
+            fetching = false;
             showPlaybackActive();
         },
     }));
@@ -177,6 +182,8 @@ function local_play(playlist_index) {
     }
     $('#local-previous').prop('disabled', (local_track_index == 0));
     $('#local-next').prop('disabled', (local_track_index + 1 >= playlist_track_ids.length));
+    showPlaybackFetching();
+    fetching = true;
 }
 
 function mediaPause() {
@@ -214,8 +221,25 @@ function localResume() {
     }
 }
 
+function hideButtons(allToHide) {
+    for (const oneToHide of allToHide) {
+        $(oneToHide).addClass('d-none');
+    }
+}
+
+function showButtons(allToShow) {
+    for (const oneToShow of allToShow) {
+        $(oneToShow).removeClass('d-none');
+    }
+}
+
+function showPlaybackFetching() {
+    $('#local-fetching').removeClass('d-none');
+    hideButtons(['#local-previous', '#local-pause', '#local-resume', '#local-next']);
+}
+
 function showPlaybackPaused(resumable) {
-    $('#local-pause').addClass('d-none');
+    hideButtons(['#local-fetching', '#local-pause']);
     if (resumable) {
         $('#local-resume').removeClass('d-none');
         navigator.mediaSession.playbackState = "paused";
@@ -226,10 +250,8 @@ function showPlaybackPaused(resumable) {
 
 function showPlaybackActive() {
     navigator.mediaSession.playbackState = "playing";
-    $('#local-previous').removeClass('d-none');
-    $('#local-pause').removeClass('d-none');
-    $('#local-resume').addClass('d-none');
-    $('#local-next').removeClass('d-none');
+    hideButtons(['#local-fetching', '#local-resume']);
+    showButtons(['#local-previous', '#local-pause', '#local-next']);
 }
 
 function send_pause() {
