@@ -4,18 +4,20 @@ if (server == "") {
 }
 
 // Contants
-State_Unknown = -1;
-State_Stopped = 0;
-State_Playing = 1;
-State_Paused = 2;
+const STATE_UNKNOWN = -1;
+const STATE_STOPPED = 0;
+const STATE_PLAYING = 1;
+const STATE_PAUSED = 2;
 
 // Globals
-current_state = State_Stopped;
+current_state = STATE_STOPPED;
 current_track_id = null;
 current_mode_remote_control_str = Cookies.get('mode');
 current_mode_remote_control = (current_mode_remote_control_str === undefined || current_mode_remote_control_str == 'remote');
-local_player = null;
-local_track_index = null;
+localPlayers = null;
+localTrackIndex = null;
+fetching = false;
+// playlist_track_ids is also declared in script blocks in the html pages that support local playback
 
 setInterval(function() {
     if (!current_mode_remote_control) {
@@ -33,7 +35,7 @@ setInterval(function() {
             result = JSON.parse(result);
             current_track = result['CurrentTrack'];
             if (current_track && Object.keys(current_track).length > 0) {
-                album_id = id_from_link(current_track['album']);
+                album_id = idFromLink(current_track['album']);
                 if (album_id != "") {
                     album_link = "/albums/" + album_id;
                     $("#now_playing_album_link").attr('href', album_link);
@@ -49,23 +51,23 @@ setInterval(function() {
                 $("#now_playing_artist").text(current_track['artist']);
                 $("#now_playing_track").text(current_track['title']);
 
-                new_state = (result['PlayerStatus'] == "paused") ? State_Paused : State_Playing;
+                new_state = (result['PlayerStatus'] == "paused") ? STATE_PAUSED : STATE_PLAYING;
 
-                new_track_id = id_from_link(current_track['link']);
+                new_track_id = idFromLink(current_track['link']);
             } else {
-                new_state = State_Stopped;
+                new_state = STATE_STOPPED;
                 new_track_id = null;
             }
 
             if (new_state != current_state) {
-                if (new_state == State_Stopped) {
+                if (new_state == STATE_STOPPED) {
                     $("#footer_nothing_playing").removeClass("d-none");
                     $("#footer_playing").addClass("d-none");
                 } else {
                     $("#footer_nothing_playing").addClass("d-none");
                     $("#footer_playing").removeClass("d-none");
 
-                    if (new_state == State_Paused) {
+                    if (new_state == STATE_PAUSED) {
                         $("#now_playing_pause").addClass("d-none");
                         $("#now_playing_resume").removeClass("d-none");
                     } else {
@@ -92,40 +94,36 @@ function getCSSVariable(varName) {
       .getPropertyValue(varName);
 }
 
-function id_from_link(link) {
+function idFromLink(link) {
     const tmp = link.split('/');
     return tmp[tmp.length - 1];
 }
 
-function play_album(album_id, track_id, playlist_index) {
+function play_album(album_id, track_id, playlistIndex) {
     if (current_mode_remote_control) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", "/play_album/" + album_id + "/" + track_id, true);
         xhttp.send();
     } else {
-        local_play(playlist_index);
+        localPlay(playlistIndex);
     }
 }
 
-function play_playlist(playlist_id, track_id, playlist_index) {
+function play_playlist(playlist_id, track_id, playlistIndex) {
     if (current_mode_remote_control) {
         var xhttp = new XMLHttpRequest();
         xhttp.open("POST", "/play_playlist/" + playlist_id + "/" + track_id, true);
         xhttp.send();
     } else {
-        local_play(playlist_index);
+        localPlay(playlistIndex);
     }
 }
 
-function local_play(playlist_index) {
-    if (local_player != null) {
-        $("#track_"+current_track_id).removeClass('active-track');
-        local_player.stop();
-    }
-    track_id = playlist_track_ids[playlist_index];
-    local_player = new Howl({
+function setupLocalPlayers() {
+    localPlayers = playlist_track_ids.map(track_id => new Howl({
         src: [server + '/mp3/' + track_id],
-        autoplay: true,
+        preload: false,
+        autoplay: false,
         format: ["mp3"],
         html5: true,
         onplayerror: function(soundId, errorCode) {
@@ -133,27 +131,55 @@ function local_play(playlist_index) {
         },
         onend: function() {
             $('#track_'+track_id).removeClass('active-track');
-            if (local_track_index + 1 < playlist_track_ids.length) {
-                local_play(local_track_index + 1);
+            if (localTrackIndex + 1 < playlist_track_ids.length) {
+                localPlay(localTrackIndex + 1);
             } else {
-                $('#local-pause').addClass('d-none');
-                $('#local-resume').addClass('d-none');
-                current_track_id = local_track_index = null;
+                hideButtons(['#local-previous', '#local-pause', '#local-fetching', '#local-resume', '#local-next']);
+                current_track_id = localTrackIndex = null;
             }
         },
         onpause: function() {
-            showPlaybackPaused(true);
+            if (!fetching) {
+                showPlaybackPaused(true);
+            }
         },
         onplay: function() {
+            fetching = false;
             showPlaybackActive();
         },
-    });
-    local_track_index = playlist_index;
-    current_track_id = track_id;
+    }));
+}
+
+function localPlay(playlistIndex) {
+    if (localPlayers === null) {
+        setupLocalPlayers();  // Creating these here means that we create them in response to a user interaction event
+    }
+    let setMediaHandlers = true;
+    if (localTrackIndex != null) {
+        $("#track_"+current_track_id).removeClass('active-track');
+        localPlayers[localTrackIndex].stop();
+        setMediaHandlers = false;  // Setting the same handlers a second time bizarrely seems to stop the handlers being called
+    }
+    navigator.mediaSession.setPositionState({duration: 1000000, position: 0}); // Simulate an incredibly long track so 'fast forward' will always be invoked, and we can map it to 'next track'
+    localTrackIndex = playlistIndex;
+    current_track_id = playlist_track_ids[playlistIndex];
     $("#track_"+current_track_id).addClass('active-track');
+    localPlayers[playlistIndex].play();
     showPlaybackActive();
-    navigator.mediaSession.setActionHandler("pause", mediaPause);
-    navigator.mediaSession.setActionHandler("play", mediaResume);
+    if (setMediaHandlers) {
+        for (const action of ['seekbackward', 'previoustrack']) {
+            navigator.mediaSession.setActionHandler(action, () => { localPrevious(); } );
+        }
+        navigator.mediaSession.setActionHandler('pause', mediaPause);
+        navigator.mediaSession.setActionHandler('play', mediaResume);
+        for (const action of ['seekforward', 'nexttrack']) {
+            navigator.mediaSession.setActionHandler(action, () => { localNext(); } );
+        }
+    }
+    $('#local-previous').prop('disabled', (localTrackIndex == 0));
+    $('#local-next').prop('disabled', (localTrackIndex + 1 >= playlist_track_ids.length));
+    showPlaybackFetching();
+    fetching = true;
 }
 
 function mediaPause() {
@@ -164,21 +190,52 @@ function mediaResume() {
     localResume();
 }
 
+function localPrevious() {
+    if (localTrackIndex > 0) {
+        localPause();  // Avoids synchronisation problems on multiple skips
+        localPlay(localTrackIndex - 1);
+    }
+}
+
+function localNext() {
+    if (localTrackIndex + 1 < playlist_track_ids.length) {
+        localPause();  // Avoids synchronisation problems on multiple skips
+        localPlay(localTrackIndex + 1);
+    }
+}
+
 function localPause(resumable) {
-    if (local_player != null) {
-        local_player.pause();
+    if (localTrackIndex != null) {
+        localPlayers[localTrackIndex].pause();
         showPlaybackPaused(resumable);
     }
 }
 
 function localResume() {
-    if (local_player != null) {
-        local_player.play();
+    if (localTrackIndex != null) {
+        localPlayers[localTrackIndex].play();
     }
 }
 
+function hideButtons(allToHide) {
+    for (const oneToHide of allToHide) {
+        $(oneToHide).addClass('d-none');
+    }
+}
+
+function showButtons(allToShow) {
+    for (const oneToShow of allToShow) {
+        $(oneToShow).removeClass('d-none');
+    }
+}
+
+function showPlaybackFetching() {
+    $('#local-fetching').removeClass('d-none');
+    hideButtons(['#local-previous', '#local-pause', '#local-resume', '#local-next']);
+}
+
 function showPlaybackPaused(resumable) {
-    $('#local-pause').addClass('d-none');
+    hideButtons(['#local-fetching', '#local-pause']);
     if (resumable) {
         $('#local-resume').removeClass('d-none');
         navigator.mediaSession.playbackState = "paused";
@@ -189,8 +246,8 @@ function showPlaybackPaused(resumable) {
 
 function showPlaybackActive() {
     navigator.mediaSession.playbackState = "playing";
-    $('#local-pause').removeClass('d-none');
-    $('#local-resume').addClass('d-none');
+    hideButtons(['#local-fetching', '#local-resume']);
+    showButtons(['#local-previous', '#local-pause', '#local-next']);
 }
 
 function send_pause() {
@@ -219,14 +276,14 @@ function togglemode() {
 
     if (current_mode_remote_control) {
         localPause(false);
-        current_state = State_Unknown;  // Ensure display updates when the timer next fires
+        current_state = STATE_UNKNOWN;  // Ensure display updates when the timer next fires
         current_track_id = null;  // ditto
         $('#footer_nothing_playing').removeClass('d-none');
         $('#footer_playing').removeClass('d-none');
         $('#footer-local-playback').addClass('d-none');
     } else {
-        if (local_track_index != null) {
-            current_track_id = playlist_track_ids[local_track_index];
+        if (localTrackIndex != null) {
+            current_track_id = playlist_track_ids[localTrackIndex];
             $("#track_"+current_track_id).addClass('active-track');
             localResume();
         }
