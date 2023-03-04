@@ -186,7 +186,7 @@ function show_track_results(tracks) {
             title = "Unknown Track";  // ?!
         }
         track_artist_title = div.querySelector("#track_artist_title");
-        track_artist_title.setAttribute('href', track['album'] + '?highlight=' + id_from_link(track['link']));
+        track_artist_title.setAttribute('href', track['album'] + '?highlight=' + idFromLink(track['link']));
         track_artist_title.innerHTML = artist + ": " + title;
 
         $("#track_results_inner").append(div);
