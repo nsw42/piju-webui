@@ -171,13 +171,15 @@ function localPlay(playlistIndex) {
     localPlayers[playlistIndex].play();
     showPlaybackActive();
     if (setMediaHandlers) {
-        for (const action of ['seekbackward', 'previoustrack']) {
-            navigator.mediaSession.setActionHandler(action, () => { localPrevious(); } );
-        }
-        navigator.mediaSession.setActionHandler('pause', mediaPause);
-        navigator.mediaSession.setActionHandler('play', mediaResume);
-        for (const action of ['seekforward', 'nexttrack']) {
-            navigator.mediaSession.setActionHandler(action, () => { localNext(); } );
+        for (const [action, handler] of [
+            ['seekbackward', localPrevious],
+            ['previoustrack', localPrevious],
+            ['pause', mediaPause],
+            ['play', mediaResume],
+            ['seekforward', localNext],
+            ['nexttrack', localNext]
+        ]) {
+            navigator.mediaSession.setActionHandler(action, handler);
         }
     }
     $('#local-previous').prop('disabled', (localTrackIndex == 0));
