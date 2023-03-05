@@ -270,7 +270,7 @@ function sendResume() {
 
 function toggleMode() {
     currentModeRemoteControl = !currentModeRemoteControl;
-    Cookies.set('mode', currentModeRemoteControl ? 'remote' : 'local');
+    Cookies.set('mode', currentModeRemoteControl ? 'remote' : 'local', { sameSite: 'Lax' });
     $('#mode-indicator-remote').toggleClass('d-none');
     $('#mode-indicator-local').toggleClass('d-none');
 

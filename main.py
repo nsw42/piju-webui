@@ -90,7 +90,7 @@ def set_theme():
     if theme not in ('dark', 'light'):
         abort(400)
     response = redirect("/admin/")
-    response.set_cookie('theme', theme)
+    response.set_cookie('theme', theme, samesite='Lax')
     return response
 
 
