@@ -31,7 +31,7 @@
         <div class="d-flex w-100 sticky-top header">
             <div class="d-flex container justify-content-between">
                 <div class="d-inline-block">
-                    <a href="#" class="lineawesomelink" onclick="togglemode()">
+                    <a href="#" class="lineawesomelink" onclick="toggleMode()">
                         <i id="mode-indicator-remote" class="las la-volume-up la-5x {{'' if remote_mode_enabled else 'd-none'}}"></i>
                         <i id="mode-indicator-local" class="las la-headphones la-5x {{'d-none' if remote_mode_enabled else ''}}"></i>
                     </a>
@@ -75,10 +75,10 @@
 
             {# right #}
             <div class="my-auto d-flex flex-nowrap">
-                <button type="button" id="now_playing_pause" class="btn mx-3 d-none border-0" onclick="send_pause()">
+                <button type="button" id="now_playing_pause" class="btn mx-3 d-none border-0" onclick="sendPause()">
                     <i class="las la-pause la-6x la-fw footer-button" aria-hidden="true"></i>
                 </button>
-                <button type="button" id="now_playing_resume" class="btn mx-3 d-none border-0" onclick="send_resume()">
+                <button type="button" id="now_playing_resume" class="btn mx-3 d-none border-0" onclick="sendResume()">
                     <i class="las la-play la-6x la-fw footer-button" aria-hidden="true"></i>
                 </button>
             </div>
