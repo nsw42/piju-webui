@@ -32,7 +32,9 @@ def get_default_template_args():
         "remote_mode_enabled": mode == 'remote',
         "theme": theme,
         "server": app.server,
-        "make_header": make_header
+        "len": len,
+        "make_header": make_header,
+        "make_header_component": make_header_component
     }
 
 
