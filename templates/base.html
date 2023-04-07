@@ -36,7 +36,28 @@
                         <i id="mode-indicator-local" class="las la-headphones la-5x {{'d-none' if remote_mode_enabled else ''}}"></i>
                     </a>
                 </div>
-                <div class="d-inline-block display-3">{{make_header(header_links)|safe}}</div>
+
+                {% if len(header_links) == 1 %}
+                    {# eg home #}
+                    <div class="d-inline-block display-3">{{make_header(header_links)|safe}}</div>
+                {% elif len(header_links) == 2 %}
+                    {# eg genre #}
+                    <div class="d-inline-block display-3 marquee-2elt">
+                        <div>{{make_header_component(*header_links[0])|safe}}</div>
+                        <div>{{make_header_component(*header_links[1])|safe}}</div>
+                    </div>
+                {% elif len(header_links) == 3 %}
+                    {# eg album #}
+                    <div class="d-inline-block display-3 marquee-3elt">
+                        <div>{{make_header_component(*header_links[0])|safe}}</div>
+                        <div>{{make_header_component(*header_links[1])|safe}}</div>
+                        <div>{{make_header_component(*header_links[2])|safe}}</div>
+                    </div>
+                {% else %}
+                    <!-- unhandled header_links length -->
+                    <div class="d-inline-block display-3">{{make_header(header_links)|safe}}</div>
+                {% endif %}
+
                 <div class="d-inline-block">
                     <div class="d-flex align-items-center">
                         {% if include_random_toggle %}
