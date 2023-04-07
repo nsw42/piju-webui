@@ -57,6 +57,14 @@ button.undecorated {
   background-color: lightgray;
 }
 
+.table-row-odd {
+  background-color: white;
+}
+
+.table-row-even {
+  background-color: whitesmoke;
+}
+
 .stretched-link, .stretched-link:focus, .stretched-link:hover, .stretched-link:active, .stretched-link:focus-visible {
   outline: none;
   border: none;

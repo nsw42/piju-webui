@@ -8,6 +8,8 @@ $headerfooter-background: #000 !default
 $headerfooter-foreground: #000 !default
 $searchresult-background: #000 !default
 $table-hover-background: #000 !default
+$table-background-odd: #000 !default
+$table-background-even: #000 !default
 
 // Expose constants to JS
 :root
@@ -58,6 +60,12 @@ button.undecorated
 // tables
 .div-row-hover:hover
     background-color: $table-hover-background
+
+.table-row-odd
+    background-color: $table-background-odd
+
+.table-row-even
+    background-color: $table-background-even
 
 .stretched-link, .stretched-link:focus, .stretched-link:hover, .stretched-link:active, .stretched-link:focus-visible
     outline: none

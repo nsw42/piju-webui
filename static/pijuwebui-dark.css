@@ -57,6 +57,14 @@ button.undecorated {
   background-color: dimgray;
 }
 
+.table-row-odd {
+  background-color: #272b30;
+}
+
+.table-row-even {
+  background-color: #32383e;
+}
+
 .stretched-link, .stretched-link:focus, .stretched-link:hover, .stretched-link:active, .stretched-link:focus-visible {
   outline: none;
   border: none;
