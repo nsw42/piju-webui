@@ -64,11 +64,9 @@ setInterval(function() {
             let currentTrack = result['CurrentTrack'];
             let newState, newTrackId;
             if (currentTrack && Object.keys(currentTrack).length > 0) {
-                let albumId = idFromLink(currentTrack['album']);
-                if (albumId != "") {
-                    let albumLink = "/albums/" + albumId;
-                    $("#now_playing_album_link").attr('href', albumLink);
-                }
+                let tracklistSource = result['CurrentTracklistUri'];
+                $("#now_playing_album_link").attr('href', tracklistSource);
+
                 let artworkLink = currentTrack['artwork'];
                 if (artworkLink) {
                     $("#now_playing_artwork_padding").addClass("d-none");
