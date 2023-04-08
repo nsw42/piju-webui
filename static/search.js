@@ -164,11 +164,16 @@ function show_track_results(tracks) {
     $("#track_results").removeClass("d-none");
     $("#nr_track_results").text(tracks.length);
     $("#track_results_inner").empty();
+    let banding = ["table-row-even", "table-row-odd"];
+    let bandingIndex = 0;
     for (track of tracks) {
         let template = document.querySelector('#one_track_search_result');
-        div = template.content.cloneNode(true);
+        let div = template.content.cloneNode(true);
 
-        artwork_link = track['artwork'];
+        let trackId = idFromLink(track['link']);
+
+        // fix up artwork
+        let artwork_link = track['artwork'];
         if (artwork_link == null) {
             div.querySelector("#artwork_link_present").remove();
         } else {
@@ -176,18 +181,28 @@ function show_track_results(tracks) {
             div.querySelector("#artwork_link_present").setAttribute("src", server + "/" + artwork_link);
         }
 
-        artist = track['artist'];
+        // populate artist and track title
+        let artist = track['artist'];
         if (artist == null || artist == "") {
             artist = "Unknown Artist";
         }
 
-        title = track['title'];
+        let title = track['title'];
         if (title == null || title == "")  {
             title = "Unknown Track";  // ?!
         }
-        track_artist_title = div.querySelector("#track_artist_title");
-        track_artist_title.setAttribute('href', track['album'] + '?highlight=' + idFromLink(track['link']));
+        let track_artist_title = div.querySelector("#track_artist_title");
+        track_artist_title.setAttribute('href', track['album'] + '?highlight=' + trackId);
         track_artist_title.innerHTML = artist + ": " + title;
+
+        // fix up the banding
+        let tableRow = div.querySelector('#table-row');
+        let cls = tableRow.getAttribute('class');
+        tableRow.setAttribute('class', cls + ' ' + banding[bandingIndex]);
+        bandingIndex = 1 - bandingIndex;
+
+        // fix up the onclick functionality
+        div.querySelector('#add-to-queue-button').setAttribute('onclick', `addToQueue(${trackId})`);
 
         $("#track_results_inner").append(div);
     }

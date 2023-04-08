@@ -33,7 +33,7 @@
             <div class="d-block div-row-hover py-2 align-middle">
                 <div class="position-relative" style="width: 55vw">
                     <div class="d-table-cell ps-3 pe-1">
-                        <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100">
+                        <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100px">
                         <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
                     </div>
                     <div class="d-table-cell align-middle ps-2">
@@ -48,15 +48,20 @@
     <div id="track_results" class="mt-1">
         <div class="w-100"><button type="button" class="undecorated" onclick="toggleTrackCollapse();"><h3><i id="track_result_expander" class="las la-angle-down"></i> Tracks (<span id="nr_track_results"></span>)</h3></button></div>
         <template id="one_track_search_result">
-            <div class="d-block div-row-hover py-2 align-middle">
+            <div id="table-row" class="d-block position-relative div-row-hover py-2 align-middle w-100">
                 <div class="position-relative" style="width: 55vw">
                     <div class="d-table-cell ps-3 pe-1">
-                        <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100">
+                        <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100px">
                         <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
                     </div>
                     <div class="d-table-cell align-middle ps-2">
                         <a id="track_artist_title" href="" class="stretched-link"></a>
                     </div>
+                </div>
+                <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 48px">
+                    <button type="button" id="add-to-queue-button" class="btn border-0 mx-auto add-to-queue-button" onclick="addToQueue(track.id)">
+                        <i class="las la-plus"></i>
+                    </button>
                 </div>
             </div>
         </template>

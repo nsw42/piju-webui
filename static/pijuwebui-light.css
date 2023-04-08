@@ -49,12 +49,26 @@ button.undecorated {
   border: none;
 }
 
+.add-to-queue-button:active i {
+  color: red;
+  padding-top: 8px;
+  margin-left: 2px;
+}
+
 .album-row {
   height: 100px;
 }
 
 .div-row-hover:hover {
   background-color: lightgray;
+}
+
+.table-row-odd {
+  background-color: white;
+}
+
+.table-row-even {
+  background-color: whitesmoke;
 }
 
 .stretched-link, .stretched-link:focus, .stretched-link:hover, .stretched-link:active, .stretched-link:focus-visible {

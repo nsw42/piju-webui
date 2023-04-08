@@ -166,7 +166,7 @@ def playlists():
                            playlists=sorted(app.cache.playlist_summaries.values(), key=lambda p: p.title))
 
 
-@app.route("/playlist/<playlist_id>")
+@app.route("/playlists/<playlist_id>")
 def get_playlist(playlist_id):
     playlist = app.cache.ensure_playlist_cache(playlist_id)
     if playlist is None:
@@ -174,6 +174,16 @@ def get_playlist(playlist_id):
     return render_template('playlist.html', **get_default_template_args(),
                            enumerate=enumerate,
                            playlist=playlist)
+
+
+@app.route("/queue/")
+def view_queue():
+    response = requests.get(app.server + '/queue/')
+    if not response.ok:
+        abort(500)
+    queue = app.cache.track_list_from_json(response.json())
+    return render_template('queue.html', **get_default_template_args(),
+                           queue=queue)
 
 
 @app.route("/search")
@@ -273,7 +283,7 @@ def main():
     app.dev_reload = args.dev_reload
     app.server = args.server
     app.cache = Cache(app)
-    connection_test(app.server, required_api_version='3.0')
+    connection_test(app.server, required_api_version='4.0')
     host, port = '0.0.0.0', 80
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)

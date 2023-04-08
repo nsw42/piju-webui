@@ -15,7 +15,7 @@ Album = namedtuple('Album',
 Artist = namedtuple('Artist', 'name, albums')
 Playlist = namedtuple('Playlist', 'id, server_link, title, tracks')
 PlaylistSummary = namedtuple('PlaylistSummary', 'id, server_link, title')
-Track = namedtuple('Track', 'id, title, disknumber, tracknumber')
+Track = namedtuple('Track', 'id, artist, title, disknumber, tracknumber')
 
 
 def id_from_link(link):
@@ -211,6 +211,7 @@ class Cache:
 
     def track_list_from_json(self, tracks_json):
         tracks = [Track(id=id_from_link(track_json['link']),
+                        artist=track_json['artist'],
                         title=track_json['title'],
                         disknumber=track_json['disknumber'],
                         tracknumber=track_json['tracknumber'])

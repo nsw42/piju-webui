@@ -8,6 +8,8 @@ $headerfooter-background: #000 !default
 $headerfooter-foreground: #000 !default
 $searchresult-background: #000 !default
 $table-hover-background: #000 !default
+$table-background-odd: #000 !default
+$table-background-even: #000 !default
 
 // Expose constants to JS
 :root
@@ -51,6 +53,10 @@ button.undecorated
     background-color: inherit
     border: none
 
+.add-to-queue-button:active i
+    color: red
+    padding-top: 8px
+    margin-left: 2px
 
 .album-row
     height: $album-row-height
@@ -58,6 +64,12 @@ button.undecorated
 // tables
 .div-row-hover:hover
     background-color: $table-hover-background
+
+.table-row-odd
+    background-color: $table-background-odd
+
+.table-row-even
+    background-color: $table-background-even
 
 .stretched-link, .stretched-link:focus, .stretched-link:hover, .stretched-link:active, .stretched-link:focus-visible
     outline: none
@@ -108,28 +120,28 @@ a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawe
 
 
 @keyframes marquee-2elt-one
-  0%
-    transform: translateX(100%)
-  10%
-    transform: translateX(0)
-  40%
-    transform: translateX(0)
-  50%
-    transform: translateX(-100%)
-  100%
-    transform: translateX(-100%)
+    0%
+        transform: translateX(100%)
+    10%
+        transform: translateX(0)
+    40%
+        transform: translateX(0)
+    50%
+        transform: translateX(-100%)
+    100%
+        transform: translateX(-100%)
 
 @keyframes marquee-2elt-two
-  0%
-    transform: translateX(100%)
-  40%
-    transform: translateX(100%)
-  50%
-    transform: translateX(0)
-  90%
-    transform: translateX(0)
-  100%
-    transform: translateX(-100%)
+    0%
+        transform: translateX(100%)
+    40%
+        transform: translateX(100%)
+    50%
+        transform: translateX(0)
+    90%
+        transform: translateX(0)
+    100%
+        transform: translateX(-100%)
 
 
 .marquee-3elt
@@ -145,39 +157,39 @@ a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawe
         animation: marquee-3elt-three 24s ease infinite
 
 @keyframes marquee-3elt-one
-  0%
-    transform: translateX(100%)
-  7%
-    transform: translateX(0)
-  27%
-    transform: translateX(0)
-  33%
-    transform: translateX(-100%)
-  100%
-    transform: translateX(-100%)
+    0%
+        transform: translateX(100%)
+    7%
+        transform: translateX(0)
+    27%
+        transform: translateX(0)
+    33%
+        transform: translateX(-100%)
+    100%
+        transform: translateX(-100%)
 
 @keyframes marquee-3elt-two
-  0%
-    transform: translateX(100%)
-  27%
-    transform: translateX(100%)
-  33%
-    transform: translateX(0)
-  60%
-    transform: translateX(0)
-  67%
-    transform: translateX(-100%)
-  100%
-    transform: translateX(-100%)
+    0%
+        transform: translateX(100%)
+    27%
+        transform: translateX(100%)
+    33%
+        transform: translateX(0)
+    60%
+        transform: translateX(0)
+    67%
+        transform: translateX(-100%)
+    100%
+        transform: translateX(-100%)
 
 @keyframes marquee-3elt-three
-  0%
-    transform: translateX(100%)
-  60%
-    transform: translateX(100%)
-  67%
-    transform: translateX(0)
-  93%
-    transform: translateX(0)
-  100%
-    transform: translateX(-100%)
+    0%
+        transform: translateX(100%)
+    60%
+        transform: translateX(100%)
+    67%
+        transform: translateX(0)
+    93%
+        transform: translateX(0)
+    100%
+        transform: translateX(-100%)
