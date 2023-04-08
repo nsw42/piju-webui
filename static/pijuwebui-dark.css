@@ -49,6 +49,12 @@ button.undecorated {
   border: none;
 }
 
+.add-to-queue-button:active i {
+  color: red;
+  padding-top: 8px;
+  margin-left: 2px;
+}
+
 .album-row {
   height: 100px;
 }
