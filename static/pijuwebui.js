@@ -22,6 +22,31 @@ localTrackIndex = null;
 fetching = false;
 // playlistTrackIds is also declared in script blocks in the html pages that support local playback
 
+// Utility functions
+function getCSSVariable(varName) {
+    // Credit to https://levelup.gitconnected.com/stop-duplicating-constants-between-js-and-css-40efd253a945
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue(varName);
+}
+
+function idFromLink(link) {
+    const tmp = link.split('/');
+    return tmp[tmp.length - 1];
+}
+
+function hideButtons(allToHide) {
+    for (const oneToHide of allToHide) {
+        $(oneToHide).addClass('d-none');
+    }
+}
+
+function showButtons(allToShow) {
+    for (const oneToShow of allToShow) {
+        $(oneToShow).removeClass('d-none');
+    }
+}
+
+// Remote control functions
 setInterval(function() {
     if (!currentModeRemoteControl) {
         return;
@@ -92,37 +117,36 @@ setInterval(function() {
     });
 }, 1000);
 
-function getCSSVariable(varName) {
-    // Credit to https://levelup.gitconnected.com/stop-duplicating-constants-between-js-and-css-40efd253a945
-    return getComputedStyle(document.documentElement)
-      .getPropertyValue(varName);
+
+function sendPause() {
+    $.ajax({
+        url: server + "/player/pause",
+        method: "POST"
+    });
 }
 
-function idFromLink(link) {
-    const tmp = link.split('/');
-    return tmp[tmp.length - 1];
+function sendResume() {
+    $.ajax({
+        url: server + "/player/resume",
+        method: "POST"
+    });
 }
 
-function playAlbum(albumId, trackId, playlistIndex) {
+function addToQueue(trackId) {
     if (currentModeRemoteControl) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.open("POST", "/play_album/" + albumId + "/" + trackId, true);
-        xhttp.send();
-    } else {
-        localPlay(playlistIndex);
+        $.ajax({
+            url: server + "/queue/",
+            method: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify({track: trackId}),
+            dataType: "json",
+            processData: false,
+        });
     }
 }
 
-function playPlaylist(playlistId, trackId, playlistIndex) {
-    if (currentModeRemoteControl) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.open("POST", "/play_playlist/" + playlistId + "/" + trackId, true);
-        xhttp.send();
-    } else {
-        localPlay(playlistIndex);
-    }
-}
 
+// Local playback functions
 function setupLocalPlayers() {
     localPlayers = playlistTrackIds.map(trackId => new Howl({
         src: [server + '/mp3/' + trackId],
@@ -223,18 +247,6 @@ function localResume() {
     }
 }
 
-function hideButtons(allToHide) {
-    for (const oneToHide of allToHide) {
-        $(oneToHide).addClass('d-none');
-    }
-}
-
-function showButtons(allToShow) {
-    for (const oneToShow of allToShow) {
-        $(oneToShow).removeClass('d-none');
-    }
-}
-
 function showPlaybackFetching() {
     showButtons(['#local-fetching']);
     hideButtons(['#local-previous', '#local-pause', '#local-resume', '#local-next']);
@@ -256,18 +268,26 @@ function showPlaybackActive() {
     showButtons(['#local-previous', '#local-pause', '#local-next']);
 }
 
-function sendPause() {
-    $.ajax({
-        url: server + "/player/pause",
-        method: "POST"
-    });
+// Functions common to both remote control and local playback
+
+function playAlbum(albumId, trackId, playlistIndex) {
+    if (currentModeRemoteControl) {
+        let xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/play_album/" + albumId + "/" + trackId, true);
+        xhttp.send();
+    } else {
+        localPlay(playlistIndex);
+    }
 }
 
-function sendResume() {
-    $.ajax({
-        url: server + "/player/resume",
-        method: "POST"
-    });
+function playPlaylist(playlistId, trackId, playlistIndex) {
+    if (currentModeRemoteControl) {
+        let xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "/play_playlist/" + playlistId + "/" + trackId, true);
+        xhttp.send();
+    } else {
+        localPlay(playlistIndex);
+    }
 }
 
 function toggleMode() {
