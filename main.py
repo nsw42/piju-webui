@@ -176,6 +176,13 @@ def get_playlist(playlist_id):
                            playlist=playlist)
 
 
+@app.route("/queue/")
+def view_queue():
+    queue = requests.get(app.server + '/queue/').json()
+    return render_template('queue.html', **get_default_template_args(),
+                           queue=queue)
+
+
 @app.route("/search")
 def search():
     return render_template('search.html', **get_default_template_args())
