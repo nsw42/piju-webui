@@ -178,7 +178,10 @@ def get_playlist(playlist_id):
 
 @app.route("/queue/")
 def view_queue():
-    queue = requests.get(app.server + '/queue/').json()
+    response = requests.get(app.server + '/queue/')
+    if not response.ok:
+        abort(500)
+    queue = app.cache.track_list_from_json(response.json())
     return render_template('queue.html', **get_default_template_args(),
                            queue=queue)
 
