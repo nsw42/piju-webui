@@ -166,7 +166,7 @@ def playlists():
                            playlists=sorted(app.cache.playlist_summaries.values(), key=lambda p: p.title))
 
 
-@app.route("/playlist/<playlist_id>")
+@app.route("/playlists/<playlist_id>")
 def get_playlist(playlist_id):
     playlist = app.cache.ensure_playlist_cache(playlist_id)
     if playlist is None:
