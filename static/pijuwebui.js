@@ -143,6 +143,21 @@ function addToQueue(trackId) {
     }
 }
 
+function removeFromQueue(index, trackId) {
+    if (currentModeRemoteControl) {
+        $.ajax({
+            url: server + "/queue/",
+            method: "DELETE",
+            contentType: "application/json",
+            data: JSON.stringify({index: index, track: trackId}),
+            dataType: "json",
+            processData: false,
+            success: function() {
+                window.location.reload();
+            }
+        });
+    }
+}
 
 // Local playback functions
 function setupLocalPlayers() {
