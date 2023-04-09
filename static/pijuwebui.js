@@ -107,9 +107,14 @@ setInterval(function() {
             }
 
             if (newTrackId != currentTrackId) {
-                $("#track_"+currentTrackId).removeClass("active-track");
-                currentTrackId = newTrackId;
-                $("#track_"+currentTrackId).addClass("active-track");
+                if ((window.location.pathname == '/queue/') && (currentTrackId !== null)) {
+                    // Quick and dirty fixup to ensure that indexes match when removing items from the queue
+                    window.location.reload();
+                } else {
+                    $("#track_"+currentTrackId).removeClass("active-track");
+                    currentTrackId = newTrackId;
+                    $("#track_"+currentTrackId).addClass("active-track");
+                }
             }
         }
     });
