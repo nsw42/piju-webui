@@ -283,7 +283,7 @@ def main():
     app.dev_reload = args.dev_reload
     app.server = args.server
     app.cache = Cache(app)
-    connection_test(app.server, required_api_version='4.0')
+    connection_test(app.server, required_api_version='4.1')
     host, port = '0.0.0.0', 80
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
