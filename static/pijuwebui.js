@@ -320,7 +320,7 @@ function toggleMode() {
         $('#footer_nothing_playing').removeClass('d-none');
         $('#footer_playing').removeClass('d-none');
         $('#footer-local-playback').addClass('d-none');
-        $('.add-to-queue-button').each(function() {
+        $('.queue-button').each(function() {
             $(this).removeClass('d-none')
         });
     } else {
@@ -332,7 +332,7 @@ function toggleMode() {
         $('#footer_nothing_playing').addClass('d-none');
         $('#footer_playing').addClass('d-none');
         $('#footer-local-playback').removeClass('d-none');
-        $('.add-to-queue-button').each(function() {
+        $('.queue-button').each(function() {
             $(this).addClass('d-none')
         });
     }
