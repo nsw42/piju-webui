@@ -107,9 +107,14 @@ setInterval(function() {
             }
 
             if (newTrackId != currentTrackId) {
-                $("#track_"+currentTrackId).removeClass("active-track");
-                currentTrackId = newTrackId;
-                $("#track_"+currentTrackId).addClass("active-track");
+                if ((window.location.pathname == '/queue/') && (currentTrackId !== null)) {
+                    // Quick and dirty fixup to ensure that indexes match when removing items from the queue
+                    window.location.reload();
+                } else {
+                    $("#track_"+currentTrackId).removeClass("active-track");
+                    currentTrackId = newTrackId;
+                    $("#track_"+currentTrackId).addClass("active-track");
+                }
             }
         }
     });
@@ -143,6 +148,21 @@ function addToQueue(trackId) {
     }
 }
 
+function removeFromQueue(index, trackId) {
+    if (currentModeRemoteControl) {
+        $.ajax({
+            url: server + "/queue/",
+            method: "DELETE",
+            contentType: "application/json",
+            data: JSON.stringify({index: index, track: trackId}),
+            dataType: "json",
+            processData: false,
+            success: function() {
+                window.location.reload();
+            }
+        });
+    }
+}
 
 // Local playback functions
 function setupLocalPlayers() {
@@ -305,7 +325,7 @@ function toggleMode() {
         $('#footer_nothing_playing').removeClass('d-none');
         $('#footer_playing').removeClass('d-none');
         $('#footer-local-playback').addClass('d-none');
-        $('.add-to-queue-button').each(function() {
+        $('.queue-button').each(function() {
             $(this).removeClass('d-none')
         });
     } else {
@@ -317,7 +337,7 @@ function toggleMode() {
         $('#footer_nothing_playing').addClass('d-none');
         $('#footer_playing').addClass('d-none');
         $('#footer-local-playback').removeClass('d-none');
-        $('.add-to-queue-button').each(function() {
+        $('.queue-button').each(function() {
             $(this).addClass('d-none')
         });
     }
