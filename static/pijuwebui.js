@@ -308,6 +308,16 @@ function playPlaylist(playlistId, trackId, playlistIndex) {
     }
 }
 
+function playFromQueue(queuePos, trackId) {
+    if (currentModeRemoteControl) {
+        let xhttp = new XMLHttpRequest();
+        xhttp.open("POST", `/play_queue/${queuePos}/${trackId}`, true);
+        xhttp.send();
+    } else {
+        // You shouldn't be messing with the queue, then
+    }
+}
+
 function toggleMode() {
     currentModeRemoteControl = !currentModeRemoteControl;
     Cookies.set('mode', currentModeRemoteControl ? 'remote' : 'local', { sameSite: 'Lax' });

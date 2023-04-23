@@ -159,6 +159,13 @@ def play_playlist(playlist_id, track_id):
     return ('', 204)
 
 
+@app.route("/play_queue/<queue_pos>/<track_id>", methods=["POST"])
+def play_queue(queue_pos, track_id):
+    requests.post(f"{app.server}/player/play",
+                  json={'queuepos': queue_pos, 'track': track_id})
+    return ('', 204)
+
+
 @app.route("/playlists")
 def playlists():
     app.cache.ensure_playlist_summary()
@@ -283,7 +290,7 @@ def main():
     app.dev_reload = args.dev_reload
     app.server = args.server
     app.cache = Cache(app)
-    connection_test(app.server, required_api_version='4.1')
+    connection_test(app.server, required_api_version='4.2')
     host, port = '0.0.0.0', 80
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
