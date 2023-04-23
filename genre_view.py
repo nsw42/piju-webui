@@ -25,6 +25,7 @@ GENRE_SORT_ORDERS = [
         '(Jazz)',
         'Blues',
         'Bluegrass',
+        'Funk',
         'Funk/Soul',
         'Jazz',
         'R&B',
