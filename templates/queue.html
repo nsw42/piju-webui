@@ -3,10 +3,11 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if queue %}
     <div class="d-block position-relative my-1">
         {% for track in queue %}
         <div class="d-block">
-            <div class="d-block position-relative div-row-hover py-2 align-middle {{loop.cycle("table-row-odd", "table-row-even")}}" id="track_{{track.id}}">
+            <div class="d-block position-relative div-row-hover py-2 align-middle {{loop.cycle('table-row-odd', 'table-row-even')}}" id="track_{{track.id}}">
                 <div class="d-inline-block position-relative" style="width: calc(100% - 60px)">
                     <div class="d-inline-block" style="width: 0px;">
                         <button onclick='' class="stretched-link btn btn-link"></button>
@@ -27,6 +28,15 @@
         </div>
         {% endfor %}
     </div>
+{% else %}
+    <div class="position-absolute single-content-position w-50">
+        <div class="alert alert-secondary text-center shadow">
+            <i class="las la-info-circle float-start"></i>
+            <em>Queue is empty</em>
+            <i class="las la-info-circle float-end invisible"></i>  {# An invisible element to ensure the text is centred #}
+        </div>
+    </div>
+{% endif %}
 
     <script>
         playlistTrackIds = [];

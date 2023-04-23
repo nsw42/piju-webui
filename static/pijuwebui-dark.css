@@ -59,6 +59,12 @@ button.undecorated {
   height: 100px;
 }
 
+.single-content-position {
+  top: 38.2%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .div-row-hover:hover {
   background-color: dimgray;
 }
