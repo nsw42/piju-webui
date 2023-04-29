@@ -30,8 +30,12 @@ function getCSSVariable(varName) {
 }
 
 function idFromLink(link) {
-    const tmp = link.split('/');
-    return tmp[tmp.length - 1];
+    if (link === undefined) {
+        return '';
+    } else {
+        const tmp = link.split('/');
+        return tmp[tmp.length - 1];
+    }
 }
 
 function hideButtons(allToHide) {
@@ -61,9 +65,12 @@ setInterval(function() {
                 return;
             }
             result = JSON.parse(result);
-            let currentTrack = result['CurrentTrack'];
             let newState, newTrackId;
-            if (currentTrack && Object.keys(currentTrack).length > 0) {
+            if (result['PlayerStatus'] == 'stopped') {
+                newState = STATE_STOPPED;
+                newTrackId = null;
+            } else {
+                let currentTrack = result['CurrentTrack'];
                 let tracklistSource = result['CurrentTracklistUri'];
                 $("#now_playing_album_link").attr('href', tracklistSource);
 
@@ -81,9 +88,6 @@ setInterval(function() {
                 newState = (result['PlayerStatus'] == "paused") ? STATE_PAUSED : STATE_PLAYING;
 
                 newTrackId = idFromLink(currentTrack['link']);
-            } else {
-                newState = STATE_STOPPED;
-                newTrackId = null;
             }
 
             if (newState != remoteCurrentState) {

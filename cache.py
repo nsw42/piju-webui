@@ -19,7 +19,7 @@ Track = namedtuple('Track', 'id, artist, title, disknumber, tracknumber')
 
 
 def id_from_link(link):
-    return link[link.rindex('/') + 1:]
+    return link[link.rindex('/') + 1:] if link else ''
 
 
 class Cache:
