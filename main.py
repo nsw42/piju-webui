@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 import datetime
+from http import HTTPStatus
 from itertools import zip_longest
 import json
 import logging
@@ -196,6 +197,17 @@ def view_queue():
 @app.route("/search")
 def search():
     return render_template('search.html', **get_default_template_args())
+
+
+@app.route("/youtube", methods=['GET', 'POST'])
+def youtube():
+    if request.method == 'POST':
+        url = request.form['url']
+        if not url:
+            abort(HTTPStatus.BAD_REQUEST, "No URL specified")
+        requests.post(f"{app.server}/player/play",
+                      json={'url': url})
+    return render_template('youtube.html', **get_default_template_args())
 
 
 def make_header(links):
