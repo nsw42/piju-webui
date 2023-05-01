@@ -30,8 +30,12 @@ function getCSSVariable(varName) {
 }
 
 function idFromLink(link) {
-    const tmp = link.split('/');
-    return tmp[tmp.length - 1];
+    if (link === undefined || link === null) {
+        return '';
+    } else {
+        const tmp = link.split('/');
+        return tmp[tmp.length - 1];
+    }
 }
 
 function hideButtons(allToHide) {
@@ -61,16 +65,22 @@ setInterval(function() {
                 return;
             }
             result = JSON.parse(result);
-            let currentTrack = result['CurrentTrack'];
             let newState, newTrackId;
-            if (currentTrack && Object.keys(currentTrack).length > 0) {
+            if (result['PlayerStatus'] == 'stopped') {
+                newState = STATE_STOPPED;
+                newTrackId = null;
+            } else {
+                let currentTrack = result['CurrentTrack'];
                 let tracklistSource = result['CurrentTracklistUri'];
                 $("#now_playing_album_link").attr('href', tracklistSource);
 
                 let artworkLink = currentTrack['artwork'];
                 if (artworkLink) {
+                    if (!artworkLink.startsWith('http')) {
+                        artworkLink = server + artworkLink;
+                    }
                     $("#now_playing_artwork_padding").addClass("d-none");
-                    $("#now_playing_artwork").removeClass("d-none").attr('src', server + artworkLink);
+                    $("#now_playing_artwork").removeClass("d-none").attr('src', artworkLink);
                 } else {
                     $("#now_playing_artwork_padding").removeClass("d-none");
                     $("#now_playing_artwork").addClass("d-none");
@@ -81,9 +91,6 @@ setInterval(function() {
                 newState = (result['PlayerStatus'] == "paused") ? STATE_PAUSED : STATE_PLAYING;
 
                 newTrackId = idFromLink(currentTrack['link']);
-            } else {
-                newState = STATE_STOPPED;
-                newTrackId = null;
             }
 
             if (newState != remoteCurrentState) {

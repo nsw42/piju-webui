@@ -1,0 +1,14 @@
+{% set header_links=[("/", "PiJu"), ("/youtube", "YouTube")] %}
+{% extends "base.html" %}
+
+{% block content %}
+<form action="/youtube" method="post">
+    <div class="w-100 my-2">
+        <input type="url" id="url" name="url" maxlength="100" autofocus class="w-100">
+    </div>
+    <div class="w-100 d-flex justify-content-evenly">
+        <button type="submit" class="btn btn-secondary" id="queue" name="queue">Add to queue</button>
+        <button type="submit" class="btn btn-primary" id="play" name="play">Play</button>
+    </div>
+</form>
+{% endblock %}
