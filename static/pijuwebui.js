@@ -30,7 +30,7 @@ function getCSSVariable(varName) {
 }
 
 function idFromLink(link) {
-    if (link === undefined) {
+    if (link === undefined || link === null) {
         return '';
     } else {
         const tmp = link.split('/');
