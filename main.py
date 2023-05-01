@@ -205,8 +205,12 @@ def youtube():
         url = request.form['url']
         if not url:
             abort(HTTPStatus.BAD_REQUEST, "No URL specified")
-        requests.post(f"{app.server}/player/play",
-                      json={'url': url})
+        if 'queue' in request.form:
+            requests.put(f"{app.server}/queue",
+                         json={'url': url})
+        else:
+            requests.post(f"{app.server}/player/play",
+                          json={'url': url})
     return render_template('youtube.html', **get_default_template_args())
 
 
