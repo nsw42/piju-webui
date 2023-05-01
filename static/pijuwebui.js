@@ -76,8 +76,11 @@ setInterval(function() {
 
                 let artworkLink = currentTrack['artwork'];
                 if (artworkLink) {
+                    if (!artworkLink.startsWith('http')) {
+                        artworkLink = server + artworkLink;
+                    }
                     $("#now_playing_artwork_padding").addClass("d-none");
-                    $("#now_playing_artwork").removeClass("d-none").attr('src', server + artworkLink);
+                    $("#now_playing_artwork").removeClass("d-none").attr('src', artworkLink);
                 } else {
                     $("#now_playing_artwork_padding").removeClass("d-none");
                     $("#now_playing_artwork").addClass("d-none");
