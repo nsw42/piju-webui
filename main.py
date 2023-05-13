@@ -45,8 +45,9 @@ def cache_refresh_requested():
 
 @app.route("/")
 def root():
-    app.cache.ensure_genre_cache()
-    app.cache.ensure_playlist_summary()
+    refresh_requested = cache_refresh_requested()
+    app.cache.ensure_genre_cache(refresh_requested)
+    app.cache.ensure_playlist_summary(refresh_requested)
     return render_template('index.html',
                            **get_default_template_args(),
                            genres=app.cache.display_genres,

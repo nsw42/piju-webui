@@ -101,10 +101,12 @@ class Cache:
             self._add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
         return self.artist_details[artist_lookup]
 
-    def ensure_genre_cache(self):
+    def ensure_genre_cache(self, refresh=False):
         self.app.logger.debug("ensure_genre_cache")
-        if self.display_genres is None:
-            response = requests.get(self.app.server + '/genres')
+        if refresh or self.display_genres is None:
+            genres_url = self.app.server + '/genres'
+            self.app.logger.debug(f'fetching {genres_url}')
+            response = requests.get(genres_url)
             if response.status_code != 200:
                 raise Exception('Unable to connect to server')  # TODO: Error handling
             display_names_set = set()
