@@ -81,7 +81,9 @@ class Cache:
     def ensure_album_cache(self, album_id, refresh=False) -> Optional[Album]:
         self.ensure_genre_cache()  # Needed for the genre_name in add_album_from_json
         if refresh or self.album_details.get(album_id) is None:
-            response = requests.get(f'{self.app.server}/albums/{album_id}?tracks=all')
+            album_url = f'{self.app.server}/albums/{album_id}?tracks=all'
+            self.app.logger.debug(f'fetching {album_url}')
+            response = requests.get(album_url)
             if response.status_code != 200:
                 abort(500)  # TODO: Error handling
             self.add_album_from_json(response.json())  # updates self.album_details[album_id]
