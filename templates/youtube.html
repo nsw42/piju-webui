@@ -11,4 +11,18 @@
         <button type="submit" class="btn btn-primary" id="play" name="play">Play</button>
     </div>
 </form>
+
+<div class="d-block position-relative my-1">
+    <div id="downloading-indicator-parent" class="w-100 fullscreen-content d-none">
+        <div class="d-flex position-absolute start-50 translate-middle" style="top: 25%">
+            <div class="d-block">
+                <div class="spinner-border d-block" role="status" style="width: 5rem; height: 5rem;">
+                    <span class="visually-hidden">Fetching...</span>
+                </div>
+                <div class="d-block text-center mt-3">
+                    Fetching...
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
