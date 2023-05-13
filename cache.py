@@ -173,10 +173,12 @@ class Cache:
             self.albums_in_genre[genre_name] = albums
         return self.albums_in_genre[genre_name]
 
-    def ensure_playlist_cache(self, playlist_id):
-        self.app.logger.debug(f"ensure_playlist_cache({playlist_id}")
-        if self.playlist_details.get(playlist_id) is None:
-            response = requests.get(f'{self.app.server}/playlists/{playlist_id}?tracks=all')
+    def ensure_playlist_cache(self, playlist_id, refresh=False):
+        self.app.logger.debug(f"ensure_playlist_cache({playlist_id})")
+        if refresh or self.playlist_details.get(playlist_id) is None:
+            playlist_url = f'{self.app.server}/playlists/{playlist_id}?tracks=all'
+            self.app.logger.debug(f'fetching {playlist_url}')
+            response = requests.get(playlist_url)
             if response.status_code != 200:
                 abort(500)  # TODO: Error handling
             self._add_playlist_from_json(response.json())

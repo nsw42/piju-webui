@@ -180,7 +180,7 @@ def playlists():
 
 @app.route("/playlists/<playlist_id>")
 def get_playlist(playlist_id):
-    playlist = app.cache.ensure_playlist_cache(playlist_id)
+    playlist = app.cache.ensure_playlist_cache(playlist_id, cache_refresh_requested())
     if playlist is None:
         abort(404)
     return render_template('playlist.html', **get_default_template_args(),
