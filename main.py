@@ -128,7 +128,8 @@ def get_genre(genre_name):
 @app.route("/genre_contents/<genre_name>")
 def get_genre_content(genre_name):
     timeout = int(request.args.get('timeout', 5000))
-    albums = app.cache.ensure_genre_contents_cache(genre_name, timeout)
+    refresh_cache = request.headers.get('Cache-Control') == 'no-cache'
+    albums = app.cache.ensure_genre_contents_cache(genre_name, timeout, refresh_cache)
     if albums is None:
         abort(404)
     first_album_for_anchor = {}

@@ -126,7 +126,7 @@ class Cache:
             self.display_names = list(sorted(display_names_set, key=lambda dn: genre_view.GENRE_SORT_ORDER[dn]))
             self.display_genres = [genre_view.GENRE_VIEWS[dn] for dn in self.display_names]
 
-    def ensure_genre_contents_cache(self, genre_name, timeout) -> Optional[List[Album]]:
+    def ensure_genre_contents_cache(self, genre_name, timeout, refresh=False) -> Optional[List[Album]]:
         """
         Ensure we have a cache of the contents of the given genre,
         and return a list of the albums in that Genre.
@@ -134,7 +134,7 @@ class Cache:
         """
         start = datetime.datetime.now()
         self.ensure_genre_cache()
-        if self.albums_in_genre.get(genre_name) is None:
+        if refresh or self.albums_in_genre.get(genre_name) is None:
             server_links = self.genre_links.get(genre_name)  # Could be a request for an unknown genre name
             if server_links is None:
                 return None
@@ -147,7 +147,7 @@ class Cache:
                 if (timeout is not None) and (ms_elapsed > timeout):
                     abort(504)  # gateway timeout, sort of accurate
                 self.app.logger.debug(link)
-                if link in self.partial_cache:
+                if (link in self.partial_cache) and not refresh:
                     genre_json = self.partial_cache[link]
                 else:
                     response = requests.get(self.app.server + link + '?albums=all', timeout=timeout)
