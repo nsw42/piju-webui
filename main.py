@@ -109,7 +109,8 @@ def get_album(album_id):
 
 @app.route("/artists/<artist>")
 def get_artist(artist):
-    artist = app.cache.ensure_artist_cache(artist)
+    refresh_cache = request.headers.get('Cache-Control') == 'no-cache'
+    artist = app.cache.ensure_artist_cache(artist, refresh_cache)
     if artist is None:
         abort(404)
     return render_template('artist.html', **get_default_template_args(), artist=artist)

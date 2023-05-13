@@ -89,11 +89,13 @@ class Cache:
             self.add_album_from_json(response.json())  # updates self.album_details[album_id]
         return self.album_details[album_id]
 
-    def ensure_artist_cache(self, artist) -> Optional[Artist]:
+    def ensure_artist_cache(self, artist, refresh=False) -> Optional[Artist]:
         self.ensure_genre_cache()  # Needed for the genre_name in add_album_from_json
         artist_lookup = artist.lower()
-        if self.artist_details.get(artist_lookup) is None:
-            response = requests.get(f'{self.app.server}/artists/{artist}?tracks=all')
+        if refresh or self.artist_details.get(artist_lookup) is None:
+            artist_url = f'{self.app.server}/artists/{artist}?tracks=all'
+            self.app.logger.debug(f'fetching {artist_url}')
+            response = requests.get(artist_url)
             if response.status_code != 200:
                 abort(404)  # TODO: Error handling
             self.add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
