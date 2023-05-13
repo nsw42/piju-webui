@@ -39,6 +39,10 @@ def get_default_template_args():
     }
 
 
+def cache_refresh_requested():
+    return request.headers.get('Cache-Control') == 'no-cache'
+
+
 @app.route("/")
 def root():
     app.cache.ensure_genre_cache()
@@ -99,8 +103,7 @@ def set_theme():
 
 @app.route("/albums/<album_id>")
 def get_album(album_id):
-    refresh_cache = request.headers.get('Cache-Control') == 'no-cache'
-    album = app.cache.ensure_album_cache(album_id, refresh_cache)
+    album = app.cache.ensure_album_cache(album_id, cache_refresh_requested())
     if album is None:
         abort(404)
     to_highlight = request.args.get('highlight', None)
@@ -109,8 +112,7 @@ def get_album(album_id):
 
 @app.route("/artists/<artist>")
 def get_artist(artist):
-    refresh_cache = request.headers.get('Cache-Control') == 'no-cache'
-    artist = app.cache.ensure_artist_cache(artist, refresh_cache)
+    artist = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
     if artist is None:
         abort(404)
     return render_template('artist.html', **get_default_template_args(), artist=artist)
@@ -128,8 +130,7 @@ def get_genre(genre_name):
 @app.route("/genre_contents/<genre_name>")
 def get_genre_content(genre_name):
     timeout = int(request.args.get('timeout', 5000))
-    refresh_cache = request.headers.get('Cache-Control') == 'no-cache'
-    albums = app.cache.ensure_genre_contents_cache(genre_name, timeout, refresh_cache)
+    albums = app.cache.ensure_genre_contents_cache(genre_name, timeout, cache_refresh_requested())
     if albums is None:
         abort(404)
     first_album_for_anchor = {}
