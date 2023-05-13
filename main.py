@@ -99,7 +99,8 @@ def set_theme():
 
 @app.route("/albums/<album_id>")
 def get_album(album_id):
-    album = app.cache.ensure_album_cache(album_id)
+    refresh_cache = request.headers.get('Cache-Control') == 'no-cache'
+    album = app.cache.ensure_album_cache(album_id, refresh_cache)
     if album is None:
         abort(404)
     to_highlight = request.args.get('highlight', None)
