@@ -27,7 +27,7 @@ class Cache:
         self.app = app
         self.flush()
 
-    def add_album_from_json(self, album_json):
+    def _add_album_from_json(self, album_json):
         album_id = id_from_link(album_json['link'])
         first_genre = album_json['genres'][0] if album_json['genres'] else None
         genre_name = self.genre_names_from_links[first_genre] if first_genre else None
@@ -55,19 +55,19 @@ class Cache:
         self.album_details[album_id] = album_details
         return album_details
 
-    def add_artist_from_json(self, artist_json):
+    def _add_artist_from_json(self, artist_json):
         # We'd normally only expect a single artist in the response
         # but this works if there are multiple, which can happen if
         # there are multiple capitalisations of an artist
         albums = []
         for artist_name, albums_json in artist_json.items():
             for album_json in albums_json:
-                albums.append(self.add_album_from_json(album_json))
+                albums.append(self._add_album_from_json(album_json))
         albums.sort(key=lambda album: album.year if album.year else 9999)
         artist = Artist(artist_name, albums)
         self.artist_details[artist_name.lower()] = artist
 
-    def add_playlist_from_json(self, playlist_json):
+    def _add_playlist_from_json(self, playlist_json):
         link = playlist_json['link']
         playlist_id = id_from_link(link)
         tracks = self.track_list_from_json(playlist_json['tracks'])
@@ -78,29 +78,35 @@ class Cache:
         self.playlist_details[playlist_id] = playlist_details
         return playlist_details
 
-    def ensure_album_cache(self, album_id) -> Optional[Album]:
+    def ensure_album_cache(self, album_id, refresh=False) -> Optional[Album]:
         self.ensure_genre_cache()  # Needed for the genre_name in add_album_from_json
-        if self.album_details.get(album_id) is None:
-            response = requests.get(f'{self.app.server}/albums/{album_id}?tracks=all')
+        if refresh or self.album_details.get(album_id) is None:
+            album_url = f'{self.app.server}/albums/{album_id}?tracks=all'
+            self.app.logger.debug(f'fetching {album_url}')
+            response = requests.get(album_url)
             if response.status_code != 200:
                 abort(500)  # TODO: Error handling
-            self.add_album_from_json(response.json())  # updates self.album_details[album_id]
+            self._add_album_from_json(response.json())  # updates self.album_details[album_id]
         return self.album_details[album_id]
 
-    def ensure_artist_cache(self, artist) -> Optional[Artist]:
+    def ensure_artist_cache(self, artist, refresh=False) -> Optional[Artist]:
         self.ensure_genre_cache()  # Needed for the genre_name in add_album_from_json
         artist_lookup = artist.lower()
-        if self.artist_details.get(artist_lookup) is None:
-            response = requests.get(f'{self.app.server}/artists/{artist}?tracks=all')
+        if refresh or self.artist_details.get(artist_lookup) is None:
+            artist_url = f'{self.app.server}/artists/{artist}?tracks=all'
+            self.app.logger.debug(f'fetching {artist_url}')
+            response = requests.get(artist_url)
             if response.status_code != 200:
                 abort(404)  # TODO: Error handling
-            self.add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
+            self._add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
         return self.artist_details[artist_lookup]
 
-    def ensure_genre_cache(self):
+    def ensure_genre_cache(self, refresh=False):
         self.app.logger.debug("ensure_genre_cache")
-        if self.display_genres is None:
-            response = requests.get(self.app.server + '/genres')
+        if refresh or self.display_genres is None:
+            genres_url = self.app.server + '/genres'
+            self.app.logger.debug(f'fetching {genres_url}')
+            response = requests.get(genres_url)
             if response.status_code != 200:
                 raise Exception('Unable to connect to server')  # TODO: Error handling
             display_names_set = set()
@@ -122,7 +128,7 @@ class Cache:
             self.display_names = list(sorted(display_names_set, key=lambda dn: genre_view.GENRE_SORT_ORDER[dn]))
             self.display_genres = [genre_view.GENRE_VIEWS[dn] for dn in self.display_names]
 
-    def ensure_genre_contents_cache(self, genre_name, timeout) -> Optional[List[Album]]:
+    def ensure_genre_contents_cache(self, genre_name, timeout, refresh=False) -> Optional[List[Album]]:
         """
         Ensure we have a cache of the contents of the given genre,
         and return a list of the albums in that Genre.
@@ -130,7 +136,7 @@ class Cache:
         """
         start = datetime.datetime.now()
         self.ensure_genre_cache()
-        if self.albums_in_genre.get(genre_name) is None:
+        if refresh or self.albums_in_genre.get(genre_name) is None:
             server_links = self.genre_links.get(genre_name)  # Could be a request for an unknown genre name
             if server_links is None:
                 return None
@@ -143,7 +149,7 @@ class Cache:
                 if (timeout is not None) and (ms_elapsed > timeout):
                     abort(504)  # gateway timeout, sort of accurate
                 self.app.logger.debug(link)
-                if link in self.partial_cache:
+                if (link in self.partial_cache) and not refresh:
                     genre_json = self.partial_cache[link]
                 else:
                     response = requests.get(self.app.server + link + '?albums=all', timeout=timeout)
@@ -152,7 +158,7 @@ class Cache:
                     genre_json = response.json()
                     self.partial_cache[link] = genre_json
                 for album_json in genre_json['albums']:
-                    album = self.add_album_from_json(album_json)
+                    album = self._add_album_from_json(album_json)
                     albums[album.id] = album
 
             def get_album_sort_order(album):
@@ -169,19 +175,23 @@ class Cache:
             self.albums_in_genre[genre_name] = albums
         return self.albums_in_genre[genre_name]
 
-    def ensure_playlist_cache(self, playlist_id):
-        self.app.logger.debug(f"ensure_playlist_cache({playlist_id}")
-        if self.playlist_details.get(playlist_id) is None:
-            response = requests.get(f'{self.app.server}/playlists/{playlist_id}?tracks=all')
+    def ensure_playlist_cache(self, playlist_id, refresh=False):
+        self.app.logger.debug(f"ensure_playlist_cache({playlist_id})")
+        if refresh or self.playlist_details.get(playlist_id) is None:
+            playlist_url = f'{self.app.server}/playlists/{playlist_id}?tracks=all'
+            self.app.logger.debug(f'fetching {playlist_url}')
+            response = requests.get(playlist_url)
             if response.status_code != 200:
                 abort(500)  # TODO: Error handling
-            self.add_playlist_from_json(response.json())
+            self._add_playlist_from_json(response.json())
         return self.playlist_details[playlist_id]
 
-    def ensure_playlist_summary(self):
+    def ensure_playlist_summary(self, refresh=False):
         self.app.logger.debug("ensure_playlist_summary")
-        if not self.playlist_summaries:
-            response = requests.get(self.app.server + '/playlists')
+        if refresh or not self.playlist_summaries:
+            playlists_url = self.app.server + '/playlists'
+            self.app.logger.debug(f'fetching {playlists_url}')
+            response = requests.get(playlists_url)
             if response.status_code != 200:
                 raise Exception('Unable to connect to server')  # TODO: Error handling
             self.playlist_summaries = {}  # map from id to PlaylistSummary

@@ -39,10 +39,15 @@ def get_default_template_args():
     }
 
 
+def cache_refresh_requested():
+    return request.headers.get('Cache-Control') == 'no-cache'
+
+
 @app.route("/")
 def root():
-    app.cache.ensure_genre_cache()
-    app.cache.ensure_playlist_summary()
+    refresh_requested = cache_refresh_requested()
+    app.cache.ensure_genre_cache(refresh_requested)
+    app.cache.ensure_playlist_summary(refresh_requested)
     return render_template('index.html',
                            **get_default_template_args(),
                            genres=app.cache.display_genres,
@@ -99,7 +104,7 @@ def set_theme():
 
 @app.route("/albums/<album_id>")
 def get_album(album_id):
-    album = app.cache.ensure_album_cache(album_id)
+    album = app.cache.ensure_album_cache(album_id, cache_refresh_requested())
     if album is None:
         abort(404)
     to_highlight = request.args.get('highlight', None)
@@ -108,7 +113,7 @@ def get_album(album_id):
 
 @app.route("/artists/<artist>")
 def get_artist(artist):
-    artist = app.cache.ensure_artist_cache(artist)
+    artist = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
     if artist is None:
         abort(404)
     return render_template('artist.html', **get_default_template_args(), artist=artist)
@@ -126,7 +131,7 @@ def get_genre(genre_name):
 @app.route("/genre_contents/<genre_name>")
 def get_genre_content(genre_name):
     timeout = int(request.args.get('timeout', 5000))
-    albums = app.cache.ensure_genre_contents_cache(genre_name, timeout)
+    albums = app.cache.ensure_genre_contents_cache(genre_name, timeout, cache_refresh_requested())
     if albums is None:
         abort(404)
     first_album_for_anchor = {}
@@ -169,14 +174,14 @@ def play_queue(queue_pos, track_id):
 
 @app.route("/playlists")
 def playlists():
-    app.cache.ensure_playlist_summary()
+    app.cache.ensure_playlist_summary(cache_refresh_requested())
     return render_template('playlists.html', **get_default_template_args(),
                            playlists=sorted(app.cache.playlist_summaries.values(), key=lambda p: p.title))
 
 
 @app.route("/playlists/<playlist_id>")
 def get_playlist(playlist_id):
-    playlist = app.cache.ensure_playlist_cache(playlist_id)
+    playlist = app.cache.ensure_playlist_cache(playlist_id, cache_refresh_requested())
     if playlist is None:
         abort(404)
     return render_template('playlist.html', **get_default_template_args(),
