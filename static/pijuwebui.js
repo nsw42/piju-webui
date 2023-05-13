@@ -123,6 +123,13 @@ setInterval(function() {
                     $("#track_"+currentTrackId).addClass("active-track");
                 }
             }
+
+            let downloadingState = result['WorkerStatus'];
+            if (downloadingState.startsWith("Fetching")) {
+                $("#downloading-indicator-parent").removeClass('d-none');
+            } else {
+                $("#downloading-indicator-parent").addClass('d-none');
+            }
         }
     });
 }, 1000);
