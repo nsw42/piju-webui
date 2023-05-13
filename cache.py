@@ -27,7 +27,7 @@ class Cache:
         self.app = app
         self.flush()
 
-    def add_album_from_json(self, album_json):
+    def _add_album_from_json(self, album_json):
         album_id = id_from_link(album_json['link'])
         first_genre = album_json['genres'][0] if album_json['genres'] else None
         genre_name = self.genre_names_from_links[first_genre] if first_genre else None
@@ -55,19 +55,19 @@ class Cache:
         self.album_details[album_id] = album_details
         return album_details
 
-    def add_artist_from_json(self, artist_json):
+    def _add_artist_from_json(self, artist_json):
         # We'd normally only expect a single artist in the response
         # but this works if there are multiple, which can happen if
         # there are multiple capitalisations of an artist
         albums = []
         for artist_name, albums_json in artist_json.items():
             for album_json in albums_json:
-                albums.append(self.add_album_from_json(album_json))
+                albums.append(self._add_album_from_json(album_json))
         albums.sort(key=lambda album: album.year if album.year else 9999)
         artist = Artist(artist_name, albums)
         self.artist_details[artist_name.lower()] = artist
 
-    def add_playlist_from_json(self, playlist_json):
+    def _add_playlist_from_json(self, playlist_json):
         link = playlist_json['link']
         playlist_id = id_from_link(link)
         tracks = self.track_list_from_json(playlist_json['tracks'])
@@ -86,7 +86,7 @@ class Cache:
             response = requests.get(album_url)
             if response.status_code != 200:
                 abort(500)  # TODO: Error handling
-            self.add_album_from_json(response.json())  # updates self.album_details[album_id]
+            self._add_album_from_json(response.json())  # updates self.album_details[album_id]
         return self.album_details[album_id]
 
     def ensure_artist_cache(self, artist, refresh=False) -> Optional[Artist]:
@@ -98,7 +98,7 @@ class Cache:
             response = requests.get(artist_url)
             if response.status_code != 200:
                 abort(404)  # TODO: Error handling
-            self.add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
+            self._add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
         return self.artist_details[artist_lookup]
 
     def ensure_genre_cache(self):
@@ -156,7 +156,7 @@ class Cache:
                     genre_json = response.json()
                     self.partial_cache[link] = genre_json
                 for album_json in genre_json['albums']:
-                    album = self.add_album_from_json(album_json)
+                    album = self._add_album_from_json(album_json)
                     albums[album.id] = album
 
             def get_album_sort_order(album):
@@ -179,7 +179,7 @@ class Cache:
             response = requests.get(f'{self.app.server}/playlists/{playlist_id}?tracks=all')
             if response.status_code != 200:
                 abort(500)  # TODO: Error handling
-            self.add_playlist_from_json(response.json())
+            self._add_playlist_from_json(response.json())
         return self.playlist_details[playlist_id]
 
     def ensure_playlist_summary(self):
