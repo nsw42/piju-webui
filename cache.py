@@ -182,10 +182,12 @@ class Cache:
             self._add_playlist_from_json(response.json())
         return self.playlist_details[playlist_id]
 
-    def ensure_playlist_summary(self):
+    def ensure_playlist_summary(self, refresh=False):
         self.app.logger.debug("ensure_playlist_summary")
-        if not self.playlist_summaries:
-            response = requests.get(self.app.server + '/playlists')
+        if refresh or not self.playlist_summaries:
+            playlists_url = self.app.server + '/playlists'
+            self.app.logger.debug(f'fetching {playlists_url}')
+            response = requests.get(playlists_url)
             if response.status_code != 200:
                 raise Exception('Unable to connect to server')  # TODO: Error handling
             self.playlist_summaries = {}  # map from id to PlaylistSummary

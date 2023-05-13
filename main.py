@@ -173,7 +173,7 @@ def play_queue(queue_pos, track_id):
 
 @app.route("/playlists")
 def playlists():
-    app.cache.ensure_playlist_summary()
+    app.cache.ensure_playlist_summary(cache_refresh_requested())
     return render_template('playlists.html', **get_default_template_args(),
                            playlists=sorted(app.cache.playlist_summaries.values(), key=lambda p: p.title))
 
