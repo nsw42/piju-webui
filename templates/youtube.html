@@ -13,7 +13,7 @@
 </form>
 
 <div class="d-block position-relative my-1">
-    <div id="downloading-indicator-parent" class="w-100 fullscreen-content d-none">
+    <div id="downloading-indicator-parent" class="w-100 d-none" style="height: 5rem">
         <div class="d-flex position-absolute translate-middle single-content-position">
             <div class="d-block">
                 <div class="spinner-border d-block" role="status" style="width: 5rem; height: 5rem;">
@@ -25,4 +25,33 @@
             </div>
         </div>
     </div>
+</div>
+
+<div class="d-block position-relative my-5">
+    {% for download in history %}
+    <div class="d-block">
+        <div class="d-block position-relative div-row-hover py-2 align-middle {{loop.cycle("table-row-odd", "table-row-even")}}">
+            <div class="d-inline-block" style="width: 0px;">
+                <button onclick='playFromYouTube("{{download['url']}}", false)' class="stretched-link btn btn-link"></button>
+            </div>
+            <div class="d-inline-block position-relative" style="width: calc(100% - 60px)">
+                <div class="d-inline align-middle ms-2">
+                    {%- if download['artist'] and download['title'] -%}
+                      {{download['artist']}}: {{download['title']}}
+                    {%- elif download['title'] -%}
+                      {{download['title']}}
+                    {%- else -%}
+                      {{download['url']}}
+                    {%- endif -%}
+                </div>
+            </div>
+            <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 48px">
+                <button type="button" class="btn border-0 mx-auto queue-button" onclick="playFromYouTube("{{download['url']}}", true)">
+                    <i class="las la-plus"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

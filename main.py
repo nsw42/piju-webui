@@ -216,7 +216,12 @@ def youtube():
         else:
             requests.post(f"{app.server}/player/play",
                           json={'url': url})
-    return render_template('youtube.html', **get_default_template_args())
+    response = requests.get(app.server + '/downloadhistory')
+    if not response.ok:
+        abort(500)
+    history = response.json()
+    return render_template('youtube.html', **get_default_template_args(),
+                           history=history)
 
 
 def make_header(links):

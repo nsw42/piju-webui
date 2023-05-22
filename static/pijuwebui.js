@@ -178,6 +178,20 @@ function removeFromQueue(index, trackId) {
     }
 }
 
+function playFromYouTube(url, queue) {
+    let data = {
+        url: url
+    };
+    if (queue) {
+        data['queue'] = true
+    }
+    $.ajax({
+        url: "/youtube",
+        method: "POST",
+        data: data,
+    });
+}
+
 // Local playback functions
 function setupLocalPlayers() {
     localPlayers = playlistTrackIds.map(trackId => new Howl({
