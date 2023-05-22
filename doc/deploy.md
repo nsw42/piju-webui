@@ -1,4 +1,4 @@
-# Deploying pijuwebui to a Raspberry Pi
+# Deploying piju-webui to a Raspberry Pi
 
 Note that these instructions assume you're using the same environment described
 in <https://github.com/nsw42/piju-server/blob/main/doc/deploy.md>
@@ -14,7 +14,7 @@ in <https://github.com/nsw42/piju-server/blob/main/doc/deploy.md>
 ## Install Python prerequisites
 
 ```sh
-cd pijuwebui
+cd piju-webui
 pip install -r requirements.txt
 ```
 
@@ -47,21 +47,13 @@ Press Ctrl-C if you want to stop the process.
 
 ## Configure the server to start automatically
 
-* scp init.d/pijuwebui to /etc/init.d/pijuwebui
-* Make the script executable:
-
-    ```sh
-    sudo chown root:root /etc/init.d/piju
-    sudo chmod 755 /etc/init.d/piju
-    ```
-
-* Create relevant log directory and add it as a service:
-
-    ```sh
-    sudo mkdir /var/log/pijuwebui
-    sudo chmod 777 /var/log/pijuwebui
-    sudo rc-update add pijuwebui default
-    ```
+```sh
+sudo mkdir /var/log/piju-webui
+sudo chmod 777 /var/log/piju-webui
+cd piju-webui/init.d
+sudo install -o root -g root -m 755 piju-webui  /etc/init.d/piju-webui
+sudo rc-update add pijuw-ebui default
+```
 
 ## Set up log rotation
 
@@ -75,8 +67,8 @@ The file should start like this:
 ```text
 /var/log/piju/piju.log
 /var/log/piju/piju.err
-/var/log/pijuwebui/pijuwebui.log
-/var/log/pijuwebui/pijuwebui.err
+/var/log/piju-webui/pijuwebui.log
+/var/log/piju-webui/pijuwebui.err
 {
 ```
 
