@@ -219,11 +219,15 @@ class Cache:
         # The following instance variables are populated by ensure_playlist_cache()
         self.playlist_details = {}
 
+    def one_track_from_json(self, track_json):
+        if not track_json.get('link'):
+            return None
+        return Track(id=id_from_link(track_json['link']),
+                     artist=track_json['artist'],
+                     title=track_json['title'],
+                     disknumber=track_json['disknumber'],
+                     tracknumber=track_json['tracknumber'])
+
     def track_list_from_json(self, tracks_json):
-        tracks = [Track(id=id_from_link(track_json['link']),
-                        artist=track_json['artist'],
-                        title=track_json['title'],
-                        disknumber=track_json['disknumber'],
-                        tracknumber=track_json['tracknumber'])
-                  for track_json in tracks_json]
+        tracks = [self.one_track_from_json(track_json) for track_json in tracks_json]
         return tracks
