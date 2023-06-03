@@ -15,6 +15,7 @@ $("#searchinput").on('input', function(e) {
 });
 active_search = null;
 
+total_search_results = 0;
 function start_search(searchstring, search_state) {
     let search_args = "";
     search_args += "artists=" + (search_state == 0 ? "true" : "false");
@@ -26,6 +27,8 @@ function start_search(searchstring, search_state) {
     let callback;
     switch (search_state) {
         case 0:
+            total_search_results = 0;
+            $("#no-search-results").addClass("d-none");
             callback = artist_result_callback;
             break;
         case 1:
@@ -50,6 +53,7 @@ function artist_result_callback(searchstring, data) {
 
     artists = data['artists'];
     console.log("  " + artists.length + " artists");
+    total_search_results += artists.length;
     if (0 == artists.length) {
         hide_artist_results();
     } else {
@@ -65,6 +69,7 @@ function album_result_callback(searchstring, data) {
 
     albums = data['albums'];
     console.log("  " + albums.length + " albums");
+    total_search_results += albums.length;
     if (0 == albums.length) {
         hide_album_results();
     } else {
@@ -80,6 +85,7 @@ function track_result_callback(searchstring, data) {
 
     tracks = data['tracks'];
     console.log("  " + tracks.length + " tracks");
+    total_search_results += tracks.length;
     if (0 == tracks.length) {
         hide_track_results();
     } else {
@@ -88,6 +94,10 @@ function track_result_callback(searchstring, data) {
 
     active_search = null;
     $("#searchspinner").addClass("d-none");
+
+    if (total_search_results == 0) {
+        $("#no-search-results").removeClass("d-none");
+    }
 }
 
 function hide_album_results() {
