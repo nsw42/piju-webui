@@ -8,6 +8,7 @@ $("#searchinput").on('input', function(e) {
         hide_artist_results();
         hide_track_results();
         $("#searchspinner").addClass("d-none");
+        $('#no-search-results').addClass("d-none");
     } else {
         $("#searchspinner").removeClass("d-none");
         start_search(searchstring, 0);
