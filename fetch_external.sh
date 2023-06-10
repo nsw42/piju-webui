@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 ROOT_DIR=$(dirname $0)
 THIRD_PARTY_DIR=$ROOT_DIR/static/ext
@@ -40,7 +40,16 @@ function fetch() {
 
   # download
   echo "$destfn"
-  curl -L -o "$destfn" "$url"
+  which curl > /dev/null 2>&1 && {
+    curl -L -o "$destfn" "$url"
+  } || {
+    which wget > /dev/null 2>&1 && {
+      wget -O "$destfn" "$url"
+    } || {
+      echo Cannot find curl or wget
+      exit 1
+    }
+  }
 
   # check integrity
   if [ "$alg" ]; then
@@ -59,6 +68,6 @@ fetch "https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.
 fetch "https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css"  css
 
 # Line Awesome
-for font in la-solid-900.woff{,2} la-brands-400.woff{,2}; do
+for font in la-solid-900.woff la-solid-900.woff2 la-brands-400.woff la-brands-400.woff2; do
   fetch "https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/fonts/$font"  fonts
 done
