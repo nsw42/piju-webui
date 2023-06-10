@@ -2,3 +2,5 @@
 __pycache__/*
 .python-version
 styles/marquee.sass
+static/ext
+
