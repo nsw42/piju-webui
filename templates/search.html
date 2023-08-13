@@ -13,7 +13,7 @@
     <div id="no-search-results" class="my-4 text-center fs-3 text-info d-none">
         No results found
     </div>
-    <div id="artist_results" class="mt-1">
+    <div id="artist_results" class="mt-1 d-none">
         <div class="w-100"><button type="button" class="undecorated" onclick="toggleArtistCollapse()"><h3><i id="artist_result_expander" class="las la-angle-down"></i> Artists (<span id="nr_artist_results"></span>)</h3></button></div>
         <template id="one_artist_search_result">
             <div class="d-block div-row-hover py-2 align-middle">
@@ -30,7 +30,7 @@
         <div id="artist_results_inner">
         </div>
     </div>
-    <div id="album_results" class="mt-1">
+    <div id="album_results" class="mt-1 d-none">
         <div class="w-100"><button type="button" class="undecorated" onclick="toggleAlbumCollapse();"><h3><i id="album_result_expander" class="las la-angle-down"></i> Albums (<span id="nr_album_results"></span>)</h3></button></div>
         <template id="one_album_search_result">
             <div class="d-block div-row-hover py-2 align-middle">
@@ -48,7 +48,7 @@
         <div id="album_results_inner">
         </div>
     </div>
-    <div id="track_results" class="mt-1">
+    <div id="track_results" class="mt-1 d-none">
         <div class="w-100"><button type="button" class="undecorated" onclick="toggleTrackCollapse();"><h3><i id="track_result_expander" class="las la-angle-down"></i> Tracks (<span id="nr_track_results"></span>)</h3></button></div>
         <template id="one_track_search_result">
             <div id="table-row" class="d-block position-relative div-row-hover py-2 align-middle w-100">

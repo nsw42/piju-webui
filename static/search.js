@@ -1,4 +1,6 @@
-$("#searchinput").on('input', function(e) {
+$("#searchinput").on('input', triggerSearch);
+
+function triggerSearch() {
     if (active_search != null) {
         active_search.abort();
     }
@@ -13,7 +15,7 @@ $("#searchinput").on('input', function(e) {
         $("#searchspinner").removeClass("d-none");
         start_search(searchstring, 0);
     }
-});
+};
 active_search = null;
 
 total_search_results = 0;
@@ -235,11 +237,10 @@ function toggleTrackCollapse() {
 }
 
 $(function() {
-    hide_album_results();
-    hide_artist_results();
-    hide_track_results();
     $("#searchspinner").addClass("d-none");
     $('#artist_results_inner').collapse();
     $('#album_results_inner').collapse();
     $('#track_results_inner').collapse();
+
+    setTimeout(triggerSearch, 50); // TODO: Is 50ms long enough for iPhone etc?
 });
