@@ -125,8 +125,8 @@ class Cache:
                 self.app.logger.debug(f'{server_link} -> {display_genre}')
                 self.genre_names_from_links[server_link] = display_genre
                 display_names_set.add(display_genre)
-            self.display_names = list(sorted(display_names_set, key=lambda dn: genre_view.GENRE_SORT_ORDER[dn]))
-            self.display_genres = [genre_view.GENRE_VIEWS[dn] for dn in self.display_names]
+            display_names = list(sorted(display_names_set, key=lambda dn: genre_view.GENRE_SORT_ORDER[dn]))
+            self.display_genres = [genre_view.GENRE_VIEWS[dn] for dn in display_names]
 
     def ensure_genre_contents_cache(self, genre_name, timeout, refresh=False) -> Optional[List[Album]]:
         """
@@ -199,8 +199,8 @@ class Cache:
             for playlist_json in playlists_json:
                 title = playlist_json['title']
                 link = playlist_json['link']
-                id = id_from_link(link)
-                self.playlist_summaries[id] = PlaylistSummary(id, link, title)
+                playlist_id = id_from_link(link)
+                self.playlist_summaries[playlist_id] = PlaylistSummary(playlist_id, link, title)
 
     def flush(self):
         # The following instance variables are populated by ensure_genre_cache()
