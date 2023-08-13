@@ -17,6 +17,8 @@ import genre_view
 
 
 RANDOM_COOKIE_NAME = 'random'
+TIMEOUT_QUICK_ACTION = 30
+TIMEOUT_LONG_REQUEST = 300
 
 app = Flask(__name__)
 app.exit_code = None
@@ -41,6 +43,16 @@ def get_default_template_args():
 
 def cache_refresh_requested():
     return request.headers.get('Cache-Control') == 'no-cache'
+
+
+@app.errorhandler(requests.exceptions.ConnectionError)
+def request_failed(_):
+    abort(503, "Connection error from piju-server")
+
+
+@app.errorhandler(requests.exceptions.Timeout)
+def request_timeout(_):
+    abort(504, "Unable to get a response from the server")
 
 
 @app.route("/")
@@ -154,21 +166,24 @@ def get_genre_content(genre_name):
 @app.route("/play_album/<album_id>/<track_id>", methods=["POST"])
 def play_album(album_id, track_id):
     requests.post(f"{app.server}/player/play",
-                  json={'album': album_id, 'track': track_id})
+                  json={'album': album_id, 'track': track_id},
+                  timeout=TIMEOUT_QUICK_ACTION)
     return ('', 204)
 
 
 @app.route("/play_playlist/<playlist_id>/<track_id>", methods=["POST"])
 def play_playlist(playlist_id, track_id):
     requests.post(f"{app.server}/player/play",
-                  json={'playlist': playlist_id, 'track': track_id})
+                  json={'playlist': playlist_id, 'track': track_id},
+                  timeout=TIMEOUT_QUICK_ACTION)
     return ('', 204)
 
 
 @app.route("/play_queue/<queue_pos>/<track_id>", methods=["POST"])
 def play_queue(queue_pos, track_id):
     requests.post(f"{app.server}/player/play",
-                  json={'queuepos': queue_pos, 'track': track_id})
+                  json={'queuepos': queue_pos, 'track': track_id},
+                  timeout=TIMEOUT_QUICK_ACTION)
     return ('', 204)
 
 
@@ -191,7 +206,7 @@ def get_playlist(playlist_id):
 
 @app.route("/queue/")
 def view_queue():
-    response = requests.get(app.server + '/queue/')
+    response = requests.get(app.server + '/queue/', timeout=TIMEOUT_LONG_REQUEST)
     if not response.ok:
         abort(500)
     queue = app.cache.track_list_from_json(response.json())
@@ -212,11 +227,14 @@ def youtube():
             abort(HTTPStatus.BAD_REQUEST, "No URL specified")
         if 'queue' in request.form:
             requests.put(f"{app.server}/queue",
-                         json={'url': url})
+                         json={'url': url},
+                         timeout=TIMEOUT_QUICK_ACTION)
         else:
             requests.post(f"{app.server}/player/play",
-                          json={'url': url})
-    response = requests.get(app.server + '/downloadhistory')
+                          json={'url': url},
+                          timeout=TIMEOUT_QUICK_ACTION)
+    response = requests.get(app.server + '/downloadhistory',
+                            timeout=TIMEOUT_LONG_REQUEST)
     if not response.ok:
         abort(500)
     history = response.json()
@@ -261,19 +279,19 @@ def parse_bool(str, default=False):
 
 def connection_test(server, required_api_version):
     try:
-        response = requests.get(server + "/")
-    except requests.exceptions.ConnectionError:
+        response = requests.get(server + "/", timeout=TIMEOUT_QUICK_ACTION)
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
         logging.error(f"Unable to connect to server {server}")
-        return
+        return False
     if response.status_code != 200:
         logging.warning(f"Unable to connect to server {server}")
-        return
+        return False
     data = response.json()
     api_version = data.get('ApiVersion')
     if not api_version:
         logging.warning("Server response did not include an API protocol version. "
                         "Probably an old or incompatible server")
-        return
+        return False
     required_api_version_fragments = required_api_version.split('.')
     detected_api_version_fragments = api_version.split('.')
     for (required_fragment, detected_fragment) in zip_longest(required_api_version_fragments,
@@ -290,12 +308,13 @@ def connection_test(server, required_api_version):
             msg = "Server is using a newer protocol version than the UI requires: may be incompatible. "
             msg += f"Required: {required_api_version}; detected: {api_version}"
             logging.warning(msg)
-            return
+            return True
         elif required_fragment > detected_fragment:
             msg = "Server is using an older protocol version than required by the UI: likely to be incompatible. "
             msg += f"Required: {required_api_version}; detected: {api_version}"
             logging.error(msg)
-            return
+            return False
+    return True
 
 
 def populate_cache(cache: Cache, shutdown_event: threading.Event):
