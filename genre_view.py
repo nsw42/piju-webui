@@ -8,6 +8,7 @@ Genre = namedtuple('Genre', 'displayed_name, icon, mp3_genres')
 class Icons:
     library_music = "las la-music"
     radio = "las la-broadcast-tower"
+    spoken_word = "las la-comment"
 
 
 GENRE_SORT_ORDERS = [
@@ -139,7 +140,7 @@ GENRE_SORT_ORDERS = [
     ]),
     Genre(UNCATEGORISED, Icons.library_music, [
     ]),
-    Genre('Spoken word', Icons.radio, [
+    Genre('Spoken word', Icons.spoken_word, [
         'Spoken Word',
     ]),
 ]
