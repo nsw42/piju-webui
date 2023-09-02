@@ -15,7 +15,7 @@ Album = namedtuple('Album',
 Artist = namedtuple('Artist', 'name, albums')
 Playlist = namedtuple('Playlist', 'id, server_link, title, tracks')
 PlaylistSummary = namedtuple('PlaylistSummary', 'id, server_link, title')
-RadioStation = namedtuple('RadioStation', 'id, server_link, name')
+RadioStation = namedtuple('RadioStation', 'id, server_link, name, artwork')
 Track = namedtuple('Track', 'id, artist, title, disknumber, tracknumber')
 
 
@@ -215,8 +215,9 @@ class Cache:
             for station in radio_json:
                 link = station['link']
                 name = station['name']
+                artwork = station['artwork']
                 station_id = id_from_link(link)
-                self.radio_stations[station_id] = RadioStation(station_id, link, name)
+                self.radio_stations[station_id] = RadioStation(station_id, link, name, artwork)
 
     def flush(self):
         # The following instance variables are populated by ensure_genre_cache()
