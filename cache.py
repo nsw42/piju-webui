@@ -15,6 +15,7 @@ Album = namedtuple('Album',
 Artist = namedtuple('Artist', 'name, albums')
 Playlist = namedtuple('Playlist', 'id, server_link, title, tracks')
 PlaylistSummary = namedtuple('PlaylistSummary', 'id, server_link, title')
+RadioStation = namedtuple('RadioStation', 'id, server_link, name, artwork')
 Track = namedtuple('Track', 'id, artist, title, disknumber, tracknumber')
 
 
@@ -202,6 +203,22 @@ class Cache:
                 playlist_id = id_from_link(link)
                 self.playlist_summaries[playlist_id] = PlaylistSummary(playlist_id, link, title)
 
+    def ensure_radio_station_cache(self, refresh=False):
+        if refresh or not self.radio_stations:
+            radio_url = self.app.server + '/radio'
+            self.app.logger.debug(f'fetching {radio_url}')
+            response = requests.get(radio_url)
+            if response.status_code != 200:
+                raise Exception('Unable to connect to server')  # TODO: Error handling
+            self.radio_stations = {}
+            radio_json = response.json()
+            for station in radio_json:
+                link = station['link']
+                name = station['name']
+                artwork = station['artwork']
+                station_id = id_from_link(link)
+                self.radio_stations[station_id] = RadioStation(station_id, link, name, artwork)
+
     def flush(self):
         # The following instance variables are populated by ensure_genre_cache()
         self.display_genres = None
@@ -218,6 +235,8 @@ class Cache:
         self.playlist_summaries = {}
         # The following instance variables are populated by ensure_playlist_cache()
         self.playlist_details = {}
+        # The following instance variables are popualated by ensure_radio_station_cache()
+        self.radio_stations = {}
 
     def one_track_from_json(self, track_json):
         if not track_json.get('link'):

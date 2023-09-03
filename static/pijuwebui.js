@@ -72,9 +72,15 @@ setInterval(function() {
             } else {
                 let currentTrack = result['CurrentTrack'];
                 let tracklistSource = result['CurrentTracklistUri'];
-                $("#now_playing_album_link").attr('href', tracklistSource);
+                if (tracklistSource === undefined) {
+                    // If we're streaming, disable the apparent clickability of the 'now playing' album link
+                    $('#now_playing_album_link').removeAttr('href');
+                } else {
+                    $("#now_playing_album_link").attr('href', tracklistSource);
+                }
 
-                let artworkLink = currentTrack['artwork'];
+                // Handle artwork
+                let artworkLink = result['CurrentArtwork'];
                 if (artworkLink) {
                     if (!artworkLink.startsWith('http')) {
                         artworkLink = server + artworkLink;
@@ -85,12 +91,19 @@ setInterval(function() {
                     $("#now_playing_artwork_padding").removeClass("d-none");
                     $("#now_playing_artwork").addClass("d-none");
                 }
-                $("#now_playing_artist").text(currentTrack['artist']);
-                $("#now_playing_track").text(currentTrack['title']);
+
+                // Information about what is playing
+                if (currentTrack === undefined) {
+                    $("#now_playing_artist").text(result['CurrentStream']);
+                    $("#now_playing_track").text("");
+                    newTrackId = undefined;
+                } else {
+                    $("#now_playing_artist").text(currentTrack['artist']);
+                    $("#now_playing_track").text(currentTrack['title']);
+                    newTrackId = idFromLink(currentTrack['link']);
+                }
 
                 newState = (result['PlayerStatus'] == "paused") ? STATE_PAUSED : STATE_PLAYING;
-
-                newTrackId = idFromLink(currentTrack['link']);
             }
 
             if (newState != remoteCurrentState) {
@@ -318,9 +331,10 @@ function showPlaybackActive() {
 
 function playAlbum(albumId, trackId, playlistIndex) {
     if (currentModeRemoteControl) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.open("POST", "/play_album/" + albumId + "/" + trackId, true);
-        xhttp.send();
+        $.ajax({
+            url: `/play_album/${albumId}/${trackId}`,
+            method: "POST"
+        });
     } else {
         localPlay(playlistIndex);
     }
@@ -328,9 +342,10 @@ function playAlbum(albumId, trackId, playlistIndex) {
 
 function playPlaylist(playlistId, trackId, playlistIndex) {
     if (currentModeRemoteControl) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.open("POST", "/play_playlist/" + playlistId + "/" + trackId, true);
-        xhttp.send();
+        $.ajax({
+            url: `/play_playlist/${playlistId}/${trackId}`,
+            method: "POST"
+        });
     } else {
         localPlay(playlistIndex);
     }
@@ -338,11 +353,23 @@ function playPlaylist(playlistId, trackId, playlistIndex) {
 
 function playFromQueue(queuePos, trackId) {
     if (currentModeRemoteControl) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.open("POST", `/play_queue/${queuePos}/${trackId}`, true);
-        xhttp.send();
+        $.ajax({
+            url: `/play_queue/${queuePos}/${trackId}`,
+            method: "POST"
+        });
     } else {
         // You shouldn't be messing with the queue, then
+    }
+}
+
+function playRadio(stationId) {
+    if (currentModeRemoteControl) {
+        $.ajax({
+            url: `/play_radio/${stationId}`,
+            method: "POST"
+        });
+    } else {
+        // Radio not supported in local mode
     }
 }
 

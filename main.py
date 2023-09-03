@@ -59,11 +59,13 @@ def request_timeout(_):
 def root():
     refresh_requested = cache_refresh_requested()
     app.cache.ensure_genre_cache(refresh_requested)
+    app.cache.ensure_radio_station_cache(refresh_requested)
     app.cache.ensure_playlist_summary(refresh_requested)
     return render_template('index.html',
                            **get_default_template_args(),
                            genres=app.cache.display_genres,
-                           has_playlists=len(app.cache.playlist_summaries) > 0)
+                           has_playlists=len(app.cache.playlist_summaries) > 0,
+                           has_radio=len(app.cache.radio_stations) > 0)
 
 
 @app.route("/admin/")
@@ -187,6 +189,14 @@ def play_queue(queue_pos, track_id):
     return ('', 204)
 
 
+@app.route("/play_radio/<station_id>", methods=["POST"])
+def play_radio(station_id):
+    requests.post(f"{app.server}/player/play",
+                  json={'radio': station_id},
+                  timeout=TIMEOUT_QUICK_ACTION)
+    return ('', 204)
+
+
 @app.route("/playlists")
 def playlists():
     app.cache.ensure_playlist_summary(cache_refresh_requested())
@@ -212,6 +222,13 @@ def view_queue():
     queue = app.cache.track_list_from_json(response.json())
     return render_template('queue.html', **get_default_template_args(),
                            queue=queue)
+
+
+@app.route("/radio")
+def radio():
+    app.cache.ensure_radio_station_cache(cache_refresh_requested())
+    return render_template('radio.html', **get_default_template_args(),
+                           stations=sorted(app.cache.radio_stations.values(), key=lambda s: s.name))
 
 
 @app.route("/search")
@@ -320,6 +337,7 @@ def connection_test(server, required_api_version):
 def populate_cache(cache: Cache, shutdown_event: threading.Event):
     logging.debug("Populating overall genre cache")
     cache.ensure_genre_cache()
+    cache.ensure_radio_station_cache()
     for display_genre in genre_view.GENRE_VIEWS.keys():
         logging.debug("Populating genre cache for " + display_genre)
         cache.ensure_genre_contents_cache(display_genre, timeout=None)
@@ -335,7 +353,7 @@ def main():
     app.dev_reload = args.dev_reload
     app.server = args.server
     app.cache = Cache(app)
-    connection_test(app.server, required_api_version='5.0')
+    connection_test(app.server, required_api_version='6.0')
     host, port = '0.0.0.0', 80
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
