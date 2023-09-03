@@ -41,9 +41,15 @@ body
     background-color: $headerfooter-background
     color: $headerfooter-foreground
 
-.footer-artwork
+%footer-artwork-shared
     width: 100px
     height: 100px
+
+.footer-artwork
+    @extend %footer-artwork-shared
+
+.footer-artwork-padding
+    @extend %footer-artwork-shared
     background-color: lightslategrey
 
 .footer-button

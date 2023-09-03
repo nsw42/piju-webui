@@ -34,9 +34,12 @@ body {
   color: ghostwhite;
 }
 
-.footer-artwork {
+.footer-artwork-padding, .footer-artwork {
   width: 100px;
   height: 100px;
+}
+
+.footer-artwork-padding {
   background-color: lightslategrey;
 }
 
