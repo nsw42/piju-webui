@@ -73,15 +73,14 @@ setInterval(function() {
                 let currentTrack = result['CurrentTrack'];
                 let tracklistSource = result['CurrentTracklistUri'];
                 if (tracklistSource === undefined) {
-                    $("#now_playing_album_link").addClass('d-none');
+                    // If we're streaming, disable the apparent clickability of the 'now playing' album link
+                    $('#now_playing_album_link').removeAttr('href');
                 } else {
-                    $("#now_playing_album_link").removeClass('d-none');
                     $("#now_playing_album_link").attr('href', tracklistSource);
                 }
 
                 // Handle artwork
-                // TODO: Support artwork for streaming playback
-                let artworkLink = (currentTrack ? currentTrack['artwork'] : undefined);
+                let artworkLink = result['CurrentArtwork'];
                 if (artworkLink) {
                     if (!artworkLink.startsWith('http')) {
                         artworkLink = server + artworkLink;
