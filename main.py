@@ -84,8 +84,8 @@ def empty_cache():
 def check_for_updates():
     try:
         git_output = subprocess.check_output(['git', 'pull'], text=True)
-    except subprocess.CalledProcessError as e:
-        logging.debug(f"git error: {e}")
+    except subprocess.CalledProcessError as exc:
+        logging.debug(f"git error: {exc}")
         git_output = ''
     if not git_output:
         result_message = 'Check failed'
