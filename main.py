@@ -284,12 +284,12 @@ def parse_args():
     return args
 
 
-def parse_bool(str, default=False):
-    if str is None:
+def parse_bool(boolstr, default=False):
+    if boolstr is None:
         return default
-    if str.lower() == 'true':
+    if boolstr.lower() == 'true':
         return True
-    elif str.lower() == 'false':
+    elif boolstr.lower() == 'false':
         return False
     return default
 
