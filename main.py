@@ -339,7 +339,7 @@ def populate_cache(cache: Cache, shutdown_event: threading.Event):
     cache.ensure_genre_cache()
     cache.ensure_radio_station_cache()
     for display_genre in genre_view.GENRE_VIEWS.keys():
-        logging.debug("Populating genre cache for " + display_genre)
+        logging.debug(f"Populating genre cache for {display_genre}")
         cache.ensure_genre_contents_cache(display_genre, timeout=None)
         if shutdown_event.is_set():
             logging.debug("Populating cache interrupted")
