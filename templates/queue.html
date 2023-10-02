@@ -6,28 +6,31 @@
 {% if queue %}
     <div id="queue-parent" class="d-block position-relative my-1">
         {% for track in queue %}
-        <div class="d-block">
-            <div class="d-block position-relative div-row-hover py-2 align-middle {{loop.cycle('table-row-odd', 'table-row-even')}}" id="track_{{track.id}}">
-                {#- left section: the reorder drag handle -#}
-                <div class="d-inline-block position-absolute top-50 start-0 translate-middle-y text-body" style="width: 32px">
-                    <i class="las la-grip-lines drag-handle"></i>
+        <div class="d-block py-2 div-row-hover {{loop.cycle('table-row-odd', 'table-row-even')}}">
+            <div class="d-block album-row position-relative align-middle" id="track_{{track.id}}">
+                {#- left section: the artwork / drag handle -#}
+                <div class="d-inline-block position-absolute top-50 start-0 translate-middle-y text-body">
+                    <div class="d-table-cell ps-3 pe-1 align-middle style="width: 128px">
+                        {% if track.artwork %}
+                        <img src="{{track.artwork}}" class="img-fluid rounded drag-handle pr-4" width="100">
+                        {% else %}
+                        <div class="drag-handle"><i class="las la-grip-lines" style="width: 100px; height: 100px;"></i></div>
+                        {% endif %}
+                    </div>
                 </div>
                 {#- centre section: the (stretched) button to play the track, the queue index, and the artist and track title -#}
-                <div class="d-inline-block position-relative" style="width: calc(100% - 120px); left: 48px">
+                <div class="d-inline-block position-relative" style="width: 55vw; left: 144px; height: 100%">
                     <div class="d-inline-block" style="width: 0px;">
                         <button onclick='playFromQueue({{loop.index0}}, {{track.id}})' class="stretched-link btn btn-link"></button>
                     </div>
-                    <div class="d-inline align-middle mx-1">
-                        {{loop.index}}
-                    </div>
-                    <div class="d-inline align-middle ms-2">
+                    <div class="d-inline-flex ms-2 align-items-center" style="height: 100%">
                         {% if track.artist %}{{track.artist}}: {% endif %}{{track.title}}
                     </div>
                 </div>
                 {#- right side: the 'delete' icon to remove from queue -#}
-                <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 48px">
+                <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 60px">
                     <button type="button" class="btn border-0 mx-auto queue-button {{'' if remote_mode_enabled else 'd-none'}}" onclick="removeFromQueue({{loop.index0}}, {{track.id}})">
-                        <i class="las la-trash-alt"></i>
+                        <i class="las la-trash-alt la-2x"></i>
                     </button>
                 </div>
             </div>
