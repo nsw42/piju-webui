@@ -17,7 +17,7 @@ from cache import Cache, id_from_link
 import genre_view
 
 
-QueuedTrack = namedtuple('QueuedTrack', 'id, artist, title, link')
+QueuedTrack = namedtuple('QueuedTrack', 'id, artist, title, link, artwork')
 # different from a cache.Track, because it accommodates YouTube 'tracks', too
 
 
@@ -226,10 +226,14 @@ def view_queue():
         abort(500)
     queue = []
     for queued_track in response.json():
+        artwork = queued_track.get('artwork')
+        if artwork and not artwork.startswith('http'):
+            artwork = app.server + artwork
         queue.append(QueuedTrack(id=id_from_link(queued_track.get('link')),
                                  artist=queued_track.get('artist'),
                                  title=queued_track.get('title'),
-                                 link=queued_track.get('link')))
+                                 link=queued_track.get('link'),
+                                 artwork=artwork))
     return render_template('queue.html', **get_default_template_args(),
                            queue=queue)
 
