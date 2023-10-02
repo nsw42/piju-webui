@@ -22,6 +22,13 @@ localTrackIndex = null;
 fetching = false;
 // playlistTrackIds is also declared in script blocks in the html pages that support local playback
 
+// An ontouchstart event listener is needed to allow visual feedback
+// but we want to declare the handler as passive, if supported by the browser.
+$(function() {
+    document.addEventListener('touchstart', {},
+                              DetectIt.supportsPassiveEvents ? {passive:true} : false);
+});
+
 // Utility functions
 function getCSSVariable(varName) {
     // Credit to https://levelup.gitconnected.com/stop-duplicating-constants-between-js-and-css-40efd253a945
