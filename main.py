@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from collections import namedtuple
 import datetime
 from http import HTTPStatus
 from itertools import zip_longest
@@ -12,8 +13,12 @@ from flask import Flask, abort, redirect, render_template, request
 from werkzeug.serving import make_server
 import requests
 
-from cache import Cache
+from cache import Cache, id_from_link
 import genre_view
+
+
+QueuedTrack = namedtuple('QueuedTrack', 'id, artist, title, link')
+# different from a cache.Track, because it accommodates YouTube 'tracks', too
 
 
 RANDOM_COOKIE_NAME = 'random'
@@ -219,7 +224,12 @@ def view_queue():
     response = requests.get(app.server + '/queue/', timeout=TIMEOUT_LONG_REQUEST)
     if not response.ok:
         abort(500)
-    queue = app.cache.track_list_from_json(response.json())
+    queue = []
+    for queued_track in response.json():
+        queue.append(QueuedTrack(id=id_from_link(queued_track.get('link')),
+                                 artist=queued_track.get('artist'),
+                                 title=queued_track.get('title'),
+                                 link=queued_track.get('link')))
     return render_template('queue.html', **get_default_template_args(),
                            queue=queue)
 
