@@ -14,12 +14,12 @@
                         {% if track.artwork %}
                         <img src="{{track.artwork}}" class="img-fluid rounded drag-handle pr-4" width="100">
                         {% else %}
-                        <div class="drag-handle"><i class="las la-grip-lines" style="width: 100px; height: 100px;"></i></div>
+                        <div class="d-inline-flex drag-handle justify-content-center align-items-center" style="width: 100px; height: 100px;"><i class="las la-grip-lines"></i></div>
                         {% endif %}
                     </div>
                 </div>
                 {#- centre section: the (stretched) button to play the track, the queue index, and the artist and track title -#}
-                <div class="d-inline-block position-relative" style="width: 55vw; left: 144px; height: 100%">
+                <div class="d-inline-flex position-relative align-items-center h-100" style="width: 55vw; left: 144px;">
                     <div class="d-inline-block" style="width: 0px;">
                         <button onclick='playFromQueue({{loop.index0}}, {{track.id}})' class="stretched-link btn btn-link"></button>
                     </div>
