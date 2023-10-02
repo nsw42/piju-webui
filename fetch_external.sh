@@ -85,7 +85,6 @@ fetch "https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js
 fetch "https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"          js                                     sha384  "IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
 fetch "https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"     js
 fetch "https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"             js                                     sha256  "0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg="
-fetch "https://unpkg.com/detect-it@4/dist/detect-it.umd.production.js"                 js
 fetch "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"                 js                                     sha256  "ipiJrswvAR4VAx/th+6zWsdeYmVae0iJuiR+6OqHJHQ="
 fetch "https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/slate/bootstrap.min.css"     css bootswatch_slate_bootstrap.min.css sha256  "VHeArc9kdO/1rwrV+DWV2nLoqS3ZLIb1KeUjmSK0HBE="
 fetch "https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"  css                                    sha384  "0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"

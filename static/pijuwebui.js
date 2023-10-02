@@ -25,8 +25,7 @@ fetching = false;
 // An ontouchstart event listener is needed to allow visual feedback
 // but we want to declare the handler as passive, if supported by the browser.
 $(function() {
-    document.addEventListener('touchstart', {},
-                              DetectIt.supportsPassiveEvents ? {passive:true} : false);
+    document.addEventListener('touchstart', {}, false);
 });
 
 // Utility functions
