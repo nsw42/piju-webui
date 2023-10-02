@@ -198,6 +198,26 @@ function removeFromQueue(index, trackId) {
     }
 }
 
+function sendUpdatedQueueOrder(dragEvent) {
+    if (currentModeRemoteControl) {
+        let draggedTrackId = queueTrackIds[dragEvent.oldIndex];
+        queueTrackIds.splice(dragEvent.oldIndex, 1);
+        queueTrackIds.splice(dragEvent.newIndex, 0, draggedTrackId);
+        console.log(`Queue reorder drag ended. Moved track: ${draggedTrackId}. New order: ${queueTrackIds}`);
+        $.ajax({
+            url: server + '/queue/',
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({queue: queueTrackIds}),
+            dataType: 'json',
+            processData: false,
+            success: function() {
+                window.location.reload();
+            }
+        });
+    }
+}
+
 function playFromYouTube(url, queue) {
     let data = {
         url: url
