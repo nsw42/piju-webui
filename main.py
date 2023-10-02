@@ -222,7 +222,11 @@ def get_playlist(playlist_id):
 @app.route("/queue/")
 def view_queue():
     response = requests.get(app.server + '/queue/', timeout=TIMEOUT_LONG_REQUEST)
+    if response.status_code == 409:
+        return render_template('queue.html', **get_default_template_args(),
+                               queue=[])
     if not response.ok:
+        logging.debug("Unable to contact server")
         abort(500)
     queue = []
     for queued_track in response.json():
