@@ -168,16 +168,33 @@ function sendResume() {
     });
 }
 
-function addTrackToQueue(trackId) {
+function addTrackToQueue(trackId, successCallback) {
     if (currentModeRemoteControl) {
-        $.ajax({
+        return $.ajax({
             url: server + "/queue/",
             method: "PUT",
             contentType: "application/json",
             data: JSON.stringify({track: trackId}),
             dataType: "json",
             processData: false,
+            success: successCallback
         });
+    }
+    return null;
+}
+
+function addTracksToQueue(trackIds) {
+    if (currentModeRemoteControl) {
+        if (trackIds.length == 0) {
+            return;
+        }
+        let nextIndexToSend = 0;
+        function addNextTrack() {
+            if (nextIndexToSend < trackIds.length) {
+                addTrackToQueue(trackIds[nextIndexToSend++], addNextTrack);
+            }
+        }
+        addNextTrack()
     }
 }
 
