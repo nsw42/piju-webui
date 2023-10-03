@@ -168,7 +168,7 @@ function sendResume() {
     });
 }
 
-function addToQueue(trackId) {
+function addTrackToQueue(trackId) {
     if (currentModeRemoteControl) {
         $.ajax({
             url: server + "/queue/",
