@@ -133,7 +133,7 @@ function updateQueueView(queue) {
         }
     }
 
-    if (divsToKeep.every((v, i) => divs[i] == v)) {
+    if ((divsToKeep.length == divs.length) && divsToKeep.every((v, i) => divs[i] == v)) {
         // Nothing changes
         return;
     }
