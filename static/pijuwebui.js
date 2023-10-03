@@ -133,13 +133,13 @@ setInterval(function() {
             }
 
             if (newTrackId != currentTrackId) {
-                if ((window.location.pathname == '/queue/') && (currentTrackId !== null)) {
-                    // Quick and dirty fixup to ensure that indexes match when removing items from the queue
-                    window.location.reload();
+                $("#track_"+currentTrackId).removeClass("active-track");
+                let currentTrackNode = $("#track_"+newTrackId);
+                if (currentTrackNode.length == 0) {
+                    currentTrackId = null;  // queue page may be mid-refresh
                 } else {
-                    $("#track_"+currentTrackId).removeClass("active-track");
                     currentTrackId = newTrackId;
-                    $("#track_"+currentTrackId).addClass("active-track");
+                    currentTrackNode.addClass("active-track");
                 }
             }
 
@@ -207,29 +207,6 @@ function removeFromQueue(index, trackId) {
             data: JSON.stringify({index: index, track: trackId}),
             dataType: "json",
             processData: false,
-            success: function() {
-                window.location.reload();
-            }
-        });
-    }
-}
-
-function sendUpdatedQueueOrder(dragEvent) {
-    if (currentModeRemoteControl) {
-        let draggedTrackId = queueTrackIds[dragEvent.oldIndex];
-        queueTrackIds.splice(dragEvent.oldIndex, 1);
-        queueTrackIds.splice(dragEvent.newIndex, 0, draggedTrackId);
-        console.log(`Queue reorder drag ended. Moved track: ${draggedTrackId}. New order: ${queueTrackIds}`);
-        $.ajax({
-            url: server + '/queue/',
-            method: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify({queue: queueTrackIds}),
-            dataType: 'json',
-            processData: false,
-            success: function() {
-                window.location.reload();
-            }
         });
     }
 }
