@@ -3,61 +3,58 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if queue %}
-    <div id="queue-parent" class="d-block position-relative my-1">
-        {% for track in queue %}
-        <div class="d-block py-2 div-row-hover {{loop.cycle('table-row-odd', 'table-row-even')}}">
-            <div class="d-block album-row position-relative align-middle" id="track_{{track.id}}">
-                {#- left section: the artwork / drag handle -#}
-                <div class="d-inline-block position-absolute top-50 start-0 translate-middle-y text-body">
-                    <div class="d-table-cell ps-3 pe-1 align-middle style="width: 128px">
-                        {% if track.artwork %}
-                        <img src="{{track.artwork}}" class="img-fluid rounded drag-handle pr-4" width="100">
-                        {% else %}
-                        <div class="d-inline-flex drag-handle justify-content-center align-items-center" style="width: 100px; height: 100px;"><i class="las la-grip-lines"></i></div>
-                        {% endif %}
-                    </div>
-                </div>
-                {#- centre section: the (stretched) button to play the track, the queue index, and the artist and track title -#}
-                <div class="d-inline-flex position-relative align-items-center h-100" style="width: 55vw; left: 144px;">
-                    <div class="d-inline-block" style="width: 0px;">
-                        <button onclick='playFromQueue({{loop.index0}}, {{track.id}})' class="stretched-link btn btn-link"></button>
-                    </div>
-                    <div class="d-inline-flex align-items-center ms-2 h-100">
-                        {% if track.artist %}{{track.artist}}: {% endif %}{{track.title}}
-                    </div>
-                </div>
-                {#- right side: the 'delete' icon to remove from queue -#}
-                <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 60px">
-                    <button type="button" class="btn border-0 mx-auto queue-button {{'' if remote_mode_enabled else 'd-none'}}" onclick="removeFromQueue({{loop.index0}}, {{track.id}})">
-                        <i class="las la-trash-alt la-2x"></i>
-                    </button>
-                </div>
+<div id="loading-indicator-parent" class="w-100 fullscreen-content">
+    <div class="d-flex position-absolute top-50 start-50 translate-middle">
+        <div class="d-block">
+            <div class="spinner-border d-block" role="status" style="width: 5rem; height: 5rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="d-block text-center">
+                Loading...
             </div>
         </div>
-        {% endfor %}
     </div>
-{% else %}
-    <div class="position-absolute single-content-position w-50">
-        <div class="alert alert-secondary text-center shadow">
-            <i class="las la-info-circle float-start"></i>
-            <em>Queue is empty</em>
-            <i class="las la-info-circle float-end invisible"></i>  {# An invisible element to ensure the text is centred #}
+</div>
+
+<div class="position-absolute single-content-position w-50 d-none" id="empty-queue">
+    <div class="alert alert-secondary text-center shadow">
+        <i class="las la-info-circle float-start"></i>
+        <em>Queue is empty</em>
+        <i class="las la-info-circle float-end invisible"></i>  {# An invisible element to ensure the text is centred #}
+    </div>
+</div>
+<div id="queue-parent" class="d-block position-relative my-1">
+</div>
+
+<template id="item-template">
+    <div class="d-block py-2 div-row-hover"> {#- plus table-row-odd or table-row-even -#}
+        <div class="d-block album-row position-relative align-middle">
+            {#- left section: the artwork / drag handle -#}
+            <div class="d-inline-block position-absolute top-50 start-0 translate-middle-y text-body">
+                <div class="d-table-cell ps-3 pe-1 align-middle" style="width: 128px">
+                    <img id="artwork" src="" class="img-fluid rounded drag-handle pr-4" width="100">
+                    <div id="artwork-pad" class="d-inline-flex drag-handle justify-content-center align-items-center" style="width: 100px; height: 100px;"><i class="las la-grip-lines"></i></div>
+                </div>
+            </div>
+            {#- centre section: the (stretched) button to play the track, the queue index, and the artist and track title -#}
+            <div class="d-inline-flex position-relative align-items-center h-100" style="width: 55vw; left: 144px;">
+                <div class="d-inline-block" style="width: 0px;">
+                    <button id="play-button" class="stretched-link btn btn-link" onclick="playQueueItemButtonHandler(event)"></button>
+                </div>
+                <div class="d-inline-flex align-items-center ms-2 h-100" id="track-title">
+                    ARTIST: TITLE
+                </div>
+            </div>
+            {#- right side: the 'delete' icon to remove from queue -#}
+            <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 60px">
+                <button type="button" id="remove-button" class="btn border-0 mx-auto queue-button" onclick="removeQueueItemButtonHandler(event)">
+                    <i class="las la-trash-alt la-2x"></i>
+                </button>
+            </div>
         </div>
     </div>
-{% endif %}
+</template>
 
-    <script src="/static/ext/js/Sortable.min.js"></script>
-    <script>
-        let parent=document.getElementById('queue-parent');
-        if (parent !== null) {
-            Sortable.create(parent, {
-                handle: '.drag-handle',
-                animation: 150,
-                onEnd: sendUpdatedQueueOrder
-            });
-        }
-        var queueTrackIds = [{{ queue | map(attribute="id") | join(',') }}];
-        queueTrackIds = queueTrackIds.map(x => x.toString());
-    </script>
+<script src="/static/ext/js/Sortable.min.js"></script>
+<script src="/static/queue.js"></script>
 {% endblock %}
