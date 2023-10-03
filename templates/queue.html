@@ -3,6 +3,19 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div id="loading-indicator-parent" class="w-100 fullscreen-content">
+    <div class="d-flex position-absolute top-50 start-50 translate-middle">
+        <div class="d-block">
+            <div class="spinner-border d-block" role="status" style="width: 5rem; height: 5rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="d-block text-center">
+                Loading...
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="position-absolute single-content-position w-50 d-none" id="empty-queue">
     <div class="alert alert-secondary text-center shadow">
         <i class="las la-info-circle float-start"></i>

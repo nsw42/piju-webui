@@ -84,6 +84,8 @@ function removeQueueItemButtonHandler(mouseEvent) {
 
 
 function updateQueueView(queue) {
+    $('#loading-indicator-parent').addClass('d-none');
+
     queueTrackIds = [];
     for (let queueItem of queue) {
         const trackId = idFromLink(queueItem.link).toString();
