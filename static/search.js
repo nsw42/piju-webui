@@ -215,7 +215,7 @@ function show_track_results(tracks) {
         bandingIndex = 1 - bandingIndex;
 
         // fix up the onclick functionality
-        div.querySelector('#add-to-queue-button').setAttribute('onclick', `addToQueue(${trackId})`);
+        div.querySelector('#add-to-queue-button').setAttribute('onclick', `addTrackToQueue(${trackId})`);
 
         $("#track_results_inner").append(div);
     }
