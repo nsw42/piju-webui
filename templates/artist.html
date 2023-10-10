@@ -1,4 +1,4 @@
-{% set header_links=[("/", "PiJu"), ("/artists/"+artist.name, artist.name)] %}
+{% set header_links=[("/", "PiJu"), ("/artists/"+html.escape(artist.name), artist.name)] %}
 
 {% extends "base.html" %}
 
