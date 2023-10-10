@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from collections import namedtuple
 import datetime
 from http import HTTPStatus
+import html
 from itertools import zip_longest
 import json
 import logging
@@ -42,7 +43,8 @@ def get_default_template_args():
         "server": app.server,
         "len": len,
         "make_header": make_header,
-        "make_header_component": make_header_component
+        "make_header_component": make_header_component,
+        "html": html
     }
 
 
