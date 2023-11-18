@@ -85,7 +85,9 @@ class Cache:
             album_url = f'{self.app.server}/albums/{album_id}?tracks=all'
             self.app.logger.debug(f'fetching {album_url}')
             response = requests.get(album_url)
-            if response.status_code != 200:
+            if response.status_code == 404:
+                abort(404)
+            elif response.status_code != 200:
                 abort(500)  # TODO: Error handling
             self._add_album_from_json(response.json())  # updates self.album_details[album_id]
         return self.album_details[album_id]
