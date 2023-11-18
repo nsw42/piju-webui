@@ -11,7 +11,10 @@
             {% endif %}
         </div>
         <div class="col align-middle my-auto">
-            <h2 class="display-2">{{ album.title if album.title else "Unknown Album" }}</h2>
+            <div class="position-relative" id="link-container">
+                <button type="button" class="stretched-link btn btn-link" onclick='playAlbum("{{album.id}}", "{{album.tracks[0].id}}", 0)'></button>
+                <h2 class="display-2">{{ album.title if album.title else "Unknown Album" }}</h2>
+            </div>
         </div>
         <div class="col-auto align-middle justify-content-end my-auto">
             <button type="button" class="btn border-0 p-0 mx-auto queue-button {{'' if remote_mode_enabled else 'd-none'}}" onclick="addTracksToQueue(playlistTrackIds)">
