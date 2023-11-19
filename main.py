@@ -9,6 +9,7 @@ import logging
 import subprocess
 import threading
 import time
+from urllib.parse import urlparse, urlunparse
 
 from flask import Flask, abort, redirect, render_template, request
 from werkzeug.serving import make_server
@@ -275,14 +276,16 @@ def parse_args():
                         help="Enable development reloader")
     parser.add_argument('server', type=str, nargs='?',
                         help="Piju server hostname or IP address. "
-                             "Port may optionally be specified as :PORT")
+                             "Port may optionally be specified as :PORT. If port is omitted, defaults to 5000.")
     parser.set_defaults(dev_reload=False, server='piju:5000')
     args = parser.parse_args()
-    # TODO: Error checking on args.server
     if not args.server.startswith('http'):
         args.server = 'http://' + args.server
-    if args.server[-1] == '/':
-        args.server = args.server[:-1]
+    server = urlparse(args.server)
+    if ':' not in server.netloc:
+        server = server._replace(netloc=server.netloc + ':5000')
+    server = server._replace(path='')
+    args.server = urlunparse(server)
     return args
 
 
