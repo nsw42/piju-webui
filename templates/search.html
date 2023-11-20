@@ -16,61 +16,54 @@
     <div id="artist_results" class="mt-1 d-none">
         <div class="w-100"><button type="button" class="undecorated" onclick="toggleArtistCollapse()"><h3><i id="artist_result_expander" class="las la-angle-down"></i> Artists (<span id="nr_artist_results"></span>)</h3></button></div>
         <template id="one_artist_search_result">
-            <div class="d-block div-row-hover py-2 align-middle">
-                <div class="position-relative" style="width: 55vw">
-                    <div class="d-table-cell ps-3 pe-1">
-                        <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
-                    </div>
-                    <div class="d-table-cell align-middle ps-2">
-                        <a id="artist_name" href="" class="stretched-link"></a>
-                    </div>
-                </div>
-            </div>
+            <tr class="album-row div-row-hover">
+                <td>
+                    <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                </td>
+                <td>
+                    <a id="artist_name" href="TBD"></a>
+                </td>
+            </tr>
         </template>
-        <div id="artist_results_inner">
-        </div>
+        <table id="artist_results_inner" class="table-artwork-and-description w-100">
+        </table>
     </div>
     <div id="album_results" class="mt-1 d-none">
         <div class="w-100"><button type="button" class="undecorated" onclick="toggleAlbumCollapse();"><h3><i id="album_result_expander" class="las la-angle-down"></i> Albums (<span id="nr_album_results"></span>)</h3></button></div>
         <template id="one_album_search_result">
-            <div class="d-block div-row-hover py-2 align-middle">
-                <div class="position-relative" style="width: 55vw">
-                    <div class="d-table-cell ps-3 pe-1">
-                        <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100px">
-                        <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
-                    </div>
-                    <div class="d-table-cell align-middle ps-2">
-                        <a id="album_artist_title" href="" class="stretched-link"></a>
-                    </div>
-                </div>
-            </div>
+            <tr class="album-row div-row-hover">
+                <td>
+                    <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100px">
+                    <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                </td>
+                <td>
+                    <a id="album_artist_title" href=""></a>
+                </td>
+            </tr>
         </template>
-        <div id="album_results_inner">
-        </div>
+        <table id="album_results_inner" class="table-artwork-and-description w-100">
+        </table>
     </div>
     <div id="track_results" class="mt-1 d-none">
         <div class="w-100"><button type="button" class="undecorated" onclick="toggleTrackCollapse();"><h3><i id="track_result_expander" class="las la-angle-down"></i> Tracks (<span id="nr_track_results"></span>)</h3></button></div>
         <template id="one_track_search_result">
-            <div id="table-row" class="d-block position-relative div-row-hover py-2 align-middle w-100">
-                <div class="position-relative" style="width: 55vw">
-                    <div class="d-table-cell ps-3 pe-1 album-row align-middle" style="width: 128px">
-                        <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100px">
-                        <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
-                    </div>
-                    <div class="d-table-cell align-middle ps-2">
-                        <a id="track_artist_title" href="" class="stretched-link"></a>
-                    </div>
-                </div>
-                <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 48px">
+            <tr class="album-row div-row-hover">
+                <td>
+                    <img id="artwork_link_present" src="" class="img-fluid rounded float-left pr-4" width="100px">
+                    <div id="artwork_link_missing" class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                </td>
+                <td>
+                    <a id="track_artist_title" href=""></a>
+                </td>
+                <td>
                     <button type="button" id="add-to-queue-button" class="btn border-0 mx-auto queue-button" onclick="addTrackToQueue(track.id)">
                         <i class="las la-plus"></i>
                     </button>
-                </div>
-            </div>
+                </td>
+            </tr>
         </template>
-        <div id="track_results_inner">
-
-        </div>
+        <table id="track_results_inner" class="table-artwork-description-and-queue-button w-100">
+        </table>
     </div>
 </div>
 

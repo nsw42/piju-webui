@@ -73,10 +73,6 @@ button.undecorated
     transform: translate(-50%, -50%)
 
 // tables
-.table-artwork-and-description td
-    padding-top: 8px
-    padding-bottom: 8px
-
 // TODO: Rename this class - it's not just applied to divs
 .div-row-hover:hover
     background-color: $table-hover-background !important
@@ -84,17 +80,46 @@ button.undecorated
 .div-row-hover:hover a
     color: var(--bs-link-hover-color) !important
 
-.table-artwork-and-description td:nth-of-type(1)
-    padding-left: 12px
-    padding-right: 12px
-    width: 124px
-
+// 2-column tables: artwork and text
 .table-artwork-and-description tr:nth-child(odd)
     background-color: $table-background-odd
 
 .table-artwork-and-description tr:nth-child(even)
     background-color: $table-background-even
 
+.table-artwork-and-description td
+    padding-top: 8px
+    padding-bottom: 8px
+
+.table-artwork-and-description td:nth-of-type(1)
+    padding-left: 12px
+    padding-right: 12px
+    width: 124px
+
+
+// 3-column tables: artwork, text and add-to-queue button
+.table-artwork-description-and-queue-button tr:nth-child(odd)
+    background-color: $table-background-odd
+
+.table-artwork-description-and-queue-button tr:nth-child(even)
+    background-color: $table-background-even
+
+.table-artwork-description-and-queue-button td
+    padding-top: 8px
+    padding-bottom: 8px
+
+.table-artwork-description-and-queue-button td:nth-of-type(1)
+    padding-left: 12px
+    padding-right: 12px
+    width: 124px
+
+.table-artwork-description-and-queue-button td:nth-of-type(2)
+    width: calc(100% - 124px - 48px)
+
+.table-artwork-description-and-queue-button td:nth-last-of-type(1)
+    width: 48px
+
+// Other tables
 .table-row-odd
     background-color: $table-background-odd
 

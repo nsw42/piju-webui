@@ -60,7 +60,7 @@ function artist_result_callback(searchstring, data) {
     if (0 == artists.length) {
         hide_artist_results();
     } else {
-        show_artist_results(artists);
+        showArtistResults(artists);
     }
 
     start_search(searchstring, 1);
@@ -76,7 +76,7 @@ function album_result_callback(searchstring, data) {
     if (0 == albums.length) {
         hide_album_results();
     } else {
-        show_album_results(albums);
+        showAlbumResults(albums);
     }
 
     start_search(searchstring, 2);
@@ -92,7 +92,7 @@ function track_result_callback(searchstring, data) {
     if (0 == tracks.length) {
         hide_track_results();
     } else {
-        show_track_results(tracks);
+        showTrackResults(tracks);
     }
 
     active_search = null;
@@ -115,23 +115,26 @@ function hide_track_results() {
     $("#track_results").addClass("d-none");
 }
 
-function show_album_results(albums) {
+function showAlbumResults(albums) {
     $("#album_results").removeClass("d-none");
     $("#nr_album_results").text(albums.length);
     $("#album_results_inner").empty();
-    for (album of albums) {
+    for (const [album_i, album] of albums.entries()) {
         let template = document.querySelector('#one_album_search_result');
-        div = template.content.cloneNode(true);
+        let tr = template.content.cloneNode(true).children[0];
 
-        artwork_link = album['artwork']['link'];
-        if (artwork_link == null) {
-            div.querySelector("#artwork_link_present").remove();
+        let trId = `album-result-${album_i}`;
+        tr.setAttribute('id', trId);
+
+        let artworkLink = album['artwork']['link'];
+        if (artworkLink == null) {
+            tr.querySelector("#artwork_link_present").remove();
         } else {
-            div.querySelector("#artwork_link_missing").remove();
-            div.querySelector("#artwork_link_present").setAttribute("src", server + "/" + artwork_link);
+            tr.querySelector("#artwork_link_missing").remove();
+            tr.querySelector("#artwork_link_present").setAttribute("src", server + "/" + artworkLink);
         }
 
-        artist = album['artist'];
+        let artist = album['artist'];
         if (artist == null || artist == "") {
             if (album['iscompilation']) {
                 artist = "Various Artists";
@@ -140,58 +143,64 @@ function show_album_results(albums) {
             }
         }
 
-        title = album['title'];
+        let title = album['title'];
         if (title == null || title == "") {
             title = "Unknown Album";  // ?!
         }
-        album_artist_title = div.querySelector("#album_artist_title");
-        album_artist_title.setAttribute("href", album['link']);
-        album_artist_title.innerHTML = artist + ": " + title;
+        let albumArtistTitleNode = tr.querySelector("#album_artist_title");
+        albumArtistTitleNode.setAttribute("href", album['link']);
+        albumArtistTitleNode.innerHTML = artist + ": " + title;
 
-        album_year = album['releasedate'];
-        if (album_year != null) {
-            album_artist_title.after(" (" + album_year + ")");
+        let albumYear = album['releasedate'];
+        if (albumYear != null) {
+            albumArtistTitleNode.after(" (" + albumYear + ")");
         }
 
-        $("#album_results_inner").append(div);
+        for (let td of tr.cells) {
+            td.addEventListener('click', redirectMouseEventClosure(albumArtistTitleNode))
+        }
+
+        $("#album_results_inner").append(tr);
     }
 }
 
-function show_artist_results(artists) {
+function showArtistResults(artists) {
     $("#artist_results").removeClass("d-none");
     $("#nr_artist_results").text(artists.length);
     $("#artist_results_inner").empty();
     for (artist of artists) {
         let template = document.querySelector('#one_artist_search_result');
-        div = template.content.cloneNode(true);
+        let tr = template.content.cloneNode(true).children[0];
 
-        artist_name = div.querySelector("#artist_name");
-        artist_name.setAttribute("href", artist['link']);
-        artist_name.innerHTML = artist['name'];
+        let artistNameNode = tr.querySelector("#artist_name");
+        artistNameNode.setAttribute("href", artist['link']);
+        artistNameNode.innerHTML = artist['name'];
 
-        $("#artist_results_inner").append(div);
+        for (let td of tr.cells) {
+            td.addEventListener("click", redirectMouseEventClosure(artistNameNode));
+        }
+
+        $("#artist_results_inner").append(tr);
     }
 }
 
-function show_track_results(tracks) {
+function showTrackResults(tracks) {
     $("#track_results").removeClass("d-none");
     $("#nr_track_results").text(tracks.length);
     $("#track_results_inner").empty();
-    let banding = ["table-row-even", "table-row-odd"];
-    let bandingIndex = 0;
     for (track of tracks) {
         let template = document.querySelector('#one_track_search_result');
-        let div = template.content.cloneNode(true);
+        let tr = template.content.cloneNode(true).children[0];
 
         let trackId = idFromLink(track['link']);
 
         // fix up artwork
-        let artwork_link = track['artwork'];
-        if (artwork_link == null) {
-            div.querySelector("#artwork_link_present").remove();
+        let artworkLink = track['artwork'];
+        if (artworkLink == null) {
+            tr.querySelector("#artwork_link_present").remove();
         } else {
-            div.querySelector("#artwork_link_missing").remove();
-            div.querySelector("#artwork_link_present").setAttribute("src", server + "/" + artwork_link);
+            tr.querySelector("#artwork_link_missing").remove();
+            tr.querySelector("#artwork_link_present").setAttribute("src", server + "/" + artworkLink);
         }
 
         // populate artist and track title
@@ -204,20 +213,18 @@ function show_track_results(tracks) {
         if (title == null || title == "")  {
             title = "Unknown Track";  // ?!
         }
-        let track_artist_title = div.querySelector("#track_artist_title");
-        track_artist_title.setAttribute('href', track['album'] + '?highlight=' + trackId);
-        track_artist_title.innerHTML = artist + ": " + title;
-
-        // fix up the banding
-        let tableRow = div.querySelector('#table-row');
-        let cls = tableRow.getAttribute('class');
-        tableRow.setAttribute('class', cls + ' ' + banding[bandingIndex]);
-        bandingIndex = 1 - bandingIndex;
+        let trackArtistTitleNode = tr.querySelector("#track_artist_title");
+        let trackLink = track['album'] + '?highlight=' + trackId;
+        trackArtistTitleNode.setAttribute('href', trackLink);
+        trackArtistTitleNode.innerHTML = artist + ": " + title;
 
         // fix up the onclick functionality
-        div.querySelector('#add-to-queue-button').setAttribute('onclick', `addTrackToQueue(${trackId})`);
+        for (td of [tr.cells[0], tr.cells[1]]) {
+            td.addEventListener('click', redirectMouseEventClosure(trackArtistTitleNode));
+        }
+        tr.querySelector('#add-to-queue-button').setAttribute('onclick', `addTrackToQueue(${trackId})`);
 
-        $("#track_results_inner").append(div);
+        $("#track_results_inner").append(tr);
     }
 }
 

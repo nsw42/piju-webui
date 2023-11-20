@@ -6,17 +6,16 @@
 <div class="w-100 row">
     <table class="table-artwork-and-description my-2">
     {% for album in artist.albums %}
-    {% set link_dest = "/albums/%s" % album.id %}
-    <tr class="album-row div-row-hover py-2 align-middle">
-        <td onclick="window.location='{{link_dest}}'">
+    <tr class="album-row div-row-hover">
+        <td onclick="redirectMouseEvent(event, $('#album-{{loop.index0}}-link')[0])">
             {% if album.artwork_link %}
             <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
             {% else %}
             <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
             {% endif %}
         </td>
-        <td onclick="window.location='{{link_dest}}'">
-            <a href="{{link_dest}}">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>  {{("(%u)" % album.year) if album.year else ""}}
+        <td onclick="redirectMouseEvent(event, $('#album-{{loop.index0}}-link')[0])">
+            <a id="album-{{loop.index0}}-link" href="/albums/{{album.id}}">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>  {{("(%u)" % album.year) if album.year else ""}}
         </td>
     </tr>
     {% endfor %}

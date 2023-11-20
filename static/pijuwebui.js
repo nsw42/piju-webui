@@ -56,6 +56,35 @@ function showButtons(allToShow) {
     }
 }
 
+function redirectMouseEvent(event, targetAnchorNode) {
+    console.log("Redirecting ", event, " to ", targetAnchorNode);
+    event.preventDefault();
+    event.stopPropagation();
+    let newEvent = new MouseEvent(event.type, {
+        bubbles: false,
+        cancelable: true,
+        composed: false,
+        ctrlKey: event.ctrlKey,
+        shiftKey: event.shiftKey,
+        altKey: event.altKey,
+        metaKey: event.metaKey,
+        button: event.button,
+        buttons: event.buttons,
+        region: event.region,
+        detail: event.detail,
+        view: event.view
+    });
+    targetAnchorNode.dispatchEvent(newEvent);
+    return false;
+}
+
+function redirectMouseEventClosure(node) {
+    const targetNode = node;
+    return function(event) {
+        return redirectMouseEvent(event, targetNode);
+    }
+}
+
 // Remote control functions
 setInterval(function() {
     if (!currentModeRemoteControl) {
