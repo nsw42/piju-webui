@@ -68,8 +68,31 @@ button.undecorated {
   transform: translate(-50%, -50%);
 }
 
+.table-artwork-and-description td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
 .div-row-hover:hover {
-  background-color: lightgray;
+  background-color: lightgray !important;
+}
+
+.div-row-hover:hover a {
+  color: var(--bs-link-hover-color) !important;
+}
+
+.table-artwork-and-description td:nth-of-type(1) {
+  padding-left: 12px;
+  padding-right: 12px;
+  width: 124px;
+}
+
+.table-artwork-and-description tr:nth-child(odd) {
+  background-color: white;
+}
+
+.table-artwork-and-description tr:nth-child(even) {
+  background-color: whitesmoke;
 }
 
 .table-row-odd {
