@@ -325,7 +325,7 @@ def connection_test(server, required_api_version):
         required_fragment = int(required_fragment)
         detected_fragment = int(detected_fragment)
         if required_fragment == detected_fragment:
-            pass
+            continue
         elif required_fragment < detected_fragment:
             msg = "Server is using a newer protocol version than the UI requires: may be incompatible. "
             msg += f"Required: {required_api_version}; detected: {api_version}"
