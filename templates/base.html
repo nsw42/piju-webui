@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <script src="/static/ext/js/jquery-3.6.0.min.js"></script>
         <script src="/static/ext/js/popper.min.js"></script>
@@ -7,7 +7,7 @@
         <script src="/static/ext/js/bootstrap-toggle.min.js"></script>
         <script src="/static/ext/js/js.cookie.min.js"></script>
         <script src="/static/howler.core.js"></script>
-        <title>PiJu</title>
+        <title>{{ title }}</title>
         {% if theme == "dark" %}
             <link rel="stylesheet" href="/static/ext/css/bootswatch_slate_bootstrap.min.css">
             <link rel="stylesheet" href="/static/pijuwebui-dark.css">
@@ -18,7 +18,7 @@
         <link rel="stylesheet" href="/static/ext/css/bootstrap-toggle.min.css">
         <link rel="stylesheet" href="/static/ext/css/line-awesome.min.css">
         <script type="text/javascript">
-            server = "{{server}}";
+            const server = "{{server}}";
         </script>
         <script src="/static/pijuwebui.js"></script>
         {% if redirect_to_front_screen %}
