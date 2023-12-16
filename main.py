@@ -31,6 +31,13 @@ app = Flask(__name__)
 app.exit_code = None
 
 
+def server_for_client(server_tuple):
+    client_to_webui = urlparse(request.base_url)
+    client_to_server = client_to_webui._replace(netloc=f'{client_to_webui.hostname}:{server_tuple.port}', path='')
+    server_str = urlunparse(client_to_server)
+    return server_str
+
+
 def get_default_template_args():
     theme = request.cookies.get('theme', '').lower()
     if theme not in ('dark', 'light'):
@@ -41,7 +48,7 @@ def get_default_template_args():
     return {
         "remote_mode_enabled": mode == 'remote',
         "theme": theme,
-        "server": app.server,
+        "server": app.server_from_ui_client(),
         "len": len,
         "make_header": make_header,
         "make_header_component": make_header_component,
@@ -276,16 +283,21 @@ def parse_args():
                         help="Enable development reloader")
     parser.add_argument('server', type=str, nargs='?',
                         help="Piju server hostname or IP address. "
-                             "Port may optionally be specified as :PORT. If port is omitted, defaults to 5000.")
-    parser.set_defaults(dev_reload=False, server='piju:5000')
+                             "Port may optionally be specified as a :PORT suffix. If port is omitted, defaults to 5000."
+                             " If the host is omitted or localhost, external clients are served a page that refers to"
+                             " the server with the hostname/IP address that they used to access the webui.")
+    parser.set_defaults(dev_reload=False, server='localhost:5000')
     args = parser.parse_args()
     if not args.server.startswith('http'):
         args.server = 'http://' + args.server
-    server = urlparse(args.server)
-    if ':' not in server.netloc:
-        server = server._replace(netloc=server.netloc + ':5000')
-    server = server._replace(path='')
-    args.server = urlunparse(server)
+    server_tuple = urlparse(args.server)
+    if server_tuple.hostname in (None, ''):
+        server_tuple = server_tuple._replace(netloc=f'localhost:{server_tuple.port}')
+    if ':' not in server_tuple.netloc:
+        server_tuple = server_tuple._replace(netloc=server_tuple.netloc + ':5000')
+    server_tuple = server_tuple._replace(path='')
+    args.server = urlunparse(server_tuple)
+    args.server_tuple = server_tuple
     return args
 
 
@@ -357,6 +369,10 @@ def main():
     args = parse_args()
     app.dev_reload = args.dev_reload
     app.server = args.server
+    if args.server_tuple.hostname in ('localhost', '', None):
+        app.server_from_ui_client = lambda: server_for_client(args.server_tuple)
+    else:
+        app.server_from_ui_client = lambda: args.server
     app.cache = Cache(app)
     connection_test(app.server, required_api_version='6.1')
     host, port = '0.0.0.0', 80
