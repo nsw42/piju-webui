@@ -390,7 +390,7 @@ def main():
             try:
                 time.sleep(1)
             except KeyboardInterrupt:
-                app.exit_code = 1
+                app.exit_code = 0
         webui.shutdown()
         cache_shutdown_event.set()
         server_thread.join()
