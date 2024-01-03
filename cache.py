@@ -19,6 +19,9 @@ RadioStation = namedtuple('RadioStation', 'id, server_link, name, artwork')
 Track = namedtuple('Track', 'id, artist, title, disknumber, tracknumber')
 
 
+FETCH_TIMEOUT = 300
+
+
 def id_from_link(link):
     return link[link.rindex('/') + 1:] if link else ''
 
@@ -84,7 +87,7 @@ class Cache:
         if refresh or self.album_details.get(album_id) is None:
             album_url = f'{self.app.server}/albums/{album_id}?tracks=all'
             self.app.logger.debug(f'fetching {album_url}')
-            response = requests.get(album_url)
+            response = requests.get(album_url, timeout=FETCH_TIMEOUT)
             if response.status_code == 404:
                 abort(404)
             elif response.status_code != 200:
@@ -98,7 +101,7 @@ class Cache:
         if refresh or self.artist_details.get(artist_lookup) is None:
             artist_url = f'{self.app.server}/artists/{artist}?tracks=all'
             self.app.logger.debug(f'fetching {artist_url}')
-            response = requests.get(artist_url)
+            response = requests.get(artist_url, timeout=FETCH_TIMEOUT)
             if response.status_code != 200:
                 abort(404)  # TODO: Error handling
             self._add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
@@ -109,7 +112,7 @@ class Cache:
         if refresh or self.display_genres is None:
             genres_url = self.app.server + '/genres'
             self.app.logger.debug(f'fetching {genres_url}')
-            response = requests.get(genres_url)
+            response = requests.get(genres_url, timeout=FETCH_TIMEOUT)
             if response.status_code != 200:
                 raise Exception('Unable to connect to server')  # TODO: Error handling
             display_names_set = set()
@@ -183,7 +186,7 @@ class Cache:
         if refresh or self.playlist_details.get(playlist_id) is None:
             playlist_url = f'{self.app.server}/playlists/{playlist_id}?tracks=all'
             self.app.logger.debug(f'fetching {playlist_url}')
-            response = requests.get(playlist_url)
+            response = requests.get(playlist_url, timeout=FETCH_TIMEOUT)
             if response.status_code != 200:
                 abort(500)  # TODO: Error handling
             self._add_playlist_from_json(response.json())
@@ -194,7 +197,7 @@ class Cache:
         if refresh or not self.playlist_summaries:
             playlists_url = self.app.server + '/playlists'
             self.app.logger.debug(f'fetching {playlists_url}')
-            response = requests.get(playlists_url)
+            response = requests.get(playlists_url, timeout=FETCH_TIMEOUT)
             if response.status_code != 200:
                 raise Exception('Unable to connect to server')  # TODO: Error handling
             self.playlist_summaries = {}  # map from id to PlaylistSummary
@@ -209,7 +212,7 @@ class Cache:
         if refresh or not self.radio_stations:
             radio_url = self.app.server + '/radio'
             self.app.logger.debug(f'fetching {radio_url}')
-            response = requests.get(radio_url)
+            response = requests.get(radio_url, timeout=FETCH_TIMEOUT)
             if response.status_code != 200:
                 raise Exception('Unable to connect to server')  # TODO: Error handling
             self.radio_stations = {}
