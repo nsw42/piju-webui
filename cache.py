@@ -29,7 +29,23 @@ def id_from_link(link):
 class Cache:
     def __init__(self, app):
         self.app = app
-        self.flush()
+        # The following instance variables are populated by ensure_genre_cache()
+        self.display_genres = None
+        self.genre_links = None
+        self.genre_names_from_links = {}
+        # The following instance variables are populated by ensure_genre_contents_cache(genre_name)
+        self.albums_in_genre = defaultdict(list)  # map from genre_name to list of Album
+        self.partial_cache = {}
+        # The following instance variables are populated by ensure_album_cache(album_id)
+        self.album_details = {}
+        # The following instance variables are populated by ensure_artist_cache(artist)
+        self.artist_details = {}
+        # The following instance variables are populated by ensure_playlist_summary()
+        self.playlist_summaries = {}
+        # The following instance variables are populated by ensure_playlist_cache()
+        self.playlist_details = {}
+        # The following instance variables are popualated by ensure_radio_station_cache()
+        self.radio_stations = {}
 
     def _add_album_from_json(self, album_json):
         album_id = id_from_link(album_json['link'])
@@ -223,25 +239,6 @@ class Cache:
                 artwork = station['artwork']
                 station_id = id_from_link(link)
                 self.radio_stations[station_id] = RadioStation(station_id, link, name, artwork)
-
-    def flush(self):
-        # The following instance variables are populated by ensure_genre_cache()
-        self.display_genres = None
-        self.genre_links = None
-        self.genre_names_from_links = {}
-        # The following instance variables are populated by ensure_genre_contents_cache(genre_name)
-        self.albums_in_genre = defaultdict(list)  # map from genre_name to list of Album
-        self.partial_cache = {}
-        # The following instance variables are populated by ensure_album_cache(album_id)
-        self.album_details = {}
-        # The following instance variables are populated by ensure_artist_cache(artist)
-        self.artist_details = {}
-        # The following instance variables are populated by ensure_playlist_summary()
-        self.playlist_summaries = {}
-        # The following instance variables are populated by ensure_playlist_cache()
-        self.playlist_details = {}
-        # The following instance variables are popualated by ensure_radio_station_cache()
-        self.radio_stations = {}
 
     def one_track_from_json(self, track_json):
         if not track_json.get('link'):

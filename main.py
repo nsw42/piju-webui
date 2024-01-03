@@ -90,7 +90,7 @@ def get_admin_page():
 
 @app.post("/admin/empty_cache")
 def empty_cache():
-    app.cache.flush()
+    app.cache = Cache(app)
     app.cache.ensure_genre_cache()
     return redirect("/")
 
