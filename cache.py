@@ -22,6 +22,17 @@ Track = namedtuple('Track', 'id, artist, title, disknumber, tracknumber')
 DEFAULT_FETCH_TIMEOUT = 300
 
 
+def get_album_sort_order(album):
+    artist = album.artist
+    artist = artist.replace('"', '')
+    artist = unidecode.unidecode(artist)
+    artist = artist.lower()
+    title = album.title if album.title else "ZZZZZZZZZZZ"
+    title = unidecode.unidecode(title)
+    title = title.lower()
+    return (artist, album.year or 0, title)
+
+
 def id_from_link(link):
     return link[link.rindex('/') + 1:] if link else ''
 
@@ -186,15 +197,6 @@ class Cache:
                     album = self._add_album_from_json(album_json)
                     albums[album.id] = album
 
-            def get_album_sort_order(album):
-                artist = album.artist
-                artist = artist.replace('"', '')
-                artist = unidecode.unidecode(artist)
-                artist = artist.lower()
-                title = album.title if album.title else "ZZZZZZZZZZZ"
-                title = unidecode.unidecode(title)
-                title = title.lower()
-                return (artist, album.year or 0, title)
             albums = list(albums.values())
             albums.sort(key=get_album_sort_order)
             self.albums_in_genre[genre_name] = albums
