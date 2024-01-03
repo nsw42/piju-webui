@@ -19,7 +19,7 @@ RadioStation = namedtuple('RadioStation', 'id, server_link, name, artwork')
 Track = namedtuple('Track', 'id, artist, title, disknumber, tracknumber')
 
 
-FETCH_TIMEOUT = 300
+DEFAULT_FETCH_TIMEOUT = 300
 
 
 def id_from_link(link):
@@ -98,16 +98,29 @@ class Cache:
         self.playlist_details[playlist_id] = playlist_details
         return playlist_details
 
+    def _wrapped_requests_get(self, url_suffix, timeout=DEFAULT_FETCH_TIMEOUT):
+        """
+        Call requests.get() and performs the common checks on server responses,
+        only returning a value for a successful fetch.
+        Calls abort() for any other errors.
+        """
+        url = self.app.server + '/' + url_suffix
+        self.app.logger.debug(f'fetching {url}')
+        try:
+            response = requests.get(url, timeout=timeout)
+            if not response.ok:
+                if response.status_code == 404:
+                    abort(404)
+                else:
+                    abort(502, f'Error from server: {url} returned {response.status_code}')
+        except requests.exceptions.Timeout:
+            abort(502, f'Timeout fetching {url}')
+        return response
+
     def ensure_album_cache(self, album_id, refresh=False) -> Optional[Album]:
         self.ensure_genre_cache()  # Needed for the genre_name in add_album_from_json
         if refresh or self.album_details.get(album_id) is None:
-            album_url = f'{self.app.server}/albums/{album_id}?tracks=all'
-            self.app.logger.debug(f'fetching {album_url}')
-            response = requests.get(album_url, timeout=FETCH_TIMEOUT)
-            if response.status_code == 404:
-                abort(404)
-            elif response.status_code != 200:
-                abort(500)  # TODO: Error handling
+            response = self._wrapped_requests_get(f'albums/{album_id}?tracks=all')
             self._add_album_from_json(response.json())  # updates self.album_details[album_id]
         return self.album_details[album_id]
 
@@ -115,22 +128,14 @@ class Cache:
         self.ensure_genre_cache()  # Needed for the genre_name in add_album_from_json
         artist_lookup = artist.lower()
         if refresh or self.artist_details.get(artist_lookup) is None:
-            artist_url = f'{self.app.server}/artists/{artist}?tracks=all'
-            self.app.logger.debug(f'fetching {artist_url}')
-            response = requests.get(artist_url, timeout=FETCH_TIMEOUT)
-            if response.status_code != 200:
-                abort(404)  # TODO: Error handling
+            response = self._wrapped_requests_get(f'artists/{artist}?tracks=all')
             self._add_artist_from_json(response.json())  # updates self.artist_details[artist.lower()]
         return self.artist_details[artist_lookup]
 
     def ensure_genre_cache(self, refresh=False):
         self.app.logger.debug("ensure_genre_cache")
         if refresh or self.display_genres is None:
-            genres_url = self.app.server + '/genres'
-            self.app.logger.debug(f'fetching {genres_url}')
-            response = requests.get(genres_url, timeout=FETCH_TIMEOUT)
-            if response.status_code != 200:
-                raise Exception('Unable to connect to server')  # TODO: Error handling
+            response = self._wrapped_requests_get('genres')
             display_names_set = set()
             self.genre_links = defaultdict(list)  # map from genre displayed name to list of server address
             server_genre_json = response.json()
@@ -174,9 +179,7 @@ class Cache:
                 if (link in self.partial_cache) and not refresh:
                     genre_json = self.partial_cache[link]
                 else:
-                    response = requests.get(self.app.server + link + '?albums=all', timeout=timeout)
-                    if response.status_code != 200:
-                        abort(500)  # TODO: Error handling
+                    response = self._wrapped_requests_get(link + '?albums=all', timeout=timeout)
                     genre_json = response.json()
                     self.partial_cache[link] = genre_json
                 for album_json in genre_json['albums']:
@@ -200,22 +203,14 @@ class Cache:
     def ensure_playlist_cache(self, playlist_id, refresh=False):
         self.app.logger.debug(f"ensure_playlist_cache({playlist_id})")
         if refresh or self.playlist_details.get(playlist_id) is None:
-            playlist_url = f'{self.app.server}/playlists/{playlist_id}?tracks=all'
-            self.app.logger.debug(f'fetching {playlist_url}')
-            response = requests.get(playlist_url, timeout=FETCH_TIMEOUT)
-            if response.status_code != 200:
-                abort(500)  # TODO: Error handling
+            response = self._wrapped_requests_get(f'playlists/{playlist_id}?tracks=all')
             self._add_playlist_from_json(response.json())
         return self.playlist_details[playlist_id]
 
     def ensure_playlist_summary(self, refresh=False):
         self.app.logger.debug("ensure_playlist_summary")
         if refresh or not self.playlist_summaries:
-            playlists_url = self.app.server + '/playlists'
-            self.app.logger.debug(f'fetching {playlists_url}')
-            response = requests.get(playlists_url, timeout=FETCH_TIMEOUT)
-            if response.status_code != 200:
-                raise Exception('Unable to connect to server')  # TODO: Error handling
+            response = self._wrapped_requests_get('playlists')
             self.playlist_summaries = {}  # map from id to PlaylistSummary
             playlists_json = response.json()
             for playlist_json in playlists_json:
@@ -226,11 +221,7 @@ class Cache:
 
     def ensure_radio_station_cache(self, refresh=False):
         if refresh or not self.radio_stations:
-            radio_url = self.app.server + '/radio'
-            self.app.logger.debug(f'fetching {radio_url}')
-            response = requests.get(radio_url, timeout=FETCH_TIMEOUT)
-            if response.status_code != 200:
-                raise Exception('Unable to connect to server')  # TODO: Error handling
+            response = self._wrapped_requests_get('radio')
             self.radio_stations = {}
             radio_json = response.json()
             for station in radio_json:
