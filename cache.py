@@ -114,7 +114,7 @@ class Cache:
                 else:
                     abort(502, f'Error from server: {url} returned {response.status_code}')
         except requests.exceptions.Timeout:
-            abort(502, f'Timeout fetching {url}')
+            abort(504, f'Timeout fetching {url}')
         return response
 
     def ensure_album_cache(self, album_id, refresh=False) -> Optional[Album]:
