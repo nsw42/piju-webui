@@ -110,7 +110,7 @@ def check_for_updates():
         redirect_to_front_screen = False
     else:
         logging.debug(f"git pull returned:\n{git_output}.\nExiting.")
-        app.exit_code = 0
+        app.exit_code = 1
         if app.dev_reload:
             result_message = 'Updates found. Restarting suppressed in dev mode.'
         else:
