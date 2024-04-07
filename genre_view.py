@@ -21,6 +21,7 @@ GENRE_SORT_ORDERS = [
         '(Electronic)',
         'Electronic',
         'Electronica',
+        'Experimental/Electronic',
     ]),
     Genre('Jazz, Blues & Soul', Icons.library_music, [
         '(Jazz)',
