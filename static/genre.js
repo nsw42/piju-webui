@@ -60,7 +60,7 @@ function show_albums(albums) {
         let album_anchor = album['anchor'];
         if (selected_anchors[album_anchor] == null) {
             let anchor = document.getElementById("anchor-template").content.cloneNode(true);
-            anchor.querySelector("a").setAttribute("name", album_anchor);
+            anchor.querySelector("a").setAttribute("id", album_anchor);
             genre_content_node.appendChild(anchor);
             selected_anchors[album_anchor] = true;
         }
