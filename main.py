@@ -140,7 +140,7 @@ def get_album(album_id):
     return render_template('album.html', **get_default_template_args(), album=album, to_highlight=to_highlight)
 
 
-@app.route("/artists/<artist>")
+@app.route("/artists/<path:artist>")
 def get_artist(artist):
     artist = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
     if artist is None:
