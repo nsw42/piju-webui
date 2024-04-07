@@ -33,6 +33,20 @@ def get_album_sort_order(album):
     return (artist, album.year or 0, title)
 
 
+def get_artist_anchor(artist: str) -> str:
+    # try multiple characters, to cope with things like
+    # '"Weird" Al', who should sort as W
+    for ch in artist[:2]:
+        anchor = ch.upper()
+        anchor = unidecode.unidecode(anchor)
+        if anchor in string.ascii_uppercase:
+            return anchor
+        if anchor in string.digits:
+            return 'num'
+    # first few characters aren't anything obvious
+    return 'num'
+
+
 def id_from_link(link):
     return link[link.rindex('/') + 1:] if link else ''
 
@@ -66,10 +80,7 @@ class Cache:
         artist = album_json['artist']
         if not artist:
             artist = 'Various Artists' if is_compilation else 'Unknown Artist'
-        anchor = artist[0].upper()
-        anchor = unidecode.unidecode(anchor)
-        if anchor not in string.ascii_uppercase:
-            anchor = 'num'
+        anchor = get_artist_anchor(artist)
         tracks = self.track_list_from_json(album_json['tracks'])
         tracks.sort(key=lambda t: (t.disknumber if (t.disknumber is not None) else 9999,
                                    t.tracknumber if (t.tracknumber is not None) else 0))

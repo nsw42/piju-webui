@@ -9,7 +9,7 @@ let genre_fetch_results = null;
 
 function startAjaxRequest(leaf, timeout) {
     const now = new Date();
-    console.log(`${now.getHours()}:${now.getMinutes()}:${now.getSeconds()} starting ajax request (timeout=${timeout})`);
+    console.log(`${now.getHours()}:${now.getMinutes()}:${now.getSeconds()} starting ajax request /genre_contents/${leaf}?timeout=${timeout}`);
     $.ajax({
         url: "/genre_contents/" + leaf + '?timeout=' + timeout,
         success: function(result) {
