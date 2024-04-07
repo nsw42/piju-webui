@@ -72,11 +72,9 @@
         </div>
 
         {# main content #}
-        <div class="overflow-auto fullscreen-content">
-            <div class="container">
-                {% block content %}
-                {% endblock %}
-            </div>
+        <div class="container overflow-auto fullscreen-content">
+            {% block content %}
+            {% endblock %}
         </div>
 
         {# Remote control footer (two variants: one for 'there is something playing', one for 'player is idle' #}

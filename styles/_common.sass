@@ -26,10 +26,15 @@ $table-background-even: #000 !default
     font-weight: bold
 
 body
-    padding-bottom: $footer-height
+    overflow: hidden
 
 .fullscreen-content
     height: calc(100vh - $header-height - $footer-height)
+
+// iPad specific fixes
+@media screen and (min-height: 920px) and (max-height: 1000px)
+    .fullscreen-content
+        padding-bottom: 64px
 
 .header
     height: $header-height
@@ -40,6 +45,43 @@ body
     height: $footer-height
     background-color: $headerfooter-background
     color: $headerfooter-foreground
+
+#anchor-parent
+    overflow: hidden
+
+#anchor-positioner
+    width: 1em
+    top: $header-height
+    overflow: hidden
+
+#anchor-content
+    height: 100%
+
+// genre anchor positioning and display for phones and tables
+@media screen and (max-width: 800px)
+    #anchor-positioner
+        // background-color: red
+        height: calc(100vh - $header-height - $footer-height - 64px)  // TODO: Not sure where this 64px comes from on the iPad
+        right: 10vw
+        font-size: 10pt
+
+// genre anchor positioning and display for laptops
+@media screen and (min-width: 800px)
+    #anchor-positioner
+        // background-color: green
+        height: calc(100vh - $header-height - $footer-height)
+        right: 22vw
+        font-size: 14pt
+
+// ... specifically, small laptops
+@media screen and (min-width: 800px) and (max-height: 1140px)
+    #anchor-positioner
+        font-size: 14pt
+
+// ... big laptops
+@media screen and (min-width: 800px) and (min-height: 1140px)
+    #anchor-positioner
+        font-size: 16pt
 
 %footer-artwork-shared
     width: 100px
