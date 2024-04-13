@@ -127,7 +127,8 @@ def set_theme():
     if theme not in ('dark', 'light'):
         abort(400)
     response = redirect("/admin/")
-    response.set_cookie('theme', theme, samesite='Lax')
+    one_year = 60 * 60 * 24 * 365
+    response.set_cookie('theme', theme, samesite='Lax', max_age=one_year)
     return response
 
 
