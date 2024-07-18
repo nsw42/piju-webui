@@ -181,10 +181,10 @@ def get_genre_content(genre_name):
     })
 
 
-@app.route("/play_album/<album_id>/<track_id>", methods=["POST"])
-def play_album(album_id, track_id):
+@app.route("/play_album", methods=["POST"])
+def play_album():
     requests.post(f"{app.server}/player/play",
-                  json={'album': album_id, 'track': track_id},
+                  json=request.json,
                   timeout=TIMEOUT_QUICK_ACTION)
     return ('', 204)
 

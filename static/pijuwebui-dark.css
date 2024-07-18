@@ -173,6 +173,10 @@ button.undecorated {
   background-color: #32383e;
 }
 
+.table-row-subheading {
+  background-color: steelblue;
+}
+
 .stretched-link, .stretched-link:focus, .stretched-link:hover, .stretched-link:active, .stretched-link:focus-visible {
   box-shadow: none;
   outline: none;

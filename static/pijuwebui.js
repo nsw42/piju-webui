@@ -201,6 +201,20 @@ function sendResume() {
     });
 }
 
+function addDiskToQueue(albumId, diskNumber, successCallback) {
+    if (currentModeRemoteControl) {
+        return $.ajax({
+            url: server + "/queue/",
+            method: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify({album: albumId, disk: diskNumber}),
+            dataType: "json",
+            processData: false,
+            success: successCallback
+        });
+    }
+}
+
 function addTrackToQueue(trackId, successCallback) {
     if (currentModeRemoteControl) {
         return $.ajax({
@@ -382,10 +396,21 @@ function showPlaybackActive() {
 
 // Functions common to both remote control and local playback
 
-function playAlbum(albumId, trackId, playlistIndex) {
+function playAlbum(albumId, diskNr, trackId, playlistIndex) {
     if (currentModeRemoteControl) {
+        let body = {
+            album: albumId
+        }
+        if (diskNr !== null) {
+            body['disk'] = diskNr;
+        }
+        if (trackId !== null) {
+            body['track'] = trackId;
+        }
         $.ajax({
-            url: `/play_album/${albumId}/${trackId}`,
+            url: '/play_album',
+            data: JSON.stringify(body),
+            contentType: "application/json",
             method: "POST"
         });
     } else {
