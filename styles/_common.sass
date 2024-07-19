@@ -60,7 +60,6 @@ body
 // genre anchor positioning and display for phones and tables
 @media screen and (max-width: 800px)
     #anchor-positioner
-        // background-color: red
         height: calc(100vh - $header-height - $footer-height - 64px)  // TODO: Not sure where this 64px comes from on the iPad
         right: 10vw
         font-size: 10pt
@@ -68,7 +67,6 @@ body
 // genre anchor positioning and display for laptops
 @media screen and (min-width: 800px)
     #anchor-positioner
-        // background-color: green
         height: calc(100vh - $header-height - $footer-height)
         right: 22vw
         font-size: 14pt
@@ -169,7 +167,7 @@ button.undecorated
     background-color: $table-background-even
 
 .table-row-subheading
-    background-color: $headerfooter-background
+    background-color: color-mix(in srgb, $headerfooter-background, var(--bs-body-bg))
 
 .stretched-link, .stretched-link:focus, .stretched-link:hover, .stretched-link:active, .stretched-link:focus-visible
     box-shadow: none

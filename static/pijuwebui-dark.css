@@ -174,7 +174,7 @@ button.undecorated {
 }
 
 .table-row-subheading {
-  background-color: steelblue;
+  background-color: color-mix(in srgb, steelblue, var(--bs-body-bg));
 }
 
 .stretched-link, .stretched-link:focus, .stretched-link:hover, .stretched-link:active, .stretched-link:focus-visible {
