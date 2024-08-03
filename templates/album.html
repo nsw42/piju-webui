@@ -26,7 +26,7 @@
     <div class="d-block position-relative my-1">
         {% set loop_disk_control = namespace(current_disk=None) %}
         {% for track in album.tracks %}
-        {% if (album.numberdisks > 1) and (track.disknumber != loop_disk_control.current_disk) %}
+        {% if (album.numberdisks and album.numberdisks > 1) and (track.disknumber != loop_disk_control.current_disk) %}
             {% set loop_disk_control.current_disk = track.disknumber %}
             <div class="d-block">
                 <div class="d-block position-relative div-row-hover py-2 align-middle table-row-subheading">
