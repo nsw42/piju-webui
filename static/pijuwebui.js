@@ -50,6 +50,13 @@ function hideButtons(allToHide) {
     }
 }
 
+function preventDoubleSubmit(event) {
+    const elt = event.currentTarget
+    elt.setAttribute('disabled', 'disabled');
+    setTimeout(() => {elt.removeAttribute('disabled')}, 2000)
+
+}
+
 function showButtons(allToShow) {
     for (const oneToShow of allToShow) {
         $(oneToShow).removeClass('d-none');
