@@ -54,7 +54,6 @@ function preventDoubleSubmit(event) {
     const elt = event.currentTarget
     elt.setAttribute('disabled', 'disabled');
     setTimeout(() => {elt.removeAttribute('disabled')}, 2000)
-
 }
 
 function showButtons(allToShow) {
@@ -265,7 +264,8 @@ function removeFromQueue(index, trackId) {
     }
 }
 
-function playFromYouTube(url, queue) {
+function playFromYouTube(event, url, queue) {
+    preventDoubleSubmit(event)
     let data = {
         url: url
     };

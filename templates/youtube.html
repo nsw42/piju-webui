@@ -8,8 +8,8 @@
         <input type="url" id="url" name="url" maxlength="100" autofocus class="w-100">
     </div>
     <div class="w-100 d-flex justify-content-evenly">
-        <button type="submit" class="btn btn-secondary" id="queue" name="queue" onclick="preventDoubleSubmit(event)">Add to queue</button>
-        <button type="submit" class="btn btn-primary" id="play" name="play" onclick="preventDoubleSubmit(event)">Play</button>
+        <button type="button" class="btn btn-secondary" id="queue" name="queue" onclick="playFromYouTube(event, $('#url')[0].value, true)">Add to queue</button>
+        <button type="button" class="btn btn-primary" id="play" name="play" onclick="playFromYouTube(event, $('#url')[0].value, false)">Play</button>
     </div>
 </form>
 
@@ -34,7 +34,7 @@
         <div class="d-block position-relative div-row-hover py-2 align-middle {{loop.cycle("table-row-odd", "table-row-even")}}">
             <div class="d-inline-block position-relative" style="width: calc(100% - 60px)">
                 <div class="d-inline-block" style="width: 0px;">
-                    <button onclick="preventDoubleSubmit(event); playFromYouTube('{{download['url']}}', false)" class="stretched-link btn btn-link"></button>
+                    <button onclick="playFromYouTube(event, '{{download['url']}}', false)" class="stretched-link btn btn-link"></button>
                 </div>
                 <div class="d-inline-block position-relative" style="width: calc(100% - 60px)">
                     <div class="d-inline align-middle ms-2">
@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 48px">
-                <button type="button" class="btn border-0 mx-auto queue-button" onclick="preventDoubleSubmit(event); playFromYouTube('{{download['url']}}', true)">
+                <button type="button" class="btn border-0 mx-auto queue-button" onclick="playFromYouTube(event, '{{download['url']}}', true)">
                     <i class="las la-plus"></i>
                 </button>
             </div>
