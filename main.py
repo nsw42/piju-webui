@@ -378,7 +378,7 @@ def main():
     else:
         app.server_from_ui_client = lambda: args.server
     app.cache = Cache(app)
-    connection_test(app.server, required_api_version='6.1')
+    connection_test(app.server, required_api_version='7.0')
     host, port = '0.0.0.0', 80
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
