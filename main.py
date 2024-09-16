@@ -6,6 +6,7 @@ import html
 from itertools import zip_longest
 import json
 import logging
+import socket
 import subprocess
 import threading
 import time
@@ -279,23 +280,25 @@ def make_header_component(dest, label):
 
 
 def parse_args():
+    hostname = socket.gethostname()
     parser = ArgumentParser()
     parser.add_argument('--dev-reload', action='store_true',
                         help="Enable development reloader")
     parser.add_argument('server', type=str, nargs='?',
                         help="Piju server hostname or IP address. "
                              "Port may optionally be specified as a :PORT suffix. If port is omitted, defaults to 5000."
-                             " If the host is omitted or localhost, external clients are served a page that refers to"
-                             " the server with the hostname/IP address that they used to access the webui.")
-    parser.set_defaults(dev_reload=False, server='localhost:5000')
+                             " If the host is omitted, external clients are served a page that refers to the server "
+                             " with the hostname/IP address that they used to access the webui. Note that recent "
+                             " servers must be accessed by hostname rather than as localhost")
+    parser.set_defaults(dev_reload=False, server=f'{hostname}:5000')
     args = parser.parse_args()
     if not args.server.startswith('http'):
         args.server = 'http://' + args.server
     server_tuple = urlparse(args.server)
-    if server_tuple.hostname in (None, ''):
-        server_tuple = server_tuple._replace(netloc=f'localhost:{server_tuple.port}')
     if ':' not in server_tuple.netloc:
         server_tuple = server_tuple._replace(netloc=server_tuple.netloc + ':5000')
+    if server_tuple.hostname in (None, ''):
+        server_tuple = server_tuple._replace(netloc=f'{hostname}:{server_tuple.port}')
     server_tuple = server_tuple._replace(path='')
     args.server = urlunparse(server_tuple)
     args.server_tuple = server_tuple
