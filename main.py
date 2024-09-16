@@ -289,7 +289,7 @@ def parse_args():
                              "Port may optionally be specified as a :PORT suffix. If port is omitted, defaults to 5000."
                              " If the host is omitted, external clients are served a page that refers to the server "
                              " with the hostname/IP address that they used to access the webui. Note that recent "
-                             " servers must be accessed by hostname rather than as localhost")
+                             " servers must be accessed by hostname rather than as localhost.")
     parser.set_defaults(dev_reload=False, server=f'{hostname}:5000')
     args = parser.parse_args()
     if not args.server.startswith('http'):
