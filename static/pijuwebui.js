@@ -26,6 +26,7 @@ let fetching = false;
 // but we want to declare the handler as passive, if supported by the browser.
 $(function() {
     document.addEventListener('touchstart', {}, false);
+    openNowPlayingWebsocket();
 });
 
 // Utility functions
@@ -91,25 +92,36 @@ function redirectMouseEventClosure(node) {
     }
 }
 
-// Remote control functions
-setInterval(function() {
-    if (!currentModeRemoteControl) {
-        return;
+function openNowPlayingWebsocket() {
+    let wsServer = server;
+    if (wsServer.startsWith('http://')) {
+        wsServer = wsServer.substring(7)
     }
-    // update nowplaying
-    $.ajax({
-        url: server,
-        success: function(result) {
-            const json = JSON.parse(result)
-            showNowPlaying(json)
-        },
-    })
-}, 1000)
+    if (wsServer.startsWith('https://')) {
+        wsServer = wsServer.substring(8)
+    }
+    const socket = new WebSocket('ws://' + wsServer + '/ws');
+    socket.addEventListener('message', ev => nowPlayingWebSocketMessage(ev))
+    socket.addEventListener('close', ev => nowPlayingWebSocketClosed(ev))
+}
+
+function nowPlayingWebSocketMessage(ev) {
+    const json = JSON.parse(ev.data);
+    showNowPlaying(json);
+}
+
+function nowPlayingWebSocketClosed(ev) {
+    // Remote end closed the connection - crash? or update?
+    // Retry the connection in 5s
+    setTimeout(function() {
+        openNowPlayingWebsocket()
+    }, 5000)
+}
 
 function showNowPlaying(nowPlaying) {
     if (!currentModeRemoteControl) {
-        // The mode may have changed while we were waiting for the response.
-        // Seems like an edge case, but I saw it during testing.
+        // When we select the local playback, we leave the ws open, so the server will
+        // continue sending us updates
         return;
     }
     let newState, newTrackId;
@@ -191,7 +203,6 @@ function showNowPlaying(nowPlaying) {
         $("#downloading-indicator-parent").addClass('d-none');
     }
 }
-
 
 function sendPause() {
     $.ajax({
