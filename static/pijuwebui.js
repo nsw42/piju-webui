@@ -97,6 +97,9 @@ function openNowPlayingWebsocket() {
     if (wsServer.startsWith('http://')) {
         wsServer = wsServer.substring(7)
     }
+    if (wsServer.startsWith('https://')) {
+        wsServer = wsServer.substring(8)
+    }
     const socket = new WebSocket('ws://' + wsServer + '/ws');
     socket.addEventListener('message', ev => nowPlayingWebSocketMessage(ev))
     socket.addEventListener('close', ev => nowPlayingWebSocketClosed(ev))
