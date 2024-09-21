@@ -27,6 +27,7 @@ let fetching = false;
 $(function() {
     document.addEventListener('touchstart', {}, false);
     openNowPlayingWebsocket();
+    addQueueFeedbackHandlers();
 });
 
 // Utility functions
@@ -502,4 +503,29 @@ function toggleMode() {
             $(this).addClass('d-none')
         });
     }
+}
+
+function addQueueFeedbackHandlers() {
+    $('.queue-button').each(function(index, button) {
+        const imgs = button.getElementsByTagName('i');
+        if (imgs.length == 0) {
+            console.log('Warning: No i tag found for queue-button', button)
+            return;
+        }
+        if (imgs.length != 1) {
+            console.log("Warning: Multiple i tags found within queue-button")
+        }
+        const $img = $(imgs[0])
+        button.addEventListener('click', () => { showAddToQueueFeedback($img) })
+    })
+}
+
+function showAddToQueueFeedback(img) {
+    const $img = $(img)
+    $img.removeClass('la-plus')
+    $img.addClass('la-check')
+    setTimeout(() => {
+        $img.removeClass('la-check')
+        $img.addClass('la-plus')
+    }, 3000)
 }
