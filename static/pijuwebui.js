@@ -16,7 +16,7 @@ let currentTrackId = null;
 let currentModeRemoteControl = (currentModeRemoteControlAtStart === undefined || currentModeRemoteControlAtStart == 'remote');
 // Vars only relevant for remote control
 let remoteCurrentState = STATE_STOPPED;
-// Vars only releveant for local playback
+// Vars only relevant for local playback
 let localPlayers = null;
 let localTrackIndex = null;
 let fetching = false;
@@ -24,8 +24,9 @@ let fetching = false;
 
 // An ontouchstart event listener is needed to allow visual feedback
 // but we want to declare the handler as passive, if supported by the browser.
+// Adding the event listener to document was resulting in the first click being lost for some buttons.
 $(function() {
-    document.addEventListener('touchstart', {}, false);
+    document.getElementById('dummyelt')?.addEventListener('touchmove', event => {}, {passive: true});
     openNowPlayingWebsocket();
     addQueueFeedbackHandlers();
 });
@@ -274,6 +275,10 @@ function removeFromQueue(index, trackId) {
             processData: false,
         });
     }
+}
+
+function playFromYouTubeInputBox(event, queue) {
+    return playFromYouTube(event, $('#url')[0].value, queue)
 }
 
 function playFromYouTube(event, url, queue) {
