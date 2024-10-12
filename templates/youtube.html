@@ -8,8 +8,8 @@
         <input type="url" id="url" name="url" maxlength="100" autofocus class="w-100">
     </div>
     <div class="w-100 d-flex justify-content-evenly">
-        <button type="button" class="btn btn-secondary" id="queue" name="queue" onclick="playFromYouTube(event, $('#url')[0].value, true)">Add to queue</button>
-        <button type="button" class="btn btn-primary" id="play" name="play" onclick="playFromYouTube(event, $('#url')[0].value, false)">Play</button>
+        <button type="button" class="btn btn-secondary" id="ytqueue" name="ytqueue" onclick="playFromYouTubeInputBox(event, true)">Add to queue</button>
+        <button type="button" class="btn btn-primary" id="ytplay" name="ytplay" onclick="playFromYouTubeInputBox(event, false)">Play</button>
     </div>
 </form>
 

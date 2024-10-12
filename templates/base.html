@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <script src="/static/ext/js/jquery-3.6.0.min.js"></script>
-        <script src="/static/ext/js/popper.min.js"></script>
-        <script src="/static/ext/js/bootstrap.min.js"></script>
-        <script src="/static/ext/js/bootstrap-toggle.min.js"></script>
-        <script src="/static/ext/js/js.cookie.min.js"></script>
-        <script src="/static/howler.core.js"></script>
+        <script defer src="/static/ext/js/jquery.min.js"></script>
+        <script defer src="/static/ext/js/popper.min.js"></script>
+        <script defer src="/static/ext/js/bootstrap.min.js"></script>
+        <script defer src="/static/ext/js/bootstrap-toggle.min.js"></script>
+        <script defer src="/static/ext/js/js.cookie.min.js"></script>
+        <script defer src="/static/howler.core.js"></script>
         <title>{{ title }}</title>
         {% if theme == "dark" %}
             <link rel="stylesheet" href="/static/ext/css/bootswatch_slate_bootstrap.min.css">
@@ -21,7 +21,7 @@
         <script type="text/javascript">
             const server = "{{server}}";
         </script>
-        <script src="/static/pijuwebui.js"></script>
+        <script defer src="/static/pijuwebui.js"></script>
         {% if redirect_to_front_screen %}
           {# Primarily for /admin/check_for_updates #}
           <meta content="5; url=/" http-equiv="refresh">
@@ -125,5 +125,6 @@
                 </button>
             </div>
         </div>
+        <div id="dummyelt" class="d-none"></div>
     </body>
 </html>
