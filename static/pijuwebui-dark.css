@@ -39,44 +39,39 @@ body {
   color: ghostwhite;
 }
 
-#anchor-parent {
-  overflow: hidden;
+#genre-content {
+  width: calc(100% - 40px - 20px);
 }
 
-#anchor-positioner {
-  width: 1em;
+#anchor-parent {
+  position: fixed;
   top: 86px;
-  overflow: hidden;
+  width: 40px;
+  height: 100%;
+  transform: translateX(20px);
+}
+@media screen and (max-width: 800px) {
+  #anchor-parent {
+    height: calc(100vh - 86px - 128px - 64px);
+    font-size: 10pt;
+  }
+}
+@media screen and (min-width: 800px) {
+  #anchor-parent {
+    height: calc(100vh - 86px - 128px);
+    font-size: 14pt;
+  }
+}
+@media screen and (min-width: 800px) and (min-height: 1140px) {
+  #anchor-parent {
+    font-size: 16pt;
+  }
 }
 
 #anchor-content {
   height: 100%;
 }
 
-@media screen and (max-width: 800px) {
-  #anchor-positioner {
-    height: calc(100vh - 86px - 128px - 64px);
-    right: 10vw;
-    font-size: 10pt;
-  }
-}
-@media screen and (min-width: 800px) {
-  #anchor-positioner {
-    height: calc(100vh - 86px - 128px);
-    right: 22vw;
-    font-size: 14pt;
-  }
-}
-@media screen and (min-width: 800px) and (max-height: 1140px) {
-  #anchor-positioner {
-    font-size: 14pt;
-  }
-}
-@media screen and (min-width: 800px) and (min-height: 1140px) {
-  #anchor-positioner {
-    font-size: 16pt;
-  }
-}
 .footer-artwork-padding, .footer-artwork {
   width: 100px;
   height: 100px;
@@ -124,7 +119,7 @@ button.undecorated {
 }
 
 .table-artwork-and-description tr:nth-child(even) {
-  background-color: #32383e;
+  background-color: rgb(50.4310344828, 55.6034482759, 62.0689655172);
 }
 
 .table-artwork-and-description td {
@@ -143,7 +138,7 @@ button.undecorated {
 }
 
 .table-artwork-description-and-queue-button tr:nth-child(even) {
-  background-color: #32383e;
+  background-color: rgb(50.4310344828, 55.6034482759, 62.0689655172);
 }
 
 .table-artwork-description-and-queue-button td {
@@ -170,7 +165,7 @@ button.undecorated {
 }
 
 .table-row-even {
-  background-color: #32383e;
+  background-color: rgb(50.4310344828, 55.6034482759, 62.0689655172);
 }
 
 .table-row-subheading {

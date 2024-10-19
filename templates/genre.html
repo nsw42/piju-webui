@@ -3,7 +3,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-block position-relative">
+<div class="d-block position-relative w-100 page-container">
     <div id="loading-indicator-parent" class="w-100 fullscreen-content">
         <div class="d-flex position-absolute top-50 start-50 translate-middle">
             <div class="d-block">
@@ -23,9 +23,7 @@
 
     {# right #}
     <div class="d-inline-block d-none" id="anchor-parent">
-        <div class="position-fixed" id="anchor-positioner">
-            <div class="d-flex flex-column justify-content-between" id="anchor-content">
-            </div>
+        <div class="d-flex flex-column justify-content-between" id="anchor-content">
         </div>
     </div>
 </div>
@@ -39,7 +37,7 @@
 {# The template for the rest of the album row #}
 <template id="album-template">
     <div class="d-block div-row-hover py-2 align-middle">
-        <div class="position-relative" style="width: 55vw">
+        <div class="position-relative">
             <div class="d-table-cell ps-3 pe-1 album-row align-middle" style="width: 128px">
                 <img id="album-artwork" src="" class="img-fluid rounded float-left pr-4" width="100px">
                 <div id="artwork-spacer" class="d-inline-block" style="width: 100px; height: 100px"></div>

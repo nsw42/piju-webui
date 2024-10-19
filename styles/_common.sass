@@ -2,6 +2,8 @@
 $header-height: 86px
 $footer-height: 128px
 $album-row-height: 100px
+$scrollbar-width: 20px
+$anchor-container-width: 40px  // it's actually 18px on macOS, but this gives a border too
 
 // Configurable parameters
 $headerfooter-background: #000 !default
@@ -46,40 +48,33 @@ body
     background-color: $headerfooter-background
     color: $headerfooter-foreground
 
-#anchor-parent
-    overflow: hidden
+#genre-content
+    width: calc(100% - $anchor-container-width - $scrollbar-width)
 
-#anchor-positioner
-    width: 1em
+#anchor-parent
+    position: fixed
     top: $header-height
-    overflow: hidden
+    width: $anchor-container-width
+    height: 100%
+    transform: translateX($anchor-container-width/2)
+
+    // genre anchor positioning and display:
+    // for phones and tables
+    @media screen and (max-width: 800px)
+        height: calc(100vh - $header-height - $footer-height - 64px)  // TODO: Not sure where this 64px comes from on the iPad
+        font-size: 10pt
+
+    // for laptops
+    @media screen and (min-width: 800px)
+        height: calc(100vh - $header-height - $footer-height)
+        font-size: 14pt
+
+    // ... specifically, big laptops
+    @media screen and (min-width: 800px) and (min-height: 1140px)
+        font-size: 16pt
 
 #anchor-content
     height: 100%
-
-// genre anchor positioning and display for phones and tables
-@media screen and (max-width: 800px)
-    #anchor-positioner
-        height: calc(100vh - $header-height - $footer-height - 64px)  // TODO: Not sure where this 64px comes from on the iPad
-        right: 10vw
-        font-size: 10pt
-
-// genre anchor positioning and display for laptops
-@media screen and (min-width: 800px)
-    #anchor-positioner
-        height: calc(100vh - $header-height - $footer-height)
-        right: 22vw
-        font-size: 14pt
-
-// ... specifically, small laptops
-@media screen and (min-width: 800px) and (max-height: 1140px)
-    #anchor-positioner
-        font-size: 14pt
-
-// ... big laptops
-@media screen and (min-width: 800px) and (min-height: 1140px)
-    #anchor-positioner
-        font-size: 16pt
 
 %footer-artwork-shared
     width: 100px
