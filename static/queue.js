@@ -1,8 +1,8 @@
 const queueParentNode = document.getElementById('queue-parent');
 const itemTemplate = document.getElementById('item-template').content.querySelector("div");
-var queueTrackIds = [];
+let queueTrackIds = [];
 let doRefresh = true;
-var sortable;
+let sortable;
 
 $(function() {
     reinitialiseSortable();
