@@ -1,3 +1,5 @@
+@use "sass:math"
+
 // Constants
 $header-height: 86px
 $footer-height: 128px
@@ -56,7 +58,7 @@ body
     top: $header-height
     width: $anchor-container-width
     height: 100%
-    transform: translateX($anchor-container-width/2)
+    transform: translateX(math.div($anchor-container-width, 2))
 
     // genre anchor positioning and display:
     // for phones and tables

@@ -1,1 +1,2 @@
-@use 'common' with ($headerfooter-background: steelblue, $headerfooter-foreground: ghostwhite, $searchresult-background: yellow, $table-hover-background: dimgray, $table-background-odd: #272b30, $table-background-even: lighten(#272b30, 5%))
+@use 'sass:color'
+@use 'common' with ($headerfooter-background: steelblue, $headerfooter-foreground: ghostwhite, $searchresult-background: yellow, $table-hover-background: dimgray, $table-background-odd: #272b30, $table-background-even: color.adjust(#272b30, $lightness: 5%))
