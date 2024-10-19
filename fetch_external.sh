@@ -86,6 +86,7 @@ fetch "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"   
 fetch "https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"     js
 fetch "https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"             js                                     sha256  "0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg="
 fetch "https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"                 js                                     sha256  "ipiJrswvAR4VAx/th+6zWsdeYmVae0iJuiR+6OqHJHQ="
+fetch "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"        css                                    sha256  "PI8n5gCcz9cQqQXm3PEtDuPG8qx9oFsFctPg0S5zb8g="
 fetch "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/slate/bootstrap.min.css"     css bootswatch_slate_bootstrap.min.css sha256  "wiAh4n8qc/EvV4YhAjqU+bA9sW69vgGMP+LYATjdTj0="
 fetch "https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css"   css
 fetch "https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css"  css
