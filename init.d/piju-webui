@@ -1,14 +1,14 @@
 #!/sbin/openrc-run
 
 command="/home/piju/piju-webui/run.sh"
-command_args="192.168.0.91:5000"
+command_args="192.168.0.65:5000"
 command_args_foreground="${command_args}"
 command_user="piju:piju"
 command_background=true
 directory="/home/piju/piju-webui"
 pidfile="/run/$RC_SVCNAME.pid"
-output_log="/var/log/piju-webui/pijuwebui.log"
-error_log="/var/log/piju-webui/pijuwebui.err"
+output_log="/var/log/piju-webui/piju-webui.log"
+error_log="/var/log/piju-webui/piju-webui.err"
 
 start_pre()
 {

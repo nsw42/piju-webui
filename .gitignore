@@ -4,3 +4,6 @@ __pycache__/*
 styles/marquee.sass
 static/ext
 
+bin
+lib
+pyvenv.cfg
