@@ -48,6 +48,7 @@ GENRE_SORT_ORDERS = [
         'Alternative Rock',
         'AOR Classic Rock',
         'Art Rock',
+        'Avant Garde',
         'Britpop',
         'BritPop',
         'Celtic',
