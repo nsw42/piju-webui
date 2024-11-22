@@ -75,7 +75,14 @@ class Cache:
     def _add_album_from_json(self, album_json):
         album_id = id_from_link(album_json['link'])
         first_genre = album_json['genres'][0] if album_json['genres'] else None
-        genre_name = self.genre_names_from_links[first_genre] if first_genre else None
+        if first_genre:
+            genre_name = self.genre_names_from_links.get(first_genre)
+            if not genre_name:
+                # We need to refresh our cache of genre names
+                self.ensure_genre_cache(refresh=True)
+                genre_name = self.genre_names_from_links.get(first_genre)
+        else:
+            genre_name = None
         is_compilation = album_json['iscompilation']
         artist = album_json['artist']
         if not artist:
