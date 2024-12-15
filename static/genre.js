@@ -1,4 +1,19 @@
+let lazyLoadImages = false;
+let imageObserver;
+
 $(function() {
+    if ('IntersectionObserver' in window) {
+        lazyLoadImages = true;
+        imageObserver = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    const image = entry.target;
+                    image.src = image.getAttribute('data-lazy-load-image-src')
+                    imageObserver.unobserve(image)
+                }
+            })
+        })
+    }
     let url = window.location.href;
     let slash = url.lastIndexOf('/');
     let leaf = url.substring(slash + 1);
@@ -50,6 +65,34 @@ $('#random-toggle').change(function() {
 })
 
 
+function showAlbumsCreateAlbumRow(album) {
+    const album_row = document.getElementById("album-template").content.cloneNode(true);
+    const spacerElement = album_row.querySelector("#artwork-spacer")
+    const imgElement = album_row.querySelector("#album-artwork")
+    if (album['artwork_link'] != null) {
+        spacerElement.remove()  // We have artwork, so we don't need the spacer
+        if (lazyLoadImages) {
+            // Store where to find the image when it scrolls into view
+            imgElement.setAttribute('data-lazy-load-image-src', server + album['artwork_link'])
+            imageObserver.observe(imgElement)
+        } else {
+            // Lazy loading not supported - set the image source directly
+            imgElement.setAttribute('src', server + album['artwork_link'])
+        }
+    } else {
+        // No artwork: remove the img node
+        imgElement.remove();
+    }
+    const album_href = album_row.querySelector("#album-href");
+    album_href.setAttribute("href", `/albums/${album['id']}`);
+    album_href.innerText = (album['artist'] != null ? album['artist'] : "Unknown Artist") + ": " + (album['title'] != null ? album['title'] : "Unknown Album");
+    if (album['year'] != null) {
+        const album_year_node = album_row.querySelector("#album-year");
+        album_year_node.innerText = " (" + album['year'] + ")";
+    }
+    return album_row
+}
+
 function show_albums(albums) {
     let genre_content_node = document.getElementById("genre-content");
     while (genre_content_node.hasChildNodes()) {
@@ -65,28 +108,13 @@ function show_albums(albums) {
             selected_anchors[album_anchor] = true;
         }
 
-        let album_row = document.getElementById("album-template").content.cloneNode(true);
-        if (album['artwork_link'] != null) {
-            // We have artwork: remove the spacer
-            album_row.querySelector("#artwork-spacer").remove();
-            album_row.querySelector("#album-artwork").setAttribute("src", server + album['artwork_link']);
-        } else {
-            // No artwork: remove the img node
-            album_row.querySelector("#album-artwork").remove();
-        }
-        let album_href = album_row.querySelector("#album-href");
-        album_href.setAttribute("href", `/albums/${album['id']}`);
-        album_href.innerText = (album['artist'] != null ? album['artist'] : "Unknown Artist") + ": " + (album['title'] != null ? album['title'] : "Unknown Album");
-        if (album['year'] != null) {
-            let album_year_node = album_row.querySelector("#album-year");
-            album_year_node.innerText = " (" + album['year'] + ")";
-        }
-        genre_content_node.appendChild(album_row);
+        const albumRow = showAlbumsCreateAlbumRow(album)
+        genre_content_node.appendChild(albumRow);
     }
     genre_content_node.classList.remove('d-none');
 
     const letters = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let anchors_contents ='';
+    let anchors_contents = '';
     for (let letter of letters) {
         const anchor = (letter == '#' ? 'num' : letter);
         anchors_contents = anchors_contents.concat(
