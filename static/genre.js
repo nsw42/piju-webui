@@ -9,9 +9,6 @@ $(function() {
                 if (entry.isIntersecting) {
                     const image = entry.target;
                     image.src = image.getAttribute('data-lazy-load-image-src')
-                    const spacerId = image.getAttribute('data-spacer-id')
-                    const spacer = document.getElementById(spacerId)
-                    spacer.remove()
                     imageObserver.unobserve(image)
                 }
             })
@@ -74,7 +71,6 @@ function show_albums(albums) {
         genre_content_node.removeChild(genre_content_node.firstChild);
     }
     let selected_anchors = {};
-    let spacerId = 1;
     for (let album of albums) {
         let album_anchor = album['anchor'];
         if (selected_anchors[album_anchor] == null) {
@@ -88,16 +84,13 @@ function show_albums(albums) {
         const spacerElement = album_row.querySelector("#artwork-spacer")
         const imgElement = album_row.querySelector("#album-artwork")
         if (album['artwork_link'] != null) {
+            spacerElement.remove()  // We have artwork, so we don't need the spacer
             if (lazyLoadImages) {
-                // We have artwork: store the information about where to lazy load the image, ensure a unique id for the spacer, and ensure we can hide the spacer when we do the lazy load
-                const rowSpacerId = `artwork-spacer-${spacerId++}`
-                spacerElement.setAttribute('id', rowSpacerId)
+                // Store where to find the image when it scrolls into view
                 imgElement.setAttribute('data-lazy-load-image-src', server + album['artwork_link'])
-                imgElement.setAttribute('data-spacer-id', rowSpacerId)
                 imageObserver.observe(imgElement)
             } else {
-                // Lazy loading not supported - remove the spacer immediately and set the image source
-                spacerElement.remove()
+                // Lazy loading not supported - set the image source directly
                 imgElement.setAttribute('src', server + album['artwork_link'])
             }
         } else {
