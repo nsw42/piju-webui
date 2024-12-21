@@ -108,6 +108,7 @@ GENRE_SORT_ORDERS = [
         'Ska/Reggae',
     ]),
     Genre('Goth & Industrial', Icons.library_music, [
+        'Darkwave',
         'Gothic Rock',
         'Industrial',
         'Post Punk',
