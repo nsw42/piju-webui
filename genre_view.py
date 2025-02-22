@@ -82,6 +82,7 @@ GENRE_SORT_ORDERS = [
         'Hip Hop',
         'House',
         'Indie',
+        'Indie/Alternative',
         'Indie / Alternative',
         'Indie Rock',
         'Jazz/Rock',
