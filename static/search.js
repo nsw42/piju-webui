@@ -16,9 +16,9 @@ function triggerSearch() {
         start_search(searchstring, 0);
     }
 };
-active_search = null;
+let active_search = null;
 
-total_search_results = 0;
+let total_search_results = 0;
 function start_search(searchstring, search_state) {
     let search_args = "";
     search_args += "artists=" + (search_state == 0 ? "true" : "false");
@@ -54,7 +54,7 @@ function artist_result_callback(searchstring, data) {
     // console.log("artist_result_callback: " + searchstring + " -> " + data);
     data = $.parseJSON(data);
 
-    artists = data['artists'];
+    const artists = data['artists'];
     console.log("  " + artists.length + " artists");
     total_search_results += artists.length;
     if (0 == artists.length) {
@@ -70,7 +70,7 @@ function album_result_callback(searchstring, data) {
     // console.log("album_result_callback: " + data);
     data = $.parseJSON(data);
 
-    albums = data['albums'];
+    const albums = data['albums'];
     console.log("  " + albums.length + " albums");
     total_search_results += albums.length;
     if (0 == albums.length) {
@@ -86,7 +86,7 @@ function track_result_callback(searchstring, data) {
     // console.log("track_result_callback: " + data);
     data = $.parseJSON(data);
 
-    tracks = data['tracks'];
+    const tracks = data['tracks'];
     console.log("  " + tracks.length + " tracks");
     total_search_results += tracks.length;
     if (0 == tracks.length) {
@@ -156,7 +156,7 @@ function showAlbumResults(albums) {
             albumArtistTitleNode.after(" (" + albumYear + ")");
         }
 
-        for (let td of tr.cells) {
+        for (const td of tr.cells) {
             td.addEventListener('click', redirectMouseEventClosure(albumArtistTitleNode))
         }
 
@@ -168,9 +168,9 @@ function showArtistResults(artists) {
     $("#artist_results").removeClass("d-none");
     $("#nr_artist_results").text(artists.length);
     $("#artist_results_inner").empty();
-    for (artist of artists) {
-        let template = document.querySelector('#one_artist_search_result');
-        let tr = template.content.cloneNode(true).children[0];
+    for (const artist of artists) {
+        const template = document.querySelector('#one_artist_search_result');
+        const tr = template.content.cloneNode(true).children[0];
 
         let artistNameNode = tr.querySelector("#artist_name");
         artistNameNode.setAttribute("href", artist['link']);
@@ -188,7 +188,7 @@ function showTrackResults(tracks) {
     $("#track_results").removeClass("d-none");
     $("#nr_track_results").text(tracks.length);
     $("#track_results_inner").empty();
-    for (track of tracks) {
+    for (const track of tracks) {
         let template = document.querySelector('#one_track_search_result');
         let tr = template.content.cloneNode(true).children[0];
 
@@ -219,13 +219,14 @@ function showTrackResults(tracks) {
         trackArtistTitleNode.innerHTML = artist + ": " + title;
 
         // fix up the onclick functionality
-        for (td of [tr.cells[0], tr.cells[1]]) {
+        for (const td of [tr.cells[0], tr.cells[1]]) {
             td.addEventListener('click', redirectMouseEventClosure(trackArtistTitleNode));
         }
         tr.querySelector('#add-to-queue-button').setAttribute('onclick', `addTrackToQueue(${trackId})`);
 
         $("#track_results_inner").append(tr);
     }
+    addQueueFeedbackHandlers();
 }
 
 function toggleArtistCollapse() {
@@ -249,5 +250,5 @@ $(function() {
     $('#album_results_inner').collapse();
     $('#track_results_inner').collapse();
 
-    setTimeout(triggerSearch, 50); // TODO: Is 50ms long enough for iPhone etc?
+    setTimeout(triggerSearch, 50);
 });

@@ -512,10 +512,14 @@ function toggleMode() {
 
 function addQueueFeedbackHandlers() {
     $('.queue-button').each(function(index, button) {
-        const imgs = button.getElementsByTagName('i');
+        if (button.classList.contains('queue-feedback-handler-added')) {
+            return
+        }
+        button.classList.add('queue-feedback-handler-added')
+        const imgs = button.getElementsByTagName('i')
         if (imgs.length == 0) {
             console.log('Warning: No i tag found for queue-button', button)
-            return;
+            return
         }
         if (imgs.length != 1) {
             console.log("Warning: Multiple i tags found within queue-button")
