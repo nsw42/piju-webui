@@ -298,12 +298,26 @@ function playFromYouTube(event, url, queue) {
 
 // Local playback functions
 function setupLocalPlayers() {
+    let volume = localStorage.getItem('piju-local-volume')
+    if (volume === null || isNaN(volume)) {
+        volume = 1.0
+    } else {
+        volume = Number(volume)
+        if (volume < 0) {
+            volume = 0
+        } else if (volume > 1.0) {
+            volume = 1.0
+        }
+    }
+    $('#local-volume').val(volume * 100.0)
+
     localPlayers = playlistTrackIds.map(trackId => new Howl({
         src: [server + '/mp3/' + trackId],
         preload: false,
         autoplay: false,
         format: ["mp3"],
         html5: true,
+        volume: volume,
         onplayerror: function(soundId, errorCode) {
             console.log("howlerjs reported error code " + errorCode);
         },
@@ -312,7 +326,7 @@ function setupLocalPlayers() {
             if (localTrackIndex + 1 < playlistTrackIds.length) {
                 localPlay(localTrackIndex + 1);
             } else {
-                hideButtons(['#local-previous', '#local-pause', '#local-fetching', '#local-resume', '#local-next']);
+                hideButtons(['#local-previous', '#local-pause', '#local-fetching', '#local-resume', '#local-next', '#local-volume']);
                 currentTrackId = localTrackIndex = null;
             }
         },
@@ -343,7 +357,6 @@ function localPlay(playlistIndex) {
     currentTrackId = playlistTrackIds[playlistIndex];
     $("#track_"+currentTrackId).addClass('active-track');
     localPlayers[playlistIndex].play();
-    showPlaybackActive();
     if (setMediaHandlers) {
         for (const [action, handler] of [
             ['seekbackward', localPrevious],
@@ -397,9 +410,17 @@ function localResume() {
     }
 }
 
+function localVolumeChange() {
+    const volume = $('#local-volume').val() / 100.0
+    localStorage.setItem('piju-local-volume', volume)
+    for (const player of localPlayers) {
+        player.volume(volume)
+    }
+}
+
 function showPlaybackFetching() {
     showButtons(['#local-fetching']);
-    hideButtons(['#local-previous', '#local-pause', '#local-resume', '#local-next']);
+    hideButtons(['#local-previous', '#local-pause', '#local-resume', '#local-next', '#local-volume']);
 }
 
 function showPlaybackPaused(resumable) {
@@ -415,7 +436,7 @@ function showPlaybackPaused(resumable) {
 function showPlaybackActive() {
     navigator.mediaSession.playbackState = "playing";
     hideButtons(['#local-fetching', '#local-resume']);
-    showButtons(['#local-previous', '#local-pause', '#local-next']);
+    showButtons(['#local-previous', '#local-pause', '#local-next', '#local-volume']);
 }
 
 // Functions common to both remote control and local playback
