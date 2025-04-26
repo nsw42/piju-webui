@@ -16,6 +16,7 @@ let currentTrackId = null;
 let currentModeRemoteControl = (currentModeRemoteControlAtStart === undefined || currentModeRemoteControlAtStart == 'remote');
 // Vars only relevant for remote control
 let remoteCurrentState = STATE_STOPPED;
+let remoteWebSocket = null;
 // Vars only relevant for local playback
 let localPlayers = null;
 let localTrackIndex = null;
@@ -102,9 +103,16 @@ function openNowPlayingWebsocket() {
     if (wsServer.startsWith('https://')) {
         wsServer = wsServer.substring(8)
     }
-    const socket = new WebSocket('ws://' + wsServer + '/ws');
-    socket.addEventListener('message', ev => nowPlayingWebSocketMessage(ev))
-    socket.addEventListener('close', ev => nowPlayingWebSocketClosed(ev))
+    closeNowPlayingWebsocket()  // tidy up any existing resources before (re)connecting
+    remoteWebSocket = new WebSocket('ws://' + wsServer + '/ws')
+    remoteWebSocket.onmessage = (ev) => { nowPlayingWebSocketMessage(ev) }
+    remoteWebSocket.onclose = (ev) => { nowPlayingWebSocketClosed(ev) }
+}
+
+function closeNowPlayingWebsocket() {
+    if (remoteWebSocket !== null) {
+        remoteWebSocket.close()
+    }
 }
 
 function nowPlayingWebSocketMessage(ev) {
@@ -114,16 +122,17 @@ function nowPlayingWebSocketMessage(ev) {
 
 function nowPlayingWebSocketClosed(ev) {
     // Remote end closed the connection - crash? or update?
-    // Retry the connection in 5s
-    setTimeout(function() {
-        openNowPlayingWebsocket()
-    }, 5000)
+    if (currentModeRemoteControl) {
+        // Retry the connection in 5s
+        setTimeout(function() {
+            openNowPlayingWebsocket()
+        }, 5000)
+    }
 }
 
 function showNowPlaying(nowPlaying) {
     if (!currentModeRemoteControl) {
-        // When we select the local playback, we leave the ws open, so the server will
-        // continue sending us updates
+        // Messages can come in after we've switched to local playback
         return;
     }
     let newState, newTrackId;
@@ -516,7 +525,9 @@ function toggleMode() {
         $('.queue-button').each(function() {
             $(this).removeClass('d-none')
         });
+        openNowPlayingWebsocket()
     } else {
+        closeNowPlayingWebsocket()
         if (localTrackIndex != null) {
             currentTrackId = playlistTrackIds[localTrackIndex];
             $("#track_"+currentTrackId).addClass('active-track');
