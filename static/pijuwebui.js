@@ -1,4 +1,3 @@
-// TODO: Remove debugging?
 if (server == "") {
     alert("Server variable uninitalized");
 }
@@ -137,77 +136,95 @@ function showNowPlaying(nowPlaying) {
     }
     let newState, newTrackId;
     if (nowPlaying['PlayerStatus'] == 'stopped') {
-        newState = STATE_STOPPED;
-        newTrackId = null;
+        newState = STATE_STOPPED
+        newTrackId = null
     } else {
-        const currentTrack = nowPlaying['CurrentTrack'];
-        const tracklistSource = nowPlaying['CurrentTracklistUri'];
-        if (tracklistSource === undefined) {
-            // If we're streaming, disable the apparent clickability of the 'now playing' album link
-            $('#now_playing_album_link').removeAttr('href');
-        } else {
-            $("#now_playing_album_link").attr('href', tracklistSource);
-        }
-
-        // Handle artwork
-        let artworkLink = nowPlaying['CurrentArtwork'];
-        if (artworkLink) {
-            if (!artworkLink.startsWith('http')) {
-                artworkLink = server + artworkLink;
-            }
-            $("#now_playing_artwork_padding").addClass("d-none");
-            $("#now_playing_artwork").removeClass("d-none").attr('src', artworkLink);
-        } else {
-            $("#now_playing_artwork_padding").removeClass("d-none");
-            $("#now_playing_artwork").addClass("d-none");
-        }
-
-        // Information about what is playing
-        if (currentTrack === undefined) {
-            $("#now_playing_artist").text(nowPlaying['CurrentStream']);
-            $("#now_playing_track").text("");
-            newTrackId = undefined;
-        } else {
-            $("#now_playing_artist").text(currentTrack['artist']);
-            $("#now_playing_track").text(currentTrack['title']);
-            newTrackId = idFromLink(currentTrack['link']);
-        }
-
-        newState = (nowPlaying['PlayerStatus'] == "paused") ? STATE_PAUSED : STATE_PLAYING;
+        showNowPlayingArtwork(nowPlaying['CurrentArtwork'])
+        newTrackId = showNowPlayingCurrentTrack(nowPlaying['CurrentTrack'])
+        showNowPlayingCurrentSource(nowPlaying['CurrentTracklistUri'])
+        newState = (nowPlaying['PlayerStatus'] == "paused") ? STATE_PAUSED : STATE_PLAYING
     }
 
-    if (newState != remoteCurrentState) {
-        if (newState == STATE_STOPPED) {
-            $("#footer_nothing_playing").removeClass("d-none");
-            $("#footer_playing").addClass("d-none");
-        } else {
-            $("#footer_nothing_playing").addClass("d-none");
-            $("#footer_playing").removeClass("d-none");
+    showNowPlayingPlayingState(newState)
+    showNowPlayingTrackId(newTrackId)
+    showNowPlayingDownloadingState(nowPlaying['WorkerStatus'])
+}
 
-            if (newState == STATE_PAUSED) {
-                $("#now_playing_pause").addClass("d-none");
-                $("#now_playing_resume").removeClass("d-none");
-            } else {
-                $("#now_playing_pause").removeClass("d-none");
-                $("#now_playing_resume").addClass("d-none");
-            }
+function showNowPlayingCurrentSource(tracklistSource) {
+    if (tracklistSource === undefined) {
+        // If we're streaming, disable the apparent clickability of the 'now playing' album link
+        $('#now_playing_album_link').removeAttr('href');
+    } else {
+        $("#now_playing_album_link").attr('href', tracklistSource);
+    }
+}
+
+function showNowPlayingArtwork(artworkLink) {
+    if (artworkLink) {
+        if (!artworkLink.startsWith('http')) {
+            artworkLink = server + artworkLink;
         }
+        $("#now_playing_artwork_padding").addClass("d-none");
+        $("#now_playing_artwork").removeClass("d-none").attr('src', artworkLink);
+    } else {
+        $("#now_playing_artwork_padding").removeClass("d-none");
+        $("#now_playing_artwork").addClass("d-none");
+    }
+}
 
-        remoteCurrentState = newState;
+function showNowPlayingCurrentTrack(currentTrack) {
+    let newTrackId;
+    if (currentTrack === undefined) {
+        $("#now_playing_artist").text(nowPlaying['CurrentStream']);
+        $("#now_playing_track").text("");
+        newTrackId = undefined;
+    } else {
+        $("#now_playing_artist").text(currentTrack['artist']);
+        $("#now_playing_track").text(currentTrack['title']);
+        newTrackId = idFromLink(currentTrack['link']);
+    }
+    return newTrackId
+}
+
+function showNowPlayingPlayingState(newState) {
+    if (newState === remoteCurrentState) {
+        return  // Nothing to do
     }
 
-    if (newTrackId != currentTrackId) {
-        $("#track_"+currentTrackId).removeClass("active-track");
-        let currentTrackNode = $("#track_"+newTrackId);
-        if (currentTrackNode.length == 0) {
-            currentTrackId = null;  // queue page may be mid-refresh
+    if (newState == STATE_STOPPED) {
+        $("#footer_nothing_playing").removeClass("d-none");
+        $("#footer_playing").addClass("d-none");
+    } else {
+        $("#footer_nothing_playing").addClass("d-none");
+        $("#footer_playing").removeClass("d-none");
+
+        if (newState == STATE_PAUSED) {
+            $("#now_playing_pause").addClass("d-none");
+            $("#now_playing_resume").removeClass("d-none");
         } else {
-            currentTrackId = newTrackId;
-            currentTrackNode.addClass("active-track");
+            $("#now_playing_pause").removeClass("d-none");
+            $("#now_playing_resume").addClass("d-none");
         }
     }
 
-    const downloadingState = nowPlaying['WorkerStatus'];
+    remoteCurrentState = newState;
+}
+
+function showNowPlayingTrackId(newTrackId) {
+    if (newTrackId === currentTrackId) {
+        return  // nothing to do
+    }
+    $("#track_"+currentTrackId).removeClass("active-track");
+    let currentTrackNode = $("#track_"+newTrackId);
+    if (currentTrackNode.length == 0) {
+        currentTrackId = null;  // queue page may be mid-refresh
+    } else {
+        currentTrackId = newTrackId;
+        currentTrackNode.addClass("active-track");
+    }
+}
+
+function showNowPlayingDownloadingState(downloadingState) {
     if (downloadingState.startsWith("Fetching")) {
         $("#downloading-indicator-parent").removeClass('d-none');
     } else {
