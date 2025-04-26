@@ -110,6 +110,8 @@ function openNowPlayingWebsocket() {
 
 function closeNowPlayingWebsocket() {
     if (remoteWebSocket !== null) {
+        remoteWebSocket.onmessage = null
+        remoteWebSocket.onclose = null  // don't tell me that I'm closing the socket that I'm about to close
         remoteWebSocket.close()
     }
 }
