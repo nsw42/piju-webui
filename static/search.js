@@ -51,7 +51,6 @@ function start_search(searchstring, search_state) {
 }
 
 function artist_result_callback(searchstring, data) {
-    // console.log("artist_result_callback: " + searchstring + " -> " + data);
     data = $.parseJSON(data);
 
     const artists = data['artists'];
@@ -67,7 +66,6 @@ function artist_result_callback(searchstring, data) {
 }
 
 function album_result_callback(searchstring, data) {
-    // console.log("album_result_callback: " + data);
     data = $.parseJSON(data);
 
     const albums = data['albums'];
@@ -83,7 +81,6 @@ function album_result_callback(searchstring, data) {
 }
 
 function track_result_callback(searchstring, data) {
-    // console.log("track_result_callback: " + data);
     data = $.parseJSON(data);
 
     const tracks = data['tracks'];
@@ -126,41 +123,41 @@ function showAlbumResults(albums) {
         let trId = `album-result-${album_i}`;
         tr.setAttribute('id', trId);
 
-        let artworkLink = album['artwork']['link'];
-        if (artworkLink == null) {
-            tr.querySelector("#artwork_link_present").remove();
-        } else {
-            tr.querySelector("#artwork_link_missing").remove();
-            tr.querySelector("#artwork_link_present").setAttribute("src", server + "/" + artworkLink);
-        }
-
-        let artist = album['artist'];
-        if (artist == null || artist == "") {
-            if (album['iscompilation']) {
-                artist = "Various Artists";
-            } else {
-                artist = "Unknown Artist";
-            }
-        }
-
-        let title = album['title'];
-        if (title == null || title == "") {
-            title = "Unknown Album";  // ?!
-        }
-        let albumArtistTitleNode = tr.querySelector("#album_artist_title");
-        albumArtistTitleNode.setAttribute("href", album['link']);
-        albumArtistTitleNode.innerHTML = artist + ": " + title;
-
-        let albumYear = album['releasedate'];
-        if (albumYear != null) {
-            albumArtistTitleNode.after(" (" + albumYear + ")");
-        }
-
-        for (const td of tr.cells) {
-            td.addEventListener('click', redirectMouseEventClosure(albumArtistTitleNode))
-        }
+        showAlbumResultsArtwork(tr, album['artwork']['link'])
+        showAlbumResultsArtistAndTitle(tr, album['link'], album['artist'], album['title'], album['iscompilation'], album['releasedate'])
 
         $("#album_results_inner").append(tr);
+    }
+}
+
+function showAlbumResultsArtwork(tr, artworkLink) {
+    if (artworkLink == null) {
+        tr.querySelector("#artwork_link_present").remove();
+    } else {
+        tr.querySelector("#artwork_link_missing").remove();
+        tr.querySelector("#artwork_link_present").setAttribute("src", server + "/" + artworkLink);
+    }
+}
+
+function showAlbumResultsArtistAndTitle(tr, albumLink, artist, title, isCompilation, albumYear) {
+    if (artist == null || artist == "") {
+        if (isCompilation) {
+            artist = "Various Artists";
+        } else {
+            artist = "Unknown Artist";
+        }
+    }
+    if (title == null || title == "") {
+        title = "Unknown Album";  // ?!
+    }
+    let albumArtistTitleNode = tr.querySelector("#album_artist_title");
+    albumArtistTitleNode.setAttribute("href", albumLink);
+    albumArtistTitleNode.innerHTML = artist + ": " + title;
+    if (albumYear != null) {
+        albumArtistTitleNode.after(" (" + albumYear + ")");
+    }
+    for (const td of tr.cells) {
+        td.addEventListener('click', redirectMouseEventClosure(albumArtistTitleNode))
     }
 }
 
