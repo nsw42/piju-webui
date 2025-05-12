@@ -104,17 +104,16 @@ class Cache:
         self.album_details[album_id] = album_details
         return album_details
 
-    def _add_artist_from_json(self, artist_json):
+    def _add_artist_from_json(self, definitive_artist_name, artist_json):
         # We'd normally only expect a single artist in the response
-        # but this works if there are multiple, which can happen if
-        # there are multiple capitalisations of an artist
+        # but this works if there are multiple, e.g. for artist aliases
         albums = []
         for artist_name, albums_json in artist_json.items():
             for album_json in albums_json:
                 albums.append(self._add_album_from_json(album_json))
         albums.sort(key=lambda album: album.year if album.year else 9999)
-        artist = Artist(artist_name, albums)
-        self.artist_details[artist_name.lower()] = artist
+        artist = Artist(definitive_artist_name, albums)
+        self.artist_details[definitive_artist_name.lower()] = artist
 
     def _add_playlist_from_json(self, playlist_json):
         link = playlist_json['link']
@@ -157,7 +156,7 @@ class Cache:
         artist_lookup = artist.lower()
         if refresh or self.artist_details.get(artist_lookup) is None:
             response_json = self._wrapped_requests_get(f'artists/{artist}?tracks=all')
-            self._add_artist_from_json(response_json)  # updates self.artist_details[artist.lower()]
+            self._add_artist_from_json(artist, response_json)  # updates self.artist_details[artist.lower()]
         return self.artist_details[artist_lookup]
 
     def ensure_genre_cache(self, refresh=False):
