@@ -104,11 +104,11 @@ class Cache:
         self.album_details[album_id] = album_details
         return album_details
 
-    def _add_artist_from_json(self, definitive_artist_name, artist_json):
+    def _add_artist_from_json(self, definitive_artist_name: str, artist_json: dict):
         # We'd normally only expect a single artist in the response
         # but this works if there are multiple, e.g. for artist aliases
         albums = []
-        for artist_name, albums_json in artist_json.items():
+        for albums_json in artist_json.values():
             for album_json in albums_json:
                 albums.append(self._add_album_from_json(album_json))
         albums.sort(key=lambda album: album.year if album.year else 9999)
