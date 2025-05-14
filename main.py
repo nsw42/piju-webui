@@ -16,7 +16,7 @@ from flask import Flask, abort, redirect, render_template, request
 from werkzeug.serving import make_server
 import requests
 
-from cache import Cache
+from cache import Cache, Artist
 import genre_view
 
 
@@ -144,10 +144,14 @@ def get_album(album_id):
 
 @app.route("/artists/<path:artist>")
 def get_artist(artist):
-    artist = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
-    if artist is None:
+    artist_info: Artist = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
+    if artist_info is None:
         abort(404)
-    return render_template('artist.html', **get_default_template_args(), artist=artist)
+    if not parse_bool(request.args.get('aliases', default='True')):
+        # filter out albums by the artist's aliases
+        albums_without_aliases = [album for album in artist_info.albums if album.artist.lower() == artist.lower()]
+        artist_info = artist_info._replace(albums=albums_without_aliases)
+    return render_template('artist.html', **get_default_template_args(), artist=artist_info)
 
 
 @app.route("/genre/<genre_name>")
