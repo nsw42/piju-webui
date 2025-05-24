@@ -156,9 +156,12 @@ function showAlbumResultsArtistAndTitle(tr, albumLink, artist, title, isCompilat
     if (albumYear != null) {
         albumArtistTitleNode.after(" (" + albumYear + ")");
     }
-    for (const td of tr.cells) {
+    // fix up the onclick functionality
+    for (const td of [tr.cells[0], tr.cells[1]]) {
         td.addEventListener('click', redirectMouseEventClosure(albumArtistTitleNode))
     }
+    const albumId = idFromLink(albumLink)
+    tr.querySelector('#add-to-queue-button').setAttribute('onclick', `addAlbumToQueue(${albumId})`)
 }
 
 function showArtistResults(artists) {

@@ -248,6 +248,20 @@ function sendResume() {
     });
 }
 
+function addAlbumToQueue(albumId, successCallback) {
+    if (currentModeRemoteControl) {
+        return $.ajax({
+            url: server + "/queue/",
+            method: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify({album: albumId}),
+            dataType: "json",
+            processData: false,
+            success: successCallback
+        })
+    }
+}
+
 function addDiskToQueue(albumId, diskNumber, successCallback) {
     if (currentModeRemoteControl) {
         return $.ajax({
