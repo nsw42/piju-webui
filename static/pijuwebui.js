@@ -142,7 +142,7 @@ function showNowPlaying(nowPlaying) {
         newTrackId = null
     } else {
         showNowPlayingArtwork(nowPlaying['CurrentArtwork'])
-        newTrackId = showNowPlayingCurrentTrack(nowPlaying['CurrentTrack'])
+        newTrackId = showNowPlayingCurrentTrack(nowPlaying)
         showNowPlayingCurrentSource(nowPlaying['CurrentTracklistUri'])
         newState = (nowPlaying['PlayerStatus'] == "paused") ? STATE_PAUSED : STATE_PLAYING
     }
@@ -174,16 +174,17 @@ function showNowPlayingArtwork(artworkLink) {
     }
 }
 
-function showNowPlayingCurrentTrack(currentTrack) {
+function showNowPlayingCurrentTrack(nowPlaying) {
+    const currentTrack = nowPlaying['CurrentTrack']
     let newTrackId;
     if (currentTrack === undefined) {
-        $("#now_playing_artist").text(nowPlaying['CurrentStream']);
-        $("#now_playing_track").text("");
+        $("#now_playing_artist").text(nowPlaying['CurrentStream'])
+        $("#now_playing_track").text("")
         newTrackId = undefined;
     } else {
-        $("#now_playing_artist").text(currentTrack['artist']);
-        $("#now_playing_track").text(currentTrack['title']);
-        newTrackId = idFromLink(currentTrack['link']);
+        $("#now_playing_artist").text(currentTrack['artist'])
+        $("#now_playing_track").text(currentTrack['title'])
+        newTrackId = idFromLink(currentTrack['link'])
     }
     return newTrackId
 }
