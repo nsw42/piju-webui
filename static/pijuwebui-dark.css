@@ -90,6 +90,10 @@ button.undecorated {
   border: none;
 }
 
+.queue-button-h-100 {
+  height: 98px;
+}
+
 .queue-button:active i {
   color: red;
   padding-top: 8px;

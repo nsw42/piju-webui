@@ -96,6 +96,11 @@ button.undecorated
     background-color: inherit
     border: none
 
+.queue-button-h-100
+    // h-100 doesn't work for buttons inside a td, so this is a quick fix
+    // until we can replace the search result page with a div-based layout
+    height: 98px
+
 .queue-button:active i
     color: red
     padding-top: 8px
