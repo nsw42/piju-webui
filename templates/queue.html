@@ -38,7 +38,7 @@
                 </div>
             </div>
             {#- centre section: the (stretched) button to play the track, the queue index, and the artist and track title -#}
-            <div class="d-inline-flex position-relative align-items-center h-100" style="width: 55vw; left: 144px;">
+            <div class="d-inline-flex position-relative align-items-center h-100" style="width: calc(100% - 144px - 60px - 20px); left: 144px;">
                 <div class="d-inline-block" style="width: 0px;">
                     <button id="play-button" class="stretched-link btn btn-link" onclick="playQueueItemButtonHandler(event)"></button>
                 </div>
