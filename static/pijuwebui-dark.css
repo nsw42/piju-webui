@@ -201,7 +201,7 @@ a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawe
   color: ghostwhite !important;
 }
 
-.marquee-3elt, .marquee-2elt {
+.marquee-slow .marquee-3elt, .marquee-fast .marquee-3elt, .marquee-slow .marquee-2elt, .marquee-fast .marquee-2elt {
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -209,7 +209,7 @@ a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawe
   margin-right: 2%;
   margin-top: 5px;
 }
-.marquee-3elt div, .marquee-2elt div {
+.marquee-slow .marquee-3elt div, .marquee-fast .marquee-3elt div, .marquee-slow .marquee-2elt div, .marquee-fast .marquee-2elt div {
   position: absolute;
   min-width: 100%;
   height: 100%;
@@ -223,196 +223,466 @@ a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawe
   margin-top: 5px;
 }
 
-.marquee-2elt div:nth-child(1) {
-  animation: marquee-2elt-1 12s ease infinite;
+.marquee-fast .marquee-2elt div:nth-child(1) {
+  animation: marquee-fast-2elt-1 12s ease infinite;
 }
-.marquee-2elt div:nth-child(2) {
-  animation: marquee-2elt-2 12s ease infinite;
+.marquee-fast .marquee-2elt div:nth-child(2) {
+  animation: marquee-fast-2elt-2 12s ease infinite;
 }
 
-@keyframes marquee-2elt-1 {
+@keyframes marquee-fast-2elt-1 {
   /* 0 */
   0% {
     transform: translateX(0%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 4 */
   33% {
     transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
   }
   /* 6 */
   50% {
     transform: translateX(-100%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 7 */
   58% {
     transform: translateX(-100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 9 */
   75% {
     transform: translateX(100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 10 */
   83% {
     transform: translateX(100%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 12 */
   100% {
     transform: translateX(0%);
     opacity: 1;
+    background-color: steelblue;
   }
 }
-@keyframes marquee-2elt-2 {
+@keyframes marquee-fast-2elt-2 {
   /* 0 */
   0% {
     transform: translateX(100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 3 */
   25% {
     transform: translateX(100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 4 */
   33% {
     transform: translateX(100%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 6 */
   50% {
     transform: translateX(0%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 10 */
   83% {
     transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
   }
   /* 12 */
   100% {
     transform: translateX(-100%);
     opacity: 1;
+    background-color: steelblue;
   }
 }
-.marquee-3elt div:nth-child(1) {
-  animation: marquee-3elt-1 18s ease infinite;
+.marquee-slow .marquee-2elt div:nth-child(1) {
+  animation: marquee-slow-2elt-1 16s ease infinite;
 }
-.marquee-3elt div:nth-child(2) {
-  animation: marquee-3elt-2 18s ease infinite;
-}
-.marquee-3elt div:nth-child(3) {
-  animation: marquee-3elt-3 18s ease infinite;
+.marquee-slow .marquee-2elt div:nth-child(2) {
+  animation: marquee-slow-2elt-2 16s ease infinite;
 }
 
-@keyframes marquee-3elt-1 {
+@keyframes marquee-slow-2elt-1 {
   /* 0 */
   0% {
     transform: translateX(0%);
     opacity: 1;
+    background-color: steelblue;
+  }
+  /* 4 */
+  25% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 8 */
+  50% {
+    transform: translateX(-100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 9 */
+  56% {
+    transform: translateX(-100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 11 */
+  69% {
+    transform: translateX(100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 12 */
+  75% {
+    transform: translateX(100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 16 */
+  100% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+}
+@keyframes marquee-slow-2elt-2 {
+  /* 0 */
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 3 */
+  19% {
+    transform: translateX(100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 4 */
+  25% {
+    transform: translateX(100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 8 */
+  50% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 12 */
+  75% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 16 */
+  100% {
+    transform: translateX(-100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+}
+.marquee-fast .marquee-3elt div:nth-child(1) {
+  animation: marquee-fast-3elt-1 18s ease infinite;
+}
+.marquee-fast .marquee-3elt div:nth-child(2) {
+  animation: marquee-fast-3elt-2 18s ease infinite;
+}
+.marquee-fast .marquee-3elt div:nth-child(3) {
+  animation: marquee-fast-3elt-3 18s ease infinite;
+}
+
+@keyframes marquee-fast-3elt-1 {
+  /* 0 */
+  0% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
   }
   /* 4 */
   22% {
     transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
   }
   /* 6 */
   33% {
     transform: translateX(-100%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 7 */
   39% {
     transform: translateX(-100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 15 */
   83% {
     transform: translateX(100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 16 */
   89% {
     transform: translateX(100%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 18 */
   100% {
     transform: translateX(0%);
     opacity: 1;
+    background-color: steelblue;
   }
 }
-@keyframes marquee-3elt-2 {
+@keyframes marquee-fast-3elt-2 {
   /* 0 */
   0% {
     transform: translateX(100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 3 */
   17% {
     transform: translateX(100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 4 */
   22% {
     transform: translateX(100%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 6 */
   33% {
     transform: translateX(0%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 10 */
   56% {
     transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
   }
   /* 12 */
   67% {
     transform: translateX(-100%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 13 */
   72% {
     transform: translateX(-100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 18 */
   100% {
     transform: translateX(-100%);
     opacity: 0;
+    background-color: steelblue;
   }
 }
-@keyframes marquee-3elt-3 {
+@keyframes marquee-fast-3elt-3 {
   /* 0 */
   0% {
     transform: translateX(100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 9 */
   50% {
     transform: translateX(100%);
     opacity: 0;
+    background-color: steelblue;
   }
   /* 10 */
   56% {
     transform: translateX(100%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 12 */
   67% {
     transform: translateX(0%);
     opacity: 1;
+    background-color: steelblue;
   }
   /* 16 */
   89% {
     transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
   }
   /* 18 */
   100% {
     transform: translateX(-100%);
     opacity: 1;
+    background-color: steelblue;
+  }
+}
+.marquee-slow .marquee-3elt div:nth-child(1) {
+  animation: marquee-slow-3elt-1 24s ease infinite;
+}
+.marquee-slow .marquee-3elt div:nth-child(2) {
+  animation: marquee-slow-3elt-2 24s ease infinite;
+}
+.marquee-slow .marquee-3elt div:nth-child(3) {
+  animation: marquee-slow-3elt-3 24s ease infinite;
+}
+
+@keyframes marquee-slow-3elt-1 {
+  /* 0 */
+  0% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 4 */
+  17% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 8 */
+  33% {
+    transform: translateX(-100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 9 */
+  38% {
+    transform: translateX(-100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 19 */
+  79% {
+    transform: translateX(100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 20 */
+  83% {
+    transform: translateX(100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 24 */
+  100% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+}
+@keyframes marquee-slow-3elt-2 {
+  /* 0 */
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 3 */
+  12% {
+    transform: translateX(100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 4 */
+  17% {
+    transform: translateX(100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 8 */
+  33% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 12 */
+  50% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 16 */
+  67% {
+    transform: translateX(-100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 17 */
+  71% {
+    transform: translateX(-100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 24 */
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+}
+@keyframes marquee-slow-3elt-3 {
+  /* 0 */
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 11 */
+  46% {
+    transform: translateX(100%);
+    opacity: 0;
+    background-color: steelblue;
+  }
+  /* 12 */
+  50% {
+    transform: translateX(100%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 16 */
+  67% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 20 */
+  83% {
+    transform: translateX(0%);
+    opacity: 1;
+    background-color: steelblue;
+  }
+  /* 24 */
+  100% {
+    transform: translateX(-100%);
+    opacity: 1;
+    background-color: steelblue;
   }
 }
 
