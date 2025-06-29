@@ -201,7 +201,7 @@ a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawe
   color: ghostwhite !important;
 }
 
-.marquee-slow .marquee-3elt, .marquee-fast .marquee-3elt, .marquee-slow .marquee-2elt, .marquee-fast .marquee-2elt {
+.marquee-fast .marquee-2elt, .marquee-slow .marquee-2elt, .marquee-fast .marquee-3elt, .marquee-slow .marquee-3elt {
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -209,7 +209,7 @@ a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawe
   margin-right: 2%;
   margin-top: 5px;
 }
-.marquee-slow .marquee-3elt div, .marquee-fast .marquee-3elt div, .marquee-slow .marquee-2elt div, .marquee-fast .marquee-2elt div {
+.marquee-fast .marquee-2elt div, .marquee-slow .marquee-2elt div, .marquee-fast .marquee-3elt div, .marquee-slow .marquee-3elt div {
   position: absolute;
   min-width: 100%;
   height: 100%;

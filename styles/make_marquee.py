@@ -21,7 +21,7 @@ def write_keyframes(speed_name, n, i, total_s, keyframes):
         print(f'{INDENT}{INDENT}transform: translateX({kf.xpos}%)')
         if kf.opacity is not None:
             print(f'{INDENT}{INDENT}opacity: {kf.opacity}')
-        print(f'{INDENT}{INDENT}background-color: $headerfooter-background')
+        print(f'{INDENT}{INDENT}background-color: theme.$headerfooter-background')
     print()
 
 
@@ -67,6 +67,9 @@ def make_marquee(speed_name, n, show_duration, slide_duration):
 
 
 if __name__ == '__main__':
+    print('@use "theme"')
+    print('@use "marquee_base"')
+    print()
     for n_elts in (2, 3):
         make_marquee('fast', n_elts, show_duration=4, slide_duration=2)
         make_marquee('slow', n_elts, show_duration=4, slide_duration=4)
