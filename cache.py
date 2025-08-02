@@ -89,8 +89,8 @@ class Cache:
             artist = 'Various Artists' if is_compilation else 'Unknown Artist'
         anchor = get_artist_anchor(artist)
         tracks = self.track_list_from_json(album_json['tracks'])
-        tracks.sort(key=lambda t: (t.disknumber if (t.disknumber is not None) else 9999,
-                                   t.tracknumber if (t.tracknumber is not None) else 0))
+        tracks.sort(key=lambda t: (t.disknumber if (t and t.disknumber is not None) else 9999,
+                                   t.tracknumber if (t and t.tracknumber is not None) else 0))
         album_details = Album(id=album_id,
                               artist=artist,
                               title=album_json['title'],
@@ -189,6 +189,7 @@ class Cache:
         """
         start = datetime.datetime.now()
         self.ensure_genre_cache()
+        assert self.genre_links  # set by ensure_genre_cache
         if refresh or self.albums_in_genre.get(genre_name) is None:
             server_links = self.genre_links.get(genre_name)  # Could be a request for an unknown genre name
             if server_links is None:
