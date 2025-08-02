@@ -85,6 +85,29 @@ body {
   color: ghostwhite;
 }
 
+.volume-slider:focus::-webkit-slider-thumb {
+  background-clip: initial;
+  border: none;
+  transform: none;
+}
+.volume-slider::-webkit-slider-thumb {
+  background-clip: padding-box;
+  border: 0.4rem solid transparent;
+  transform: scale(4);
+}
+.volume-slider:focus::-moz-range-thumb {
+  background-clip: initial;
+  border: none;
+  box-sizing: initial;
+  transform: none;
+}
+.volume-slider::-moz-range-thumb {
+  background-clip: padding-box;
+  border: 0.4rem solid transparent;
+  box-sizing: border-box;
+  transform: scale(4);
+}
+
 button.undecorated {
   background-color: inherit;
   border: none;

@@ -78,6 +78,30 @@ body
 .footer-button
     color: theme.$headerfooter-foreground
 
+.volume-slider
+  // https://github.com/twbs/bootstrap/issues/31241
+  &:focus::-webkit-slider-thumb
+    background-clip: initial
+    border: none
+    transform: none
+
+  &::-webkit-slider-thumb
+    background-clip: padding-box
+    border: 0.4rem solid transparent
+    transform: scale(4)
+
+  &:focus::-moz-range-thumb
+    background-clip: initial
+    border: none
+    box-sizing: initial
+    transform: none
+
+  &::-moz-range-thumb
+    background-clip: padding-box
+    border: 0.4rem solid transparent
+    box-sizing: border-box
+    transform: scale(4)
+
 button.undecorated
     background-color: inherit
     border: none

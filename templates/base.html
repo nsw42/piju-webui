@@ -81,7 +81,7 @@
         <div id="footer_nothing_playing" class="w-100 fixed-bottom footer"></div>
         <div id="footer_playing" class="d-flex w-100 fixed-bottom justify-content-evenly footer d-none">
             {# left #}
-            <div class="my-auto position-relative">
+            <div class="my-auto position-relative flex-fill ms-5">
                 <div class="my-auto d-flex flex-nowrap">
                     <div class="my-auto">
                         <div id="now_playing_artwork_padding" class="my-auto mx-3 footer-artwork-padding"></div>
@@ -95,14 +95,18 @@
                 </div>
             </div>
 
-            {# right #}
-            <div class="my-auto d-flex flex-nowrap">
+            {# centre - pause/resume #}
+            <div class="my-auto d-flex flex-nowrap flex-fill">
                 <button type="button" id="now_playing_pause" class="btn mx-3 d-none border-0" onclick="sendPause()">
                     <i class="las la-pause la-6x la-fw footer-button"></i>
                 </button>
                 <button type="button" id="now_playing_resume" class="btn mx-3 d-none border-0" onclick="sendResume()">
                     <i class="las la-play la-6x la-fw footer-button"></i>
                 </button>
+            </div>
+            {# right - volume #}
+            <div id="remote-volume-container" class="my-auto d-flex flex-nowrap flex-fill me-5">
+                <input type="range" class="form-range volume-slider my-5" id="remote-volume" min="0" max="100" onchange="remoteVolumeChange(event)">
             </div>
         </div>
 
@@ -128,7 +132,7 @@
             </div>
             {# right - volume #}
             <div class="my-auto d-flex flex-nowrap">
-                <input type="range" class="form-range d-none" id="local-volume" min="0" max="100" onchange="localVolumeChange()">
+                <input type="range" class="form-range volume-slider d-none" id="local-volume" min="0" max="100" onchange="localVolumeChange()">
             </div>
         </div>
         <div id="dummyelt" class="d-none"></div>

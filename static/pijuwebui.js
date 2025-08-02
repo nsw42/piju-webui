@@ -150,14 +150,18 @@ function showNowPlaying(nowPlaying) {
     showNowPlayingPlayingState(newState)
     showNowPlayingTrackId(newTrackId)
     showNowPlayingDownloadingState(nowPlaying['WorkerStatus'])
+    showNowPlayingRemoteVolume(nowPlaying['PlayerVolume'])
 }
 
 function showNowPlayingCurrentSource(tracklistSource) {
     if (tracklistSource === undefined) {
         // If we're streaming, disable the apparent clickability of the 'now playing' album link
-        $('#now_playing_album_link').removeAttr('href');
+        // and hide the remote volume control
+        $('#now_playing_album_link').removeAttr('href')
+        $('#remote-volume-container').addClass('d-none')
     } else {
-        $("#now_playing_album_link").attr('href', tracklistSource);
+        $("#now_playing_album_link").attr('href', tracklistSource)
+        $('#remote-volume-container').removeClass('d-none')
     }
 }
 
@@ -233,6 +237,22 @@ function showNowPlayingDownloadingState(downloadingState) {
     } else {
         $("#downloading-indicator-parent").addClass('d-none');
     }
+}
+
+function showNowPlayingRemoteVolume(volume) {
+    $('#remote-volume').val(volume)
+}
+
+function remoteVolumeChange(event) {
+    const volume = event.target.value
+    $.ajax({
+        url: server + "/player/volume",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({volume: volume}),
+        dataType: "json",
+        processData: false,
+    })
 }
 
 function sendPause() {
