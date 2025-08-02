@@ -10,6 +10,7 @@ import socket
 import subprocess
 import threading
 import time
+from typing import Callable, Optional
 from urllib.parse import urlparse, urlunparse
 
 from flask import Flask, abort, redirect, render_template, request
@@ -24,12 +25,20 @@ QueuedTrack = namedtuple('QueuedTrack', 'id, artist, title, link, artwork')
 # different from a cache.Track, because it accommodates YouTube 'tracks', too
 
 
+class PijuWebuiApp(Flask):
+    def __init__(self, import_name):
+        super().__init__(import_name)
+        self.exit_code: int | None = None
+        self.dev_reload = False  # may be updated later
+        self.server: str | None = None
+        self.cache = Cache(self)
+        self.server_from_ui_client: Callable[[], str] = lambda: ''
+
+
 RANDOM_COOKIE_NAME = 'random'
 TIMEOUT_QUICK_ACTION = 30
 TIMEOUT_LONG_REQUEST = 300
-
-app = Flask(__name__)
-app.exit_code = None
+app = PijuWebuiApp(__name__)
 
 
 def server_for_client(server_tuple):
@@ -146,7 +155,7 @@ def get_album(album_id):
 
 @app.route("/artists/<path:artist>")
 def get_artist(artist):
-    artist_info: Artist = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
+    artist_info: Optional[Artist] = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
     if artist_info is None:
         abort(404)
     if not parse_bool(request.args.get('aliases', default='True')):
@@ -243,7 +252,7 @@ def view_queue():
 
 
 @app.post("/quit")
-def quit():
+def quit_request():
     app.exit_code = 0
     return ('', HTTPStatus.NO_CONTENT)
 
@@ -274,7 +283,7 @@ def youtube():
             requests.post(f"{app.server}/player/play",
                           json={'url': url},
                           timeout=TIMEOUT_QUICK_ACTION)
-    response = requests.get(app.server + '/downloadhistory',
+    response = requests.get(f"{app.server}/downloadhistory",
                             timeout=TIMEOUT_LONG_REQUEST)
     if not response.ok:
         abort(500)
@@ -389,7 +398,6 @@ def main():
         app.server_from_ui_client = lambda: server_for_client(args.server_tuple)
     else:
         app.server_from_ui_client = lambda: args.server
-    app.cache = Cache(app)
     connection_test(app.server, required_api_version='7.0')
     host, port = '0.0.0.0', 80
     if args.dev_reload:
