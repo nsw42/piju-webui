@@ -53,12 +53,8 @@ def get_default_template_args():
     theme = request.cookies.get('theme', '').lower()
     if theme not in ('dark', 'light'):
         theme = 'light'
-    mode = request.cookies.get('mode', '').lower()
-    if mode not in ('remote', 'local'):
-        mode = 'remote'
     return {
         "marquee_speed": 'fast' if (now.hour < 22) else 'slow',
-        "remote_mode_enabled": mode == 'remote',
         "theme": theme,
         "server": app.server_from_ui_client(),
         "len": len,

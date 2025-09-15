@@ -7,12 +7,14 @@ const STATE_UNKNOWN = -1;
 const STATE_STOPPED = 0;
 const STATE_PLAYING = 1;
 const STATE_PAUSED = 2;
-const currentModeRemoteControlAtStart = Cookies.get('mode');
+const storageKeyMode = 'piju-webui-mode'
+const currentModeRemoteControlAtStart = localStorage.getItem(storageKeyMode) ?? 'remote'
 
 // Globals
 // Vars common to both local and remote mode
+let elementBody
 let currentTrackId = null;
-let currentModeRemoteControl = (currentModeRemoteControlAtStart === undefined || currentModeRemoteControlAtStart == 'remote');
+let currentModeRemoteControl = (currentModeRemoteControlAtStart == 'remote')
 // Vars only relevant for remote control
 let remoteCurrentState = STATE_STOPPED;
 let remoteWebSocket = null;
@@ -27,6 +29,8 @@ let fetching = false;
 // Adding the event listener to document was resulting in the first click being lost for some buttons.
 $(function() {
     document.getElementById('dummyelt')?.addEventListener('touchmove', event => {}, {passive: true});
+    elementBody = document.getElementsByTagName('body')[0]
+    elementBody.classList.add(currentModeRemoteControl ? 'piju-remote' : 'piju-local')
     openNowPlayingWebsocket();
     addQueueFeedbackHandlers();
 });
@@ -561,9 +565,9 @@ function playRadio(stationId) {
 
 function toggleMode() {
     currentModeRemoteControl = !currentModeRemoteControl;
-    Cookies.set('mode', currentModeRemoteControl ? 'remote' : 'local', { sameSite: 'Lax' });
-    $('#mode-indicator-remote').toggleClass('d-none');
-    $('#mode-indicator-local').toggleClass('d-none');
+    localStorage.setItem(storageKeyMode, currentModeRemoteControl ? 'remote' : 'local')
+    elementBody.classList.toggle('piju-remote')
+    elementBody.classList.toggle('piju-local')
 
     if (currentTrackId != null) {
         $("#track_"+currentTrackId).removeClass('active-track');
@@ -573,12 +577,6 @@ function toggleMode() {
         localPause(false);
         remoteCurrentState = STATE_UNKNOWN;  // Ensure display updates when the timer next fires
         currentTrackId = null;  // ditto
-        $('#footer_nothing_playing').removeClass('d-none');
-        $('#footer_playing').removeClass('d-none');
-        $('#footer-local-playback').addClass('d-none');
-        $('.queue-button').each(function() {
-            $(this).removeClass('d-none')
-        });
         openNowPlayingWebsocket()
     } else {
         closeNowPlayingWebsocket()
@@ -587,20 +585,11 @@ function toggleMode() {
             $("#track_"+currentTrackId).addClass('active-track');
             localResume();
         }
-        $('#footer_nothing_playing').addClass('d-none');
-        $('#footer_playing').addClass('d-none');
-        $('#footer-local-playback').removeClass('d-none');
-        $('.queue-button').each(function() {
-            $(this).addClass('d-none')
-        });
     }
 }
 
 function addQueueFeedbackHandlers() {
-    $('.queue-button').each(function(index, button) {
-        if (button.classList.contains('queue-feedback-handler-added')) {
-            return
-        }
+    $('.queue-button:not(.queue-feedback-handler-added)').each(function(index, button) {
         button.classList.add('queue-feedback-handler-added')
         const imgs = button.getElementsByTagName('i')
         if (imgs.length == 0) {

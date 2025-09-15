@@ -5,7 +5,6 @@
         <script defer src="/static/ext/js/popper.min.js"></script>
         <script defer src="/static/ext/js/bootstrap.min.js"></script>
         <script defer src="/static/ext/js/bootstrap-toggle.min.js"></script>
-        <script defer src="/static/ext/js/js.cookie.min.js"></script>
         <script defer src="/static/howler.core.js"></script>
         <title>{{ title }}</title>
         {% if theme == "dark" %}
@@ -33,8 +32,8 @@
             <div class="d-flex container justify-content-between">
                 <div class="d-inline-block">
                     <a href="#" class="lineawesomelink" onclick="toggleMode()">
-                        <i id="mode-indicator-remote" class="las la-volume-up la-5x {{'' if remote_mode_enabled else 'd-none'}}"></i>
-                        <i id="mode-indicator-local" class="las la-headphones la-5x {{'d-none' if remote_mode_enabled else ''}}"></i>
+                        <i id="mode-indicator-remote" class="las la-volume-up la-5x piju-show-if-remote-mode"></i>
+                        <i id="mode-indicator-local" class="las la-headphones la-5x piju-hide-if-remote-mode"></i>
                     </a>
                 </div>
 
@@ -78,8 +77,8 @@
         </div>
 
         {# Remote control footer (two variants: one for 'there is something playing', one for 'player is idle' #}
-        <div id="footer_nothing_playing" class="w-100 fixed-bottom footer"></div>
-        <div id="footer_playing" class="d-flex w-100 fixed-bottom justify-content-evenly footer d-none">
+        <div id="footer_nothing_playing" class="w-100 fixed-bottom footer piju-show-if-remote-mode"></div>
+        <div id="footer_playing" class="d-flex w-100 fixed-bottom justify-content-evenly footer d-none piju-show-if-remote-mode">
             {# left #}
             <div class="my-auto position-relative flex-fill ms-5">
                 <div class="my-auto d-flex flex-nowrap">
@@ -111,7 +110,7 @@
         </div>
 
         {# Local playback footer (audio controls) #}
-        <div id="footer-local-playback" class="d-flex w-100 fixed-bottom justify-content-evenly footer {{'d-none' if remote_mode_enabled else ''}}">
+        <div id="footer-local-playback" class="d-flex w-100 fixed-bottom justify-content-evenly footer piju-hide-if-remote-mode">
             {# left #}
             <div></div>
             {# centre - prev/play/pause/next #}

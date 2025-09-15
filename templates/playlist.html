@@ -11,7 +11,7 @@
         </div>
     </div>
     <div class="col-auto align-middle justify-content-end my-auto">
-        <button type="button" class="btn border-0 p-0 mx-auto queue-button {{'' if remote_mode_enabled else 'd-none'}}" onclick="addTracksToQueue(playlistTrackIds)">
+        <button type="button" class="btn border-0 p-0 mx-auto queue-button" onclick="addTracksToQueue(playlistTrackIds)">
             <i class="las la-plus la-2x"></i>
         </button>
     </div>
@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="d-inline-block position-absolute top-50 end-0 translate-middle-y text-body" style="width: 48px">
-            <button type="button" class="btn border-0 mx-auto queue-button {{'' if remote_mode_enabled else 'd-none'}}" onclick="addTrackToQueue({{track.id}})">
+            <button type="button" class="btn border-0 mx-auto queue-button" onclick="addTrackToQueue({{track.id}})">
                 <i class="las la-plus"></i>
             </button>
         </div>

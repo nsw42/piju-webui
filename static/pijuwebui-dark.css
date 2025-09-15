@@ -18,6 +18,10 @@ body {
   overflow: hidden;
 }
 
+body.piju-local .piju-show-if-remote-mode, body.piju-local .queue-button, body.piju-remote .piju-hide-if-remote-mode {
+  display: none !important;
+}
+
 .fullscreen-content {
   height: calc(100vh - 86px - 128px);
 }
