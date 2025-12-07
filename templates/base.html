@@ -71,9 +71,11 @@
         </div>
 
         {# main content #}
-        <div class="container overflow-auto fullscreen-content">
-            {% block content %}
-            {% endblock %}
+        <div class="overflow-auto fullscreen-content">
+            <div class="container">
+                {% block content %}
+                {% endblock %}
+            </div>
         </div>
 
         {# Remote control footer (two variants: one for 'there is something playing', one for 'player is idle' #}
@@ -103,6 +105,7 @@
                     <i class="las la-play la-6x la-fw footer-button"></i>
                 </button>
             </div>
+
             {# right - volume #}
             <div id="remote-volume-container" class="my-auto d-flex flex-nowrap flex-fill me-5">
                 <input type="range" class="form-range volume-slider my-5" id="remote-volume" min="0" max="100" onchange="remoteVolumeChange(event)">
