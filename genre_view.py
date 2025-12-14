@@ -50,6 +50,7 @@ GENRE_SORT_ORDERS = [
         'Art Rock',
         'Avant Garde',
         'Avantgarde',
+        'Big Beat',
         'Britpop',
         'BritPop',
         'Celtic',
