@@ -43,8 +43,8 @@ function start_search(searchstring, search_state) {
     }
 
     active_search = $.ajax({
-        "url": server + "/search/" + searchstring + "?" + search_args,
-        "success": function(data) {
+        url: server + "/search/" + searchstring + "?" + search_args,
+        success: function(data) {
             callback(searchstring, data);
         }
     });
