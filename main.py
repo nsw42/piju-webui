@@ -164,15 +164,20 @@ def get_artist(artist):
 @app.route("/genre/<genre_name>")
 def get_genre(genre_name):
     random_subset_selected = parse_bool(request.cookies.get(RANDOM_COOKIE_NAME))
+    genre = genre_view.GENRE_VIEWS.get(genre_name)
+    if not genre:
+        abort(404)
     return render_template('genre.html', **get_default_template_args(),
                            include_random_toggle=True,
                            random_enabled=random_subset_selected,
+                           view_style=genre.view_style,
                            genre_name=genre_name)
 
 
 @app.route("/genre_contents/<genre_name>")
 def get_genre_content(genre_name):
     timeout = int(request.args.get('timeout', 5000))
+    include_artists = parse_bool(request.args.get('include_artists', default='False'))
     albums = app.cache.ensure_genre_contents_cache(genre_name, timeout, cache_refresh_requested())
     if albums is None:
         abort(404)
@@ -180,7 +185,7 @@ def get_genre_content(genre_name):
     for album in albums:
         if album.anchor not in first_album_for_anchor:
             first_album_for_anchor[album.anchor] = album.id
-    return json.dumps({
+    rtn = {
         "albums": [{
             "id": a.id,
             "anchor": a.anchor,
@@ -190,7 +195,10 @@ def get_genre_content(genre_name):
             "year": a.year,
         } for a in albums],
         "anchors": first_album_for_anchor
-    })
+    }
+    if include_artists:
+        rtn['artists'] = sorted({a.artist for a in albums})
+    return json.dumps(rtn)
 
 
 @app.route("/play_album", methods=["POST"])

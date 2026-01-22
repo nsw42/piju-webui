@@ -39,7 +39,7 @@
     <div class="d-block div-row-hover py-2 align-middle">
         <div class="position-relative">
             <div class="d-table-cell ps-3 pe-1 album-row align-middle" style="width: 128px">
-                <img id="album-artwork" src="" data-lazy-load-image-src="" class="img-fluid rounded float-left pr-4" width="100px">
+                <img id="album-artwork" src="" data-lazy-load-image-src="" class="img-fluid rounded float-left pr-4" width="100px" alt="album art">
                 <div id="artwork-spacer" class="d-inline-block" style="width: 100px; height: 100px"></div>
             </div>
             <div class="d-table-cell align-middle ps-2">
@@ -49,5 +49,22 @@
     </div>
 </template>
 
+{# The template for the artist row #}
+<template id="artist-template">
+    <div class="d-block div-row-hover py-2 align-middle">
+        <div class="position-relative">
+            <div class="d-table-cell ps-3 pe-1 album-row align-middle" style="width: 128px">
+                <div id="artwork-spacer" class="d-inline-block" style="width: 100px; height: 100px"></div>
+            </div>
+            <div class="d-table-cell align-middle ps-2">
+                <a id="artist-href" class="stretched-link" alt="">artist name</a>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script type="text/javascript">
+    const VIEW_STYLE='{{view_style}}'
+</script>
 <script defer src="/static/genre.js"></script>
 {% endblock %}

@@ -111,7 +111,7 @@ class Cache:
         for albums_json in artist_json.values():
             for album_json in albums_json:
                 albums.append(self._add_album_from_json(album_json))
-        albums.sort(key=lambda album: album.year if album.year else 9999)
+        albums.sort(key=lambda album: (album.year if album.year else 9999, album.title))
         artist = Artist(definitive_artist_name, albums)
         self.artist_details[definitive_artist_name.lower()] = artist
 
@@ -178,7 +178,7 @@ class Cache:
                 self.app.logger.debug(f'{server_link} -> {display_genre}')
                 self.genre_names_from_links[server_link] = display_genre
                 display_names_set.add(display_genre)
-            display_names = list(sorted(display_names_set, key=lambda dn: genre_view.GENRE_SORT_ORDER[dn]))
+            display_names = sorted(display_names_set, key=lambda dn: genre_view.GENRE_SORT_ORDER[dn])
             self.display_genres = [genre_view.GENRE_VIEWS[dn] for dn in display_names]
 
     def ensure_genre_contents_cache(self, genre_name, timeout, refresh=False) -> Optional[List[Album]]:
