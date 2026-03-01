@@ -134,6 +134,7 @@ GENRE_SORT_ORDERS = [
             "Post rock",
             "Post-rock",
             "Pre-Punk",
+            "Progressive Metal",
             "Punk",
             "Rap",
             "Reggae",
