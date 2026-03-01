@@ -163,6 +163,7 @@ GENRE_SORT_ORDERS = [
         mp3_genres=[
             "Ambient",
             "Dark Ambient",
+            "Meditative",
         ],
     ),
     Genre(
