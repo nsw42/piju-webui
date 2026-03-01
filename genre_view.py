@@ -57,6 +57,7 @@ GENRE_SORT_ORDERS = [
             "Funk/Soul",
             "funk soul",
             "Jazz",
+            "Ragtime",
             "R&B",
             "Soul",
         ],
