@@ -232,17 +232,20 @@ GENRE_SORT_ORDERS = [
     ),
 ]
 
+# dict[str, int] map display name to index
 GENRE_SORT_ORDER = {
     genre.displayed_name: index for index, genre in enumerate(GENRE_SORT_ORDERS)
 }
 
+# dict[str, Genre] map display name to genre object
 GENRE_VIEWS = {genre.displayed_name: genre for genre in GENRE_SORT_ORDERS}
 
 
 def genre_lookup_generator():
     for genre in GENRE_SORT_ORDERS:
         for server_genre in genre.mp3_genres:
-            yield (server_genre, genre)
+            yield (server_genre.casefold(), genre)
 
 
+# dict[str, genre] map server name to genre object
 GENRE_LOOKUP = dict(genre_lookup_generator())

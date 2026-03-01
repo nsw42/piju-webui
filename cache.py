@@ -168,7 +168,7 @@ class Cache:
             for server_genre in server_genre_json:
                 server_link = server_genre['link']
                 server_genre_name = server_genre['name']
-                display_genre = genre_view.GENRE_LOOKUP.get(server_genre_name)
+                display_genre = genre_view.GENRE_LOOKUP.get(server_genre_name.casefold())
                 if display_genre:
                     display_genre = display_genre.displayed_name
                 else:
