@@ -98,6 +98,8 @@ GENRE_SORT_ORDERS = [
             "Dance & House",
             "Disco",
             "Downtempo",
+            "Electro swing",
+            "Electroswing",
             "Folk",
             "Folk/Rock",
             "Folk-Rock",
