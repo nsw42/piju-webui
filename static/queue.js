@@ -166,16 +166,12 @@ function createNodeForQueueItem(trackId, queueItem) {
 
     // artwork
     let artworkNode = newItem.querySelector('#artwork');
-    let artworkPadNode = newItem.querySelector('#artwork-pad');
     let artworkLink = queueItem.artwork;
     if (artworkLink !== null && artworkLink !== "") {
         if (!artworkLink.startsWith('http')) {
             artworkLink = server + artworkLink;
         }
         artworkNode.src = artworkLink;
-        artworkPadNode.remove();
-    } else {
-        artworkNode.remove();
     }
 
     // Artist and title link

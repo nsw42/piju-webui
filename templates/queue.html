@@ -30,15 +30,17 @@
 <template id="item-template">
     <div class="d-block py-2 div-row-hover"> {#- plus table-row-odd or table-row-even -#}
         <div class="d-block album-row position-relative align-middle">
-            {#- left section: the artwork / drag handle -#}
+            {#- left section: the drag handle -#}
             <div class="d-inline-block position-absolute top-50 start-0 translate-middle-y text-body">
-                <div class="d-table-cell ps-3 pe-1 align-middle" style="width: 128px">
-                    <img id="artwork" src="" class="img-fluid rounded drag-handle pr-4" width="100">
-                    <div id="artwork-pad" class="d-inline-flex drag-handle justify-content-center align-items-center" style="width: 100px; height: 100px;"><i class="las la-grip-lines"></i></div>
+                <div class="d-table-cell ps-3 pe-1 align-middle" style="width: 64px">
+                    <div id="drag-handle" class="d-inline-flex drag-handle justify-content-center align-items-center" style="width: 40px; height: 100px;"><i class="las la-grip-lines"></i></div>
                 </div>
             </div>
-            {#- centre section: the (stretched) button to play the track, the queue index, and the artist and track title -#}
-            <div class="d-inline-flex position-relative align-items-center h-100" style="width: calc(100% - 144px - 60px - 20px); left: 144px;">
+            {#- centre section: the artwork/padding, the (stretched) button to play the track, the artist and track title -#}
+            <div class="d-inline-flex position-relative align-items-center h-100" style="width: calc(100% - 84px - 60px - 20px); left: 84px;">
+                <div id="artwork-container" style="width: 112px">
+                    <img id="artwork" src="" class="img-fluid rounded pr-4" width="100">
+                </div>
                 <div class="d-inline-block" style="width: 0px;">
                     <button id="play-button" class="stretched-link btn btn-link" onclick="playQueueItemButtonHandler(event)"></button>
                 </div>
