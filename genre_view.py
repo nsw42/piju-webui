@@ -31,7 +31,6 @@ GENRE_SORT_ORDERS = [
         mp3_genres=[
             "Comedy",
             "(Humour)",
-            "Spoken & Audio",
         ],
     ),
     Genre(
@@ -228,6 +227,8 @@ GENRE_SORT_ORDERS = [
         icon=Icons.SPOKEN_WORD,
         view_style=ViewStyle.LIST_OF_ARTISTS,
         mp3_genres=[
+            "Speech",
+            "Spoken & Audio",
             "Spoken Word",
         ],
     ),
