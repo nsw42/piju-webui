@@ -55,6 +55,7 @@ GENRE_SORT_ORDERS = [
             "Bluegrass",
             "Funk",
             "Funk/Soul",
+            "funk soul",
             "Jazz",
             "R&B",
             "Soul",
