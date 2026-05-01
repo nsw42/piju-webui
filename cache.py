@@ -1,5 +1,6 @@
 from collections import defaultdict, namedtuple
 import datetime
+import re
 import string
 from typing import List, Optional
 
@@ -167,8 +168,11 @@ class Cache:
             self.genre_links = defaultdict(list)  # map from genre displayed name to list of server address
             for server_genre in server_genre_json:
                 server_link = server_genre['link']
-                server_genre_name = server_genre['name']
-                display_genre = genre_view.GENRE_LOOKUP.get(server_genre_name.casefold())
+                server_genre_name = server_genre['name'].casefold()
+                server_genre_name = re.sub(r'[/-]', ' ', server_genre_name)
+                server_genre_name = re.sub(r'[()]', '', server_genre_name)
+                server_genre_name = re.sub(r'  +', ' ', server_genre_name)
+                display_genre = genre_view.GENRE_LOOKUP.get(server_genre_name)
                 if display_genre:
                     display_genre = display_genre.displayed_name
                 else:
