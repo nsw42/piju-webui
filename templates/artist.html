@@ -10,13 +10,18 @@
     <tr class="album-row div-row-hover">
         <td onclick="redirectMouseEvent(event, $('#album-{{loop.index0}}-link')[0])">
             {% if album.artwork_link %}
-            <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
+                <img src="{{server}}{{album.artwork_link}}" class="img-fluid rounded float-left pr-4" width="100">
             {% else %}
-            <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
+                <div class="d-inline-block align-middle" style="width: 100px; height: 100px"></div>
             {% endif %}
         </td>
         <td onclick="redirectMouseEvent(event, $('#album-{{loop.index0}}-link')[0])">
             <a id="album-{{loop.index0}}-link" href="/albums/{{album.id}}">{{album.artist if album.artist else "Unknown Artist"}}: {{album.title if album.title else "Unknown Album"}}</a>  {{("(%u)" % album.year) if album.year else ""}}
+        </td>
+        <td>
+            <button type="button" id="add-to-queue-button" class="btn border-0 mx-auto queue-button queue-button-h-100" onclick="addAlbumToQueue({{album.id}})">
+                <i class="las la-plus"></i>
+            </button>
         </td>
     </tr>
     {% endfor %}
