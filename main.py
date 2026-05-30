@@ -50,12 +50,8 @@ def server_for_client(server_tuple):
 
 def get_default_template_args():
     now = datetime.datetime.now()
-    theme = request.cookies.get('theme', '').lower()
-    if theme not in ('dark', 'light'):
-        theme = 'light'
     return {
         "marquee_speed": 'fast' if (now.hour < 22) else 'slow',
-        "theme": theme,
         "server": app.server_from_ui_client(),
         "len": len,
         "make_header": make_header,
@@ -127,17 +123,6 @@ def check_for_updates():
     return render_template('admin.html', **get_default_template_args(),
                            check_for_updates_result=result_message,
                            redirect_to_front_screen=redirect_to_front_screen)
-
-
-@app.post("/admin/set_theme")
-def set_theme():
-    theme = request.form.get('theme', '').lower()
-    if theme not in ('dark', 'light'):
-        abort(400)
-    response = redirect("/admin/")
-    one_year = 60 * 60 * 24 * 365
-    response.set_cookie('theme', theme, samesite='Lax', max_age=one_year)
-    return response
 
 
 @app.route("/albums/<album_id>")
