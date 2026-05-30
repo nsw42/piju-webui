@@ -7,11 +7,7 @@
         <script defer src="/static/ext/js/bootstrap-toggle.min.js"></script>
         <script defer src="/static/howler.core.js"></script>
         <title>{{ title }}</title>
-        {% if theme == "dark" %}
-            <link rel="stylesheet" href="/static/pijuwebui-dark.css">
-        {% else %}
-            <link rel="stylesheet" href="/static/pijuwebui-light.css">
-        {% endif %}
+        <link id="piju-theme" rel="stylesheet" data-href-dark="/static/pijuwebui-dark.css" data-href-light="/static/pijuwebui-light.css">
         <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon_32.png">
         <link rel="stylesheet" href="/static/ext/css/bootstrap-toggle.min.css">
         <link rel="stylesheet" href="/static/ext/css/line-awesome.min.css">
@@ -62,6 +58,10 @@
                         <input id="random-toggle" type="checkbox" {{'checked' if random_enabled else ''}} data-toggle="toggle" data-on="Random" data-off="All">
                         {% endif %}
                         <a href="/search" class="lineawesomelink px-1"><i class="las la-search la-5x"></i></a>
+                        <a id="piju-toggle-theme" href="" class="lineawesomelink px-1">
+                            <i class="las la-moon la-5x piju-hide-if-light-mode"></i>
+                            <i class="las la-sun la-5x piju-show-if-light-mode"></i>
+                        </a>
                         <a href="/admin" class="lineawesomelink"><i class="las la-tools la-5x"></i></a>
                     </div>
                 </div>
