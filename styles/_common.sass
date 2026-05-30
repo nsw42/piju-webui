@@ -87,26 +87,26 @@ body.piju-dark .piju-show-if-light-mode, body.piju-light .piju-hide-if-light-mod
 .volume-slider
   // https://github.com/twbs/bootstrap/issues/31241
   &:focus::-webkit-slider-thumb
-    background-clip: initial
-    border: none
-    transform: none
+    background-clip: initial  !important
+    border: none  !important
+    transform: none  !important
 
   &::-webkit-slider-thumb
-    background-clip: padding-box
-    border: 0.4rem solid transparent
-    transform: scale(4)
+    background-clip: padding-box  !important
+    border: 0.4rem solid transparent  !important
+    transform: scale(4)  !important
 
   &:focus::-moz-range-thumb
-    background-clip: initial
-    border: none
-    box-sizing: initial
-    transform: none
+    background-clip: initial  !important
+    border: none  !important
+    box-sizing: initial  !important
+    transform: none  !important
 
   &::-moz-range-thumb
-    background-clip: padding-box
-    border: 0.4rem solid transparent
-    box-sizing: border-box
-    transform: scale(4)
+    background-clip: padding-box  !important
+    border: 0.4rem solid transparent  !important
+    box-sizing: border-box  !important
+    transform: scale(4)  !important
 
 button.undecorated
     background-color: inherit
@@ -203,6 +203,9 @@ a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawe
 
 
 // Bootstrap Toggle missing styling
+.toggle
+    height: 50px !important
+
 .toggle-handle, .toggle-handle:hover
     background-color: theme.$headerfooter-foreground  !important
 

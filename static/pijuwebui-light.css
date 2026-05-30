@@ -95,26 +95,26 @@ body.piju-dark .piju-show-if-light-mode, body.piju-light .piju-hide-if-light-mod
 }
 
 .volume-slider:focus::-webkit-slider-thumb {
-  background-clip: initial;
-  border: none;
-  transform: none;
+  background-clip: initial !important;
+  border: none !important;
+  transform: none !important;
 }
 .volume-slider::-webkit-slider-thumb {
-  background-clip: padding-box;
-  border: 0.4rem solid transparent;
-  transform: scale(4);
+  background-clip: padding-box !important;
+  border: 0.4rem solid transparent !important;
+  transform: scale(4) !important;
 }
 .volume-slider:focus::-moz-range-thumb {
-  background-clip: initial;
-  border: none;
-  box-sizing: initial;
-  transform: none;
+  background-clip: initial !important;
+  border: none !important;
+  box-sizing: initial !important;
+  transform: none !important;
 }
 .volume-slider::-moz-range-thumb {
-  background-clip: padding-box;
-  border: 0.4rem solid transparent;
-  box-sizing: border-box;
-  transform: scale(4);
+  background-clip: padding-box !important;
+  border: 0.4rem solid transparent !important;
+  box-sizing: border-box !important;
+  transform: scale(4) !important;
 }
 
 button.undecorated {
@@ -222,6 +222,10 @@ button.undecorated {
 a.lineawesomelink, a.lineawesomelink:hover, a.lineawesomelink:visited, a.lineawesomelink:active {
   color: inherit;
   text-decoration: none;
+}
+
+.toggle {
+  height: 50px !important;
 }
 
 .toggle-handle, .toggle-handle:hover {
