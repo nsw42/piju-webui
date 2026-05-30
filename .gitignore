@@ -7,3 +7,4 @@ static/ext
 bin
 lib
 pyvenv.cfg
+node_modules
