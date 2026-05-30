@@ -31,9 +31,33 @@ $(function() {
     document.getElementById('dummyelt')?.addEventListener('touchmove', event => {}, {passive: true});
     elementBody = document.getElementsByTagName('body')[0]
     elementBody.classList.add(currentModeRemoteControl ? 'piju-remote' : 'piju-local')
-    openNowPlayingWebsocket();
-    addQueueFeedbackHandlers();
+    openNowPlayingWebsocket()
+    addQueueFeedbackHandlers()
+    initThemes()
 });
+
+function applyTheme(isLight) {
+    const themeLink = document.getElementById('piju-theme')
+    themeLink.setAttribute('href',
+        isLight ? themeLink.dataset.hrefLight : themeLink.dataset.hrefDark)
+}
+
+function initThemes() {
+    const themeToggleButton = document.getElementById('piju-toggle-theme')
+
+    const initTheme = localStorage.getItem('piju-theme')
+    const isLight = (initTheme !== 'dark')
+    elementBody.classList.add(isLight ? 'piju-light' : 'piju-dark')
+    applyTheme(isLight)
+
+    themeToggleButton.addEventListener('click', () => {
+        const isLight = elementBody.classList.toggle('piju-light')
+        elementBody.classList.toggle('piju-dark')
+        applyTheme(isLight)
+
+        localStorage.setItem('piju-theme', isLight ? 'light' : 'dark')
+    })
+}
 
 // Utility functions
 function getCSSVariable(varName) {
