@@ -15,8 +15,13 @@
   font-weight: bold;
 }
 
+html {
+  overscroll-behavior: none;
+}
+
 body {
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body.piju-local .piju-show-if-remote-mode, body.piju-local .queue-button, body.piju-remote .piju-hide-if-remote-mode {
