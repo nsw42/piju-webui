@@ -1,24 +1,30 @@
-$("#searchinput").on('input', triggerSearch);
+$('#search-input').on('input', triggerSearch)
+$('#search-clear').on('click', clearSearch)
+
+let activeSearch = null;
+let totalSearchResults = 0;
 
 function triggerSearch() {
-    if (active_search != null) {
-        active_search.abort();
-    }
-    let searchstring = $("#searchinput").val();
+    activeSearch?.abort()
+    const searchstring = $("#search-input").val();
     if (searchstring === "") {
-        hide_album_results();
-        hide_artist_results();
-        hide_track_results();
-        $("#searchspinner").addClass("d-none");
+        hideAllResults()
+        $("#search-spinner").addClass("d-none");
         $('#no-search-results').addClass("d-none");
     } else {
-        $("#searchspinner").removeClass("d-none");
+        $("#search-spinner").removeClass("d-none");
         start_search(searchstring, 0);
     }
 };
-let active_search = null;
 
-let total_search_results = 0;
+function clearSearch() {
+    activeSearch?.abort()
+    $('#search-input').val('').focus()
+    hideAllResults()
+    $("#search-spinner").addClass("d-none");
+    $('#no-search-results').addClass("d-none");
+}
+
 function start_search(searchstring, search_state) {
     let search_args = "";
     search_args += "artists=" + (search_state == 0 ? "true" : "false");
@@ -30,19 +36,19 @@ function start_search(searchstring, search_state) {
     let callback;
     switch (search_state) {
         case 0:
-            total_search_results = 0;
+            totalSearchResults = 0;
             $("#no-search-results").addClass("d-none");
-            callback = artist_result_callback;
+            callback = artistResultCallback;
             break;
         case 1:
-            callback = album_result_callback;
+            callback = albumResultCallback;
             break;
         case 2:
-            callback = track_result_callback;
+            callback = trackResultCallback;
             break;
     }
 
-    active_search = $.ajax({
+    activeSearch = $.ajax({
         url: server + "/search/" + searchstring + "?" + search_args,
         success: function(data) {
             callback(searchstring, data);
@@ -50,14 +56,14 @@ function start_search(searchstring, search_state) {
     });
 }
 
-function artist_result_callback(searchstring, data) {
+function artistResultCallback(searchstring, data) {
     data = $.parseJSON(data);
 
     const artists = data['artists'];
     console.log("  " + artists.length + " artists");
-    total_search_results += artists.length;
+    totalSearchResults += artists.length;
     if (0 == artists.length) {
-        hide_artist_results();
+        hideArtistResults();
     } else {
         showArtistResults(artists);
     }
@@ -65,14 +71,14 @@ function artist_result_callback(searchstring, data) {
     start_search(searchstring, 1);
 }
 
-function album_result_callback(searchstring, data) {
+function albumResultCallback(searchstring, data) {
     data = $.parseJSON(data);
 
     const albums = data['albums'];
     console.log("  " + albums.length + " albums");
-    total_search_results += albums.length;
+    totalSearchResults += albums.length;
     if (0 == albums.length) {
-        hide_album_results();
+        hideAlbumResults();
     } else {
         showAlbumResults(albums);
     }
@@ -80,35 +86,41 @@ function album_result_callback(searchstring, data) {
     start_search(searchstring, 2);
 }
 
-function track_result_callback(searchstring, data) {
+function trackResultCallback(searchstring, data) {
     data = $.parseJSON(data);
 
     const tracks = data['tracks'];
     console.log("  " + tracks.length + " tracks");
-    total_search_results += tracks.length;
+    totalSearchResults += tracks.length;
     if (0 == tracks.length) {
-        hide_track_results();
+        hideTrackResults();
     } else {
         showTrackResults(tracks);
     }
 
-    active_search = null;
-    $("#searchspinner").addClass("d-none");
+    activeSearch = null;
+    $("#search-spinner").addClass("d-none");
 
-    if (total_search_results == 0) {
+    if (totalSearchResults == 0) {
         $("#no-search-results").removeClass("d-none");
     }
 }
 
-function hide_album_results() {
+function hideAllResults() {
+    hideAlbumResults()
+    hideArtistResults()
+    hideTrackResults()
+}
+
+function hideAlbumResults() {
     $("#album_results").addClass("d-none");
 }
 
-function hide_artist_results() {
+function hideArtistResults() {
     $("#artist_results").addClass("d-none");
 }
 
-function hide_track_results() {
+function hideTrackResults() {
     $("#track_results").addClass("d-none");
 }
 
@@ -245,7 +257,7 @@ function toggleTrackCollapse() {
 }
 
 $(function() {
-    $("#searchspinner").addClass("d-none");
+    $("#search-spinner").addClass("d-none");
     $('#artist_results_inner').collapse();
     $('#album_results_inner').collapse();
     $('#track_results_inner').collapse();
