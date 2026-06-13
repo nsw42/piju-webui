@@ -162,7 +162,7 @@ function showAlbumResultsArtistAndTitle(tr, albumLink, artist, title, isCompilat
     if (title == null || title == "") {
         title = "Unknown Album";  // ?!
     }
-    let albumArtistTitleNode = tr.querySelector("#album_artist_title");
+    const albumArtistTitleNode = tr.querySelector("#album_artist_title");
     albumArtistTitleNode.setAttribute("href", albumLink);
     albumArtistTitleNode.innerHTML = artist + ": " + title;
     if (albumYear != null) {
@@ -184,11 +184,11 @@ function showArtistResults(artists) {
         const template = document.querySelector('#one_artist_search_result');
         const tr = template.content.cloneNode(true).children[0];
 
-        let artistNameNode = tr.querySelector("#artist_name");
+        const artistNameNode = tr.querySelector("#artist_name");
         artistNameNode.setAttribute("href", artist['link']);
         artistNameNode.innerHTML = artist['name'];
 
-        for (let td of tr.cells) {
+        for (const td of tr.cells) {
             td.addEventListener("click", redirectMouseEventClosure(artistNameNode));
         }
 
@@ -201,13 +201,13 @@ function showTrackResults(tracks) {
     $("#nr_track_results").text(tracks.length);
     $("#track_results_inner").empty();
     for (const track of tracks) {
-        let template = document.querySelector('#one_track_search_result');
-        let tr = template.content.cloneNode(true).children[0];
+        const template = document.querySelector('#one_track_search_result');
+        const tr = template.content.cloneNode(true).children[0];
 
-        let trackId = idFromLink(track['link']);
+        const trackId = idFromLink(track['link']);
 
         // fix up artwork
-        let artworkLink = track['artwork'];
+        const artworkLink = track['artwork'];
         if (artworkLink == null) {
             tr.querySelector("#artwork_link_present").remove();
         } else {
@@ -225,8 +225,8 @@ function showTrackResults(tracks) {
         if (title == null || title == "")  {
             title = "Unknown Track";  // ?!
         }
-        let trackArtistTitleNode = tr.querySelector("#track_artist_title");
-        let trackLink = track['album'] + '?highlight=' + trackId;
+        const trackArtistTitleNode = tr.querySelector("#track_artist_title");
+        const trackLink = track['album'] + '?highlight=' + trackId;
         trackArtistTitleNode.setAttribute('href', trackLink);
         trackArtistTitleNode.innerHTML = artist + ": " + title;
 
