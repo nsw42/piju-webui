@@ -391,16 +391,16 @@ function playFromYouTube(event, url, queue) {
 function setupLocalPlayers() {
     let volume = localStorage.getItem('piju-local-volume')
     if (volume === null || isNaN(volume)) {
-        volume = 1.0
+        volume = 1
     } else {
         volume = Number(volume)
         if (volume < 0) {
             volume = 0
         } else if (volume > 1.0) {
-            volume = 1.0
+            volume = 1
         }
     }
-    $('#local-volume').val(volume * 100.0)
+    $('#local-volume').val(volume * 100)
 
     localPlayers = playlistTrackIds.map(trackId => new Howl({
         src: [server + '/mp3/' + trackId],
