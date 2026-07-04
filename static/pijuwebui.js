@@ -30,7 +30,10 @@ let fetching = false;
 $(function() {
     document.getElementById('dummyelt')?.addEventListener('touchmove', event => {}, {passive: true});
     elementBody = document.getElementsByTagName('body')[0]
-    elementBody.classList.add(currentModeRemoteControl ? 'piju-remote' : 'piju-local')
+    if (!currentModeRemoteControl) {
+        elementBody.classList.add('piju-local')
+        elementBody.classList.remove('piju-remote')
+    }
     openNowPlayingWebsocket()
     addQueueFeedbackHandlers()
     initThemes()
@@ -47,8 +50,12 @@ function initThemes() {
 
     const initTheme = localStorage.getItem('piju-theme')
     const isLight = (initTheme !== 'dark')
-    elementBody.classList.add(isLight ? 'piju-light' : 'piju-dark')
-    applyTheme(isLight)
+    if (isLight) {
+        // base.html template initialises to dark, to avoid the flash (and layout flicker)
+        elementBody.classList.add('piju-light')
+        elementBody.classList.remove('piju-dark')
+        applyTheme(isLight)
+    }
 
     themeToggleButton.addEventListener('click', () => {
         const isLight = elementBody.classList.toggle('piju-light')
