@@ -122,6 +122,7 @@ GENRE_SORT_ORDERS = [
             "Rock & Roll",
             "Ska",
             "Ska Reggae",
+            "Synthpop",
         ],
     ),
     Genre(
