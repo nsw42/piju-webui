@@ -294,13 +294,17 @@ def parse_args():
     parser = ArgumentParser()
     parser.add_argument('--dev-reload', action='store_true',
                         help="Enable development reloader")
+    parser.add_argument('--port', action='store', type=int,
+                        help="Specify port to listen on")
     parser.add_argument('server', type=str, nargs='?',
                         help="Piju server hostname or IP address. "
                              "Port may optionally be specified as a :PORT suffix. If port is omitted, defaults to 5000."
                              " If the host is omitted, external clients are served a page that refers to the server "
                              " with the hostname/IP address that they used to access the webui. Note that recent "
                              " servers must be accessed by hostname rather than as localhost.")
-    parser.set_defaults(dev_reload=False, server=f'{hostname}:5000')
+    parser.set_defaults(dev_reload=False,
+                        port=80,
+                        server=f'{hostname}:5000')
     args = parser.parse_args()
     if not args.server.startswith('http'):
         args.server = 'http://' + args.server
@@ -388,7 +392,7 @@ def main():
     else:
         app.server_from_ui_client = lambda: args.server
     connection_test(app.server, required_api_version='7.0')
-    host, port = '0.0.0.0', 80
+    host, port = '0.0.0.0', args.port
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
     else:
