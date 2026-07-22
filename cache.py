@@ -112,7 +112,7 @@ class Cache:
         for albums_json in artist_json.values():
             for album_json in albums_json:
                 albums.append(self._add_album_from_json(album_json))
-        albums.sort(key=lambda album: (album.year if album.year else 9999, album.title))
+        albums.sort(key=lambda album: (album.year if album.year else 9999, album.title if album.title else ''))
         artist = Artist(definitive_artist_name, albums)
         self.artist_details[definitive_artist_name.lower()] = artist
 
