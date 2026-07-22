@@ -49,7 +49,7 @@ function start_search(searchstring, search_state) {
     }
 
     activeSearch = $.ajax({
-        url: server + "/search/" + searchstring + "?" + search_args,
+        url: server + "/search/?q=" + encodeURIComponent(searchstring) + "&" + search_args,
         success: function(data) {
             callback(searchstring, data);
         }
