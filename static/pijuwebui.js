@@ -17,7 +17,7 @@ let currentTrackId = null;
 let currentModeRemoteControl = (currentModeRemoteControlAtStart == 'remote')
 // Vars only relevant for remote control
 let remoteCurrentState = STATE_STOPPED;
-let remoteWebSocket = null;
+let remoteNowPlayingWebSocket = null;
 // Vars only relevant for local playback
 let localPlayers = null;
 let localTrackIndex = null;
@@ -129,7 +129,7 @@ function redirectMouseEventClosure(node) {
     }
 }
 
-function openNowPlayingWebsocket() {
+function websocketUrl(endpoint) {
     let wsServer = server;
     if (wsServer.startsWith('http://')) {
         wsServer = wsServer.substring(7)
@@ -137,17 +137,29 @@ function openNowPlayingWebsocket() {
     if (wsServer.startsWith('https://')) {
         wsServer = wsServer.substring(8)
     }
-    closeNowPlayingWebsocket()  // tidy up any existing resources before (re)connecting
-    remoteWebSocket = new WebSocket('ws://' + wsServer + '/ws')
-    remoteWebSocket.onmessage = (ev) => { nowPlayingWebSocketMessage(ev) }
-    remoteWebSocket.onclose = (ev) => { nowPlayingWebSocketClosed(ev) }
+    return 'ws://' + wsServer + endpoint
 }
 
-function closeNowPlayingWebsocket() {
-    if (remoteWebSocket !== null) {
-        remoteWebSocket.onmessage = null
-        remoteWebSocket.onclose = null  // don't tell me that I'm closing the socket that I'm about to close
-        remoteWebSocket.close()
+function openNowPlayingWebsocket() {
+    closeWebsocket(remoteNowPlayingWebSocket)  // tidy up any existing resources before (re)connecting
+    remoteNowPlayingWebSocket = openWebsocket('/ws', nowPlayingWebSocketMessage, openNowPlayingWebsocket)
+}
+
+
+function openWebsocket(endpoint, messageHandler, reconnectHandler) {
+    const wsUrl = websocketUrl(endpoint)
+    const ws = new WebSocket(wsUrl)
+    ws.onmessage = (ev) => { messageHandler(ev) }
+    ws.onclose = (ev) => { socketClosedHandler(ev, reconnectHandler) }
+    return ws
+}
+
+
+function closeWebsocket(websocket) {
+    if (websocket !== null) {
+        websocket.onmessage = null
+        websocket.onclose = null  // don't tell me that I'm closing the socket that I'm about to close
+        websocket.close()
     }
 }
 
@@ -156,12 +168,12 @@ function nowPlayingWebSocketMessage(ev) {
     showNowPlaying(json);
 }
 
-function nowPlayingWebSocketClosed(ev) {
+function socketClosedHandler(ev, reconnectHandler) {
     // Remote end closed the connection - crash? or update?
     if (currentModeRemoteControl) {
         // Retry the connection in 5s
         setTimeout(function() {
-            openNowPlayingWebsocket()
+            reconnectHandler()
         }, 5000)
     }
 }
@@ -610,7 +622,7 @@ function toggleMode() {
         currentTrackId = null;  // ditto
         openNowPlayingWebsocket()
     } else {
-        closeNowPlayingWebsocket()
+        closeWebsocket()
         if (localTrackIndex != null) {
             currentTrackId = playlistTrackIds[localTrackIndex];
             $("#track_"+currentTrackId).addClass('active-track');
