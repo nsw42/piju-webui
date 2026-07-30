@@ -1,12 +1,14 @@
 const queueParentNode = document.getElementById('queue-parent');
 const itemTemplate = document.getElementById('item-template').content.querySelector("div");
+let remoteQueueWebSocket = null;
 let queueTrackIds = [];
 let doRefresh = true;
 let sortable;
 
 $(function() {
-    reinitialiseSortable();
-});
+    reinitialiseSortable()
+    openQueueWebsocket()
+})
 
 function reinitialiseSortable() {
     if (queueParentNode === null) {
@@ -45,17 +47,16 @@ function sendUpdatedQueueOrder(dragEvent) {
 }
 
 
-setInterval(function() {
-    if (!currentModeRemoteControl || !doRefresh) {
-        return;
-    }
-    // update the view of the queue
-    $.ajax({
-        url: server + '/queue/',
-        dataType: "json",
-        success: updateQueueView
-    });
-}, 1000);
+function openQueueWebsocket() {
+    closeWebsocket(remoteQueueWebSocket)  // tidy up any existing resources before (re)connecting
+    remoteQueueWebSocket = openWebsocket('/queue/ws', queueWebSocketMessageReceived, openQueueWebsocket)
+}
+
+
+function queueWebSocketMessageReceived(ev) {
+    const json = JSON.parse(ev.data)
+    updateQueueView(json)
+}
 
 
 function queueRowDivFromButtonEvent(mouseEvent) {
