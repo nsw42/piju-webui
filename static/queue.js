@@ -97,6 +97,8 @@ function removeQueueItemButtonHandler(mouseEvent) {
 function updateQueueView(queue) {
     $('#loading-indicator-parent').addClass('d-none');
 
+    const queueWasEmpty = (queueTrackIds.length == 0);
+
     queueTrackIds = [];
     for (let queueItem of queue) {
         const trackId = idFromLink(queueItem.link).toString();
@@ -176,6 +178,13 @@ function updateQueueView(queue) {
     // And reset the scrollable
     sortable.destroy()
     reinitialiseSortable();
+
+    if (!currentModeRemoteControl && queueWasEmpty && queueTrackIds.length > 0 && localTrackIndex === null) {
+        // Nothing was playing (empty queue), and this update adds a first entry:
+        // start browser-based playback automatically. The DOM row for it now
+        // exists, so playFromQueue's active-track styling has something to attach to.
+        playFromQueue(0, queueTrackIds[0]);
+    }
 }
 
 
