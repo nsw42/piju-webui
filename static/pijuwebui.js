@@ -717,12 +717,18 @@ function toggleMode() {
         currentTrackId = null;  // ditto
         openNowPlayingWebsocket()
     } else {
-        closeWebsocket()
+        closeWebsocket(remoteNowPlayingWebSocket)
         if (localTrackIndex != null) {
             currentTrackId = playlistTrackIds[localTrackIndex];
             $("#track_"+currentTrackId).addClass('active-track');
             localResume();
         }
+    }
+
+    if (typeof openQueueWebsocket !== 'undefined') {
+        // On /queue/, the websocket endpoint/session depend on the mode just toggled above -
+        // reconnect so the server sends updates for the right (browser vs server) queue.
+        openQueueWebsocket();
     }
 }
 
