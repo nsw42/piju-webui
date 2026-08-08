@@ -49,7 +49,14 @@ function sendUpdatedQueueOrder(dragEvent) {
 
 function openQueueWebsocket() {
     closeWebsocket(remoteQueueWebSocket)  // tidy up any existing resources before (re)connecting
-    remoteQueueWebSocket = openWebsocket('/queue/ws', queueWebSocketMessageReceived, openQueueWebsocket)
+    const mode = currentModeRemoteControl ? 'server' : 'browser'
+    let endpoint = `/queue/ws?mode=${mode}`
+    if (!currentModeRemoteControl) {
+        // WebSocket handshakes can't carry custom headers, so the queue session id
+        // has to travel as a query param here (unlike the plain HTTP queue requests).
+        endpoint += `&session=${getQueueSessionId()}`
+    }
+    remoteQueueWebSocket = openWebsocket(endpoint, queueWebSocketMessageReceived, openQueueWebsocket)
 }
 
 

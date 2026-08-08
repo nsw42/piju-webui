@@ -9,6 +9,8 @@ const STATE_PLAYING = 1;
 const STATE_PAUSED = 2;
 const storageKeyMode = 'piju-webui-mode'
 const currentModeRemoteControlAtStart = localStorage.getItem(storageKeyMode) ?? 'remote'
+const storageKeyQueueSession = 'piju-queue-session'
+const queueSessionHeader = 'X-Piju-Queue-Session'
 
 // Globals
 // Vars common to both local and remote mode
@@ -127,6 +129,15 @@ function redirectMouseEventClosure(node) {
     return function(event) {
         return redirectMouseEvent(event, targetNode);
     }
+}
+
+function getQueueSessionId() {
+    let sessionId = localStorage.getItem(storageKeyQueueSession)
+    if (!sessionId) {
+        sessionId = crypto.randomUUID()
+        localStorage.setItem(storageKeyQueueSession, sessionId)
+    }
+    return sessionId
 }
 
 function websocketUrl(endpoint) {
@@ -316,47 +327,41 @@ function sendResume() {
     });
 }
 
-function addAlbumToQueue(albumId, successCallback) {
-    if (currentModeRemoteControl) {
-        return $.ajax({
-            url: server + "/queue/",
-            method: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify({album: albumId}),
-            dataType: "json",
-            processData: false,
-            success: successCallback
-        })
-    }
+function addToQueue(data, successCallback) {
+    data['mode'] = currentModeRemoteControl ? 'server' : 'browser'
+    return $.ajax({
+        url: server + "/queue/",
+        method: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        dataType: "json",
+        processData: false,
+        success: successCallback,
+        headers: currentModeRemoteControl ? {} : {[queueSessionHeader]: getQueueSessionId()},
+        xhrFields: {
+            withCredentials: true
+        }
+    })
 }
 
+function addAlbumToQueue(albumId, successCallback) {
+    addToQueue({
+        album: albumId,
+    }, successCallback)
+}
+
+
 function addDiskToQueue(albumId, diskNumber, successCallback) {
-    if (currentModeRemoteControl) {
-        return $.ajax({
-            url: server + "/queue/",
-            method: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify({album: albumId, disk: diskNumber}),
-            dataType: "json",
-            processData: false,
-            success: successCallback
-        });
-    }
+    addToQueue({
+        album: albumId,
+        disk: diskNumber,
+    }, successCallback)
 }
 
 function addTrackToQueue(trackId, successCallback) {
-    if (currentModeRemoteControl) {
-        return $.ajax({
-            url: server + "/queue/",
-            method: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify({track: trackId}),
-            dataType: "json",
-            processData: false,
-            success: successCallback
-        });
-    }
-    return null;
+    addToQueue({
+        track: trackId,
+    }, successCallback)
 }
 
 function addTracksToQueue(trackIds) {
@@ -375,16 +380,23 @@ function addTracksToQueue(trackIds) {
 }
 
 function removeFromQueue(index, trackId) {
-    if (currentModeRemoteControl) {
-        $.ajax({
-            url: server + "/queue/",
-            method: "DELETE",
-            contentType: "application/json",
-            data: JSON.stringify({index: index, track: trackId}),
-            dataType: "json",
-            processData: false,
-        });
-    }
+    const mode = currentModeRemoteControl ? 'server' : 'browser'
+    $.ajax({
+        url: server + "/queue/?mode=" + mode,
+        method: "DELETE",
+        contentType: "application/json",
+        data: JSON.stringify({
+            mode: mode,
+            index: index,
+            track: trackId
+        }),
+        dataType: "json",
+        processData: false,
+        headers: currentModeRemoteControl ? {} : {[queueSessionHeader]: getQueueSessionId()},
+        xhrFields: {
+            withCredentials: true
+        }
+    })
 }
 
 function playFromYouTubeInputBox(event, queue) {
