@@ -722,6 +722,14 @@ function toggleMode() {
             currentTrackId = playlistTrackIds[localTrackIndex];
             $("#track_"+currentTrackId).addClass('active-track');
             localResume();
+        } else if (typeof queueTrackIds !== 'undefined') {
+            // Nothing was already playing locally (e.g. this is the first switch to browser
+            // mode this page load), so queueTrackIds currently reflects the old (remote) queue,
+            // not the browser queue we're about to receive over the reconnected websocket below.
+            // Treat it as empty so updateQueueView's "queue update adds a first entry" handling
+            // auto-starts playback (and shows the footer controls) once the real browser queue
+            // snapshot arrives.
+            queueTrackIds = [];
         }
     }
 
