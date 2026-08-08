@@ -399,6 +399,14 @@ function removeFromQueue(index, trackId) {
     })
 }
 
+function removeCompletedTrackFromQueue(index, trackId) {
+    // Only meaningful when playing through the live /queue/ page - queueTrackIds
+    // (queue.js) only exists there, and playlistTrackIds is kept in step with it.
+    if (typeof queueTrackIds !== 'undefined') {
+        removeFromQueue(index, trackId);
+    }
+}
+
 function playFromYouTubeInputBox(event, queue) {
     return playFromYouTube(event, $('#url')[0].value, queue)
 }
@@ -447,6 +455,7 @@ function createLocalPlayer(trackId, volume) {
         },
         onend: function() {
             $('#track_'+trackId).removeClass('active-track');
+            removeCompletedTrackFromQueue(localTrackIndex, trackId);
             if (localTrackIndex + 1 < playlistTrackIds.length) {
                 localPlay(localTrackIndex + 1);
             } else {
@@ -554,6 +563,7 @@ function localPrevious() {
 
 function localNext() {
     if (localTrackIndex + 1 < playlistTrackIds.length) {
+        removeCompletedTrackFromQueue(localTrackIndex, currentTrackId);
         localPause();  // Avoids synchronisation problems on multiple skips
         localPlay(localTrackIndex + 1);
     }
