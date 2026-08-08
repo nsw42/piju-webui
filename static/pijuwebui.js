@@ -504,6 +504,7 @@ function rebuildLocalPlayers() {
     if (activeTrackId !== null) {
         if (stillActiveIndex !== null) {
             localTrackIndex = stillActiveIndex;
+            updateLocalPrevNextButtons();
         } else {
             oldPlayers[oldTrackIndex].stop();
             $("#track_"+currentTrackId).removeClass('active-track');
@@ -511,6 +512,11 @@ function rebuildLocalPlayers() {
             currentTrackId = localTrackIndex = null;
         }
     }
+}
+
+function updateLocalPrevNextButtons() {
+    $('#local-previous').prop('disabled', (localTrackIndex == 0));
+    $('#local-next').prop('disabled', (localTrackIndex + 1 >= playlistTrackIds.length));
 }
 
 function localPlay(playlistIndex) {
@@ -540,8 +546,7 @@ function localPlay(playlistIndex) {
             navigator.mediaSession.setActionHandler(action, handler);
         }
     }
-    $('#local-previous').prop('disabled', (localTrackIndex == 0));
-    $('#local-next').prop('disabled', (localTrackIndex + 1 >= playlistTrackIds.length));
+    updateLocalPrevNextButtons();
     showPlaybackFetching();
     fetching = true;
 }
