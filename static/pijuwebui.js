@@ -603,7 +603,17 @@ function playFromQueue(queuePos, trackId) {
             method: "POST"
         });
     } else {
-        // You shouldn't be messing with the queue, then
+        // queueTrackIds (declared in queue.js) tracks the queue as shown on /queue/, and can
+        // change under us between plays, so rebuild the local players against it every time
+        // rather than relying on whatever playlistTrackIds/localPlayers were set up previously.
+        if (localTrackIndex != null) {
+            $("#track_"+currentTrackId).removeClass('active-track');
+            localPlayers[localTrackIndex].stop();
+        }
+        playlistTrackIds = queueTrackIds;
+        localPlayers = null;
+        localTrackIndex = null;
+        localPlay(Number(queuePos));
     }
 }
 
