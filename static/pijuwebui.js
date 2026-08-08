@@ -419,7 +419,7 @@ function playFromYouTube(event, url, queue) {
 }
 
 // Local playback functions
-function setupLocalPlayers() {
+function currentLocalVolume() {
     let volume = localStorage.getItem('piju-local-volume')
     if (volume === null || isNaN(volume)) {
         volume = 1
@@ -431,9 +431,11 @@ function setupLocalPlayers() {
             volume = 1
         }
     }
-    $('#local-volume').val(volume * 100)
+    return volume;
+}
 
-    localPlayers = playlistTrackIds.map(trackId => new Howl({
+function createLocalPlayer(trackId, volume) {
+    return new Howl({
         src: [server + '/mp3/' + trackId],
         preload: false,
         autoplay: false,
@@ -461,7 +463,45 @@ function setupLocalPlayers() {
             fetching = false;
             showPlaybackActive();
         },
-    }));
+    });
+}
+
+function setupLocalPlayers() {
+    const volume = currentLocalVolume();
+    $('#local-volume').val(volume * 100)
+    localPlayers = playlistTrackIds.map(trackId => createLocalPlayer(trackId, volume));
+}
+
+function rebuildLocalPlayers() {
+    // Called when playlistTrackIds has changed (e.g. a live /queue/ update) while local
+    // playback is already under way. The currently-playing Howl instance is carried over
+    // untouched if its track is still present in the (possibly reordered/changed) queue,
+    // so playback isn't interrupted; every other slot gets a fresh, unplayed instance so
+    // that skipping to it fetches the right, current file rather than a stale one built
+    // against an old queue position. If the playing track has been dropped from the
+    // queue entirely, it's stopped, matching what happens when a playlist runs out.
+    const oldPlayers = localPlayers;
+    const oldTrackIndex = localTrackIndex;
+    const activeTrackId = (oldTrackIndex != null) ? currentTrackId : null;
+    const volume = currentLocalVolume();
+    let stillActiveIndex = null;
+    localPlayers = playlistTrackIds.map((trackId, index) => {
+        if (stillActiveIndex === null && activeTrackId !== null && trackId === activeTrackId) {
+            stillActiveIndex = index;
+            return oldPlayers[oldTrackIndex];
+        }
+        return createLocalPlayer(trackId, volume);
+    });
+    if (activeTrackId !== null) {
+        if (stillActiveIndex !== null) {
+            localTrackIndex = stillActiveIndex;
+        } else {
+            oldPlayers[oldTrackIndex].stop();
+            $("#track_"+currentTrackId).removeClass('active-track');
+            hideButtons(['#local-previous', '#local-pause', '#local-fetching', '#local-resume', '#local-next', '#local-volume']);
+            currentTrackId = localTrackIndex = null;
+        }
+    }
 }
 
 function localPlay(playlistIndex) {

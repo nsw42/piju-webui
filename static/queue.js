@@ -99,6 +99,14 @@ function updateQueueView(queue) {
         const trackId = idFromLink(queueItem.link).toString();
         queueTrackIds.push(trackId);
     }
+    // Keep playlistTrackIds (pijuwebui.js) in step with the queue as shown here, so that
+    // next/previous reflect the current queue.
+    playlistTrackIds = queueTrackIds;
+    if (localPlayers !== null) {
+        // Local playback is already under way: rebuild the Howl instances against the
+        // updated queue, carrying over the currently-playing one untouched.
+        rebuildLocalPlayers();
+    }
 
     // Deal with the easy case first: queue is (now?) empty
     if (queue.length == 0) {
