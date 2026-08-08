@@ -381,7 +381,7 @@ function addTracksToQueue(trackIds) {
 
 function removeFromQueue(index, trackId) {
     const mode = currentModeRemoteControl ? 'server' : 'browser'
-    $.ajax({
+    return $.ajax({
         url: server + "/queue/?mode=" + mode,
         method: "DELETE",
         contentType: "application/json",
@@ -609,6 +609,24 @@ function playFromQueue(queuePos, trackId) {
         if (localTrackIndex != null) {
             $("#track_"+currentTrackId).removeClass('active-track');
             localPlayers[localTrackIndex].stop();
+        }
+        // Starting playback partway through the queue discards everything before it.
+        if (Number(queuePos) > 0) {
+            $.ajax({
+                url: server + "/queue/?mode=browser",
+                method: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    mode: 'browser',
+                    queue: queueTrackIds.slice(Number(queuePos))
+                }),
+                dataType: "json",
+                processData: false,
+                headers: {[queueSessionHeader]: getQueueSessionId()},
+                xhrFields: {
+                    withCredentials: true
+                },
+            });
         }
         playlistTrackIds = queueTrackIds;
         localPlayers = null;
