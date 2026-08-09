@@ -25,19 +25,18 @@ def main():
     args = parse_args()
 
     if args.algorithm == 'sha256':
-        hash = hashlib.sha256()
+        hasher = hashlib.sha256()
     elif args.algorithm == 'sha384':
-        hash = hashlib.sha384()
+        hasher = hashlib.sha384()
     elif args.algorithm == 'sha512':
-        hash = hashlib.sha512()
+        hasher = hashlib.sha512()
     else:
         sys.exit("Unrecognised hash algorithm")
 
-
     with args.filename.open('rb') as handle:
-        hash.update(handle.read())
+        hasher.update(handle.read())
 
-    actual = hash.digest()
+    actual = hasher.digest()
     if actual != args.expected:
         sys.exit(f"Checksum mismatch: Expected {args.expected}, got {actual}")
 
