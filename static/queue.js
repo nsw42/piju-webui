@@ -30,26 +30,36 @@ function reinitialiseSortable() {
 
 
 function sendUpdatedQueueOrder(dragEvent) {
-    if (currentModeRemoteControl) {
-        let draggedTrackId = queueTrackIds[dragEvent.oldIndex];
-        queueTrackIds.splice(dragEvent.oldIndex, 1);
-        queueTrackIds.splice(dragEvent.newIndex, 0, draggedTrackId);
-        console.log(`Queue reorder drag ended. Moved track: ${draggedTrackId}. New order: ${queueTrackIds}`);
-        $.ajax({
-            url: server + '/queue/',
-            method: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify({queue: queueTrackIds}),
-            dataType: 'json',
-            processData: false,
-        });
-    }
+    let draggedTrackId = queueTrackIds[dragEvent.oldIndex];
+    queueTrackIds.splice(dragEvent.oldIndex, 1);
+    queueTrackIds.splice(dragEvent.newIndex, 0, draggedTrackId);
+    console.log(`Queue reorder drag ended. Moved track: ${draggedTrackId}. New order: ${queueTrackIds}`);
+    const mode = currentModeRemoteControl ? 'server' : 'browser'
+    $.ajax({
+        url: server + '/queue/',
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({mode: mode, queue: queueTrackIds}),
+        dataType: 'json',
+        processData: false,
+        headers: currentModeRemoteControl ? {} : {[queueSessionHeader]: getQueueSessionId()},
+        xhrFields: {
+            withCredentials: true
+        }
+    });
 }
 
 
 function openQueueWebsocket() {
     closeWebsocket(remoteQueueWebSocket)  // tidy up any existing resources before (re)connecting
-    remoteQueueWebSocket = openWebsocket('/queue/ws', queueWebSocketMessageReceived, openQueueWebsocket)
+    const mode = currentModeRemoteControl ? 'server' : 'browser'
+    let endpoint = `/queue/ws?mode=${mode}`
+    if (!currentModeRemoteControl) {
+        // WebSocket handshakes can't carry custom headers, so the queue session id
+        // has to travel as a query param here (unlike the plain HTTP queue requests).
+        endpoint += `&session=${getQueueSessionId()}`
+    }
+    remoteQueueWebSocket = openWebsocket(endpoint, queueWebSocketMessageReceived, openQueueWebsocket)
 }
 
 
@@ -87,10 +97,20 @@ function removeQueueItemButtonHandler(mouseEvent) {
 function updateQueueView(queue) {
     $('#loading-indicator-parent').addClass('d-none');
 
+    const queueWasEmpty = (queueTrackIds.length == 0);
+
     queueTrackIds = [];
     for (let queueItem of queue) {
         const trackId = idFromLink(queueItem.link).toString();
         queueTrackIds.push(trackId);
+    }
+    // Keep playlistTrackIds (pijuwebui.js) in step with the queue as shown here, so that
+    // next/previous reflect the current queue.
+    playlistTrackIds = queueTrackIds;
+    if (localPlayers !== null) {
+        // Local playback is already under way: rebuild the Howl instances against the
+        // updated queue, carrying over the currently-playing one untouched.
+        rebuildLocalPlayers();
     }
 
     // Deal with the easy case first: queue is (now?) empty
@@ -158,6 +178,13 @@ function updateQueueView(queue) {
     // And reset the scrollable
     sortable.destroy()
     reinitialiseSortable();
+
+    if (!currentModeRemoteControl && queueWasEmpty && queueTrackIds.length > 0 && localTrackIndex === null) {
+        // Nothing was playing (empty queue), and this update adds a first entry:
+        // start browser-based playback automatically. The DOM row for it now
+        // exists, so playFromQueue's active-track styling has something to attach to.
+        playFromQueue(0, queueTrackIds[0]);
+    }
 }
 
 

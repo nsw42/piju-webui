@@ -115,7 +115,11 @@
         {# Local playback footer (audio controls) #}
         <div id="footer-local-playback" class="d-flex w-100 fixed-bottom justify-content-evenly footer piju-hide-if-remote-mode">
             {# left #}
-            <div></div>
+            <div class="my-auto d-flex flex-nowrap fs-3">
+                {% if title != "PiJu Queue" %}
+                    <a href="/queue" target="queue">Queue <i class="las la-external-link-alt"></i></a>
+                {% endif %}
+            </div>
             {# centre - prev/play/pause/next #}
             <div class="my-auto d-flex flex-nowrap">
                 <button type="button" id="local-previous" class="btn mx-3 d-none border-0" onclick="localPrevious()">

@@ -9,6 +9,8 @@ const STATE_PLAYING = 1;
 const STATE_PAUSED = 2;
 const storageKeyMode = 'piju-webui-mode'
 const currentModeRemoteControlAtStart = localStorage.getItem(storageKeyMode) ?? 'remote'
+const storageKeyQueueSession = 'piju-queue-session'
+const queueSessionHeader = 'X-Piju-Queue-Session'
 
 // Globals
 // Vars common to both local and remote mode
@@ -127,6 +129,15 @@ function redirectMouseEventClosure(node) {
     return function(event) {
         return redirectMouseEvent(event, targetNode);
     }
+}
+
+function getQueueSessionId() {
+    let sessionId = localStorage.getItem(storageKeyQueueSession)
+    if (!sessionId) {
+        sessionId = crypto.randomUUID()
+        localStorage.setItem(storageKeyQueueSession, sessionId)
+    }
+    return sessionId
 }
 
 function websocketUrl(endpoint) {
@@ -316,47 +327,41 @@ function sendResume() {
     });
 }
 
-function addAlbumToQueue(albumId, successCallback) {
-    if (currentModeRemoteControl) {
-        return $.ajax({
-            url: server + "/queue/",
-            method: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify({album: albumId}),
-            dataType: "json",
-            processData: false,
-            success: successCallback
-        })
-    }
+function addToQueue(data, successCallback) {
+    data['mode'] = currentModeRemoteControl ? 'server' : 'browser'
+    return $.ajax({
+        url: server + "/queue/",
+        method: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        dataType: "json",
+        processData: false,
+        success: successCallback,
+        headers: currentModeRemoteControl ? {} : {[queueSessionHeader]: getQueueSessionId()},
+        xhrFields: {
+            withCredentials: true
+        }
+    })
 }
 
+function addAlbumToQueue(albumId, successCallback) {
+    addToQueue({
+        album: albumId,
+    }, successCallback)
+}
+
+
 function addDiskToQueue(albumId, diskNumber, successCallback) {
-    if (currentModeRemoteControl) {
-        return $.ajax({
-            url: server + "/queue/",
-            method: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify({album: albumId, disk: diskNumber}),
-            dataType: "json",
-            processData: false,
-            success: successCallback
-        });
-    }
+    addToQueue({
+        album: albumId,
+        disk: diskNumber,
+    }, successCallback)
 }
 
 function addTrackToQueue(trackId, successCallback) {
-    if (currentModeRemoteControl) {
-        return $.ajax({
-            url: server + "/queue/",
-            method: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify({track: trackId}),
-            dataType: "json",
-            processData: false,
-            success: successCallback
-        });
-    }
-    return null;
+    addToQueue({
+        track: trackId,
+    }, successCallback)
 }
 
 function addTracksToQueue(trackIds) {
@@ -375,15 +380,30 @@ function addTracksToQueue(trackIds) {
 }
 
 function removeFromQueue(index, trackId) {
-    if (currentModeRemoteControl) {
-        $.ajax({
-            url: server + "/queue/",
-            method: "DELETE",
-            contentType: "application/json",
-            data: JSON.stringify({index: index, track: trackId}),
-            dataType: "json",
-            processData: false,
-        });
+    const mode = currentModeRemoteControl ? 'server' : 'browser'
+    return $.ajax({
+        url: server + "/queue/?mode=" + mode,
+        method: "DELETE",
+        contentType: "application/json",
+        data: JSON.stringify({
+            mode: mode,
+            index: index,
+            track: trackId
+        }),
+        dataType: "json",
+        processData: false,
+        headers: currentModeRemoteControl ? {} : {[queueSessionHeader]: getQueueSessionId()},
+        xhrFields: {
+            withCredentials: true
+        }
+    })
+}
+
+function removeCompletedTrackFromQueue(index, trackId) {
+    // Only meaningful when playing through the live /queue/ page - queueTrackIds
+    // (queue.js) only exists there, and playlistTrackIds is kept in step with it.
+    if (typeof queueTrackIds !== 'undefined') {
+        removeFromQueue(index, trackId);
     }
 }
 
@@ -407,7 +427,7 @@ function playFromYouTube(event, url, queue) {
 }
 
 // Local playback functions
-function setupLocalPlayers() {
+function currentLocalVolume() {
     let volume = localStorage.getItem('piju-local-volume')
     if (volume === null || isNaN(volume)) {
         volume = 1
@@ -419,9 +439,11 @@ function setupLocalPlayers() {
             volume = 1
         }
     }
-    $('#local-volume').val(volume * 100)
+    return volume;
+}
 
-    localPlayers = playlistTrackIds.map(trackId => new Howl({
+function createLocalPlayer(trackId, volume) {
+    return new Howl({
         src: [server + '/mp3/' + trackId],
         preload: false,
         autoplay: false,
@@ -433,6 +455,7 @@ function setupLocalPlayers() {
         },
         onend: function() {
             $('#track_'+trackId).removeClass('active-track');
+            removeCompletedTrackFromQueue(localTrackIndex, trackId);
             if (localTrackIndex + 1 < playlistTrackIds.length) {
                 localPlay(localTrackIndex + 1);
             } else {
@@ -449,7 +472,51 @@ function setupLocalPlayers() {
             fetching = false;
             showPlaybackActive();
         },
-    }));
+    });
+}
+
+function setupLocalPlayers() {
+    const volume = currentLocalVolume();
+    $('#local-volume').val(volume * 100)
+    localPlayers = playlistTrackIds.map(trackId => createLocalPlayer(trackId, volume));
+}
+
+function rebuildLocalPlayers() {
+    // Called when playlistTrackIds has changed (e.g. a live /queue/ update) while local
+    // playback is already under way. The currently-playing Howl instance is carried over
+    // untouched if its track is still present in the (possibly reordered/changed) queue,
+    // so playback isn't interrupted; every other slot gets a fresh, unplayed instance so
+    // that skipping to it fetches the right, current file rather than a stale one built
+    // against an old queue position. If the playing track has been dropped from the
+    // queue entirely, it's stopped, matching what happens when a playlist runs out.
+    const oldPlayers = localPlayers;
+    const oldTrackIndex = localTrackIndex;
+    const activeTrackId = (oldTrackIndex != null) ? currentTrackId : null;
+    const volume = currentLocalVolume();
+    let stillActiveIndex = null;
+    localPlayers = playlistTrackIds.map((trackId, index) => {
+        if (stillActiveIndex === null && activeTrackId !== null && trackId === activeTrackId) {
+            stillActiveIndex = index;
+            return oldPlayers[oldTrackIndex];
+        }
+        return createLocalPlayer(trackId, volume);
+    });
+    if (activeTrackId !== null) {
+        if (stillActiveIndex !== null) {
+            localTrackIndex = stillActiveIndex;
+            updateLocalPrevNextButtons();
+        } else {
+            oldPlayers[oldTrackIndex].stop();
+            $("#track_"+currentTrackId).removeClass('active-track');
+            hideButtons(['#local-previous', '#local-pause', '#local-fetching', '#local-resume', '#local-next', '#local-volume']);
+            currentTrackId = localTrackIndex = null;
+        }
+    }
+}
+
+function updateLocalPrevNextButtons() {
+    $('#local-previous').prop('disabled', (localTrackIndex == 0));
+    $('#local-next').prop('disabled', (localTrackIndex + 1 >= playlistTrackIds.length));
 }
 
 function localPlay(playlistIndex) {
@@ -479,8 +546,7 @@ function localPlay(playlistIndex) {
             navigator.mediaSession.setActionHandler(action, handler);
         }
     }
-    $('#local-previous').prop('disabled', (localTrackIndex == 0));
-    $('#local-next').prop('disabled', (localTrackIndex + 1 >= playlistTrackIds.length));
+    updateLocalPrevNextButtons();
     showPlaybackFetching();
     fetching = true;
 }
@@ -502,6 +568,7 @@ function localPrevious() {
 
 function localNext() {
     if (localTrackIndex + 1 < playlistTrackIds.length) {
+        removeCompletedTrackFromQueue(localTrackIndex, currentTrackId);
         localPause();  // Avoids synchronisation problems on multiple skips
         localPlay(localTrackIndex + 1);
     }
@@ -591,7 +658,35 @@ function playFromQueue(queuePos, trackId) {
             method: "POST"
         });
     } else {
-        // You shouldn't be messing with the queue, then
+        // queueTrackIds (declared in queue.js) tracks the queue as shown on /queue/, and can
+        // change under us between plays, so rebuild the local players against it every time
+        // rather than relying on whatever playlistTrackIds/localPlayers were set up previously.
+        if (localTrackIndex != null) {
+            $("#track_"+currentTrackId).removeClass('active-track');
+            localPlayers[localTrackIndex].stop();
+        }
+        // Starting playback partway through the queue discards everything before it.
+        if (Number(queuePos) > 0) {
+            $.ajax({
+                url: server + "/queue/?mode=browser",
+                method: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    mode: 'browser',
+                    queue: queueTrackIds.slice(Number(queuePos))
+                }),
+                dataType: "json",
+                processData: false,
+                headers: {[queueSessionHeader]: getQueueSessionId()},
+                xhrFields: {
+                    withCredentials: true
+                },
+            });
+        }
+        playlistTrackIds = queueTrackIds;
+        localPlayers = null;
+        localTrackIndex = null;
+        localPlay(Number(queuePos));
     }
 }
 
@@ -622,12 +717,26 @@ function toggleMode() {
         currentTrackId = null;  // ditto
         openNowPlayingWebsocket()
     } else {
-        closeWebsocket()
+        closeWebsocket(remoteNowPlayingWebSocket)
         if (localTrackIndex != null) {
             currentTrackId = playlistTrackIds[localTrackIndex];
             $("#track_"+currentTrackId).addClass('active-track');
             localResume();
+        } else if (typeof queueTrackIds !== 'undefined') {
+            // Nothing was already playing locally (e.g. this is the first switch to browser
+            // mode this page load), so queueTrackIds currently reflects the old (remote) queue,
+            // not the browser queue we're about to receive over the reconnected websocket below.
+            // Treat it as empty so updateQueueView's "queue update adds a first entry" handling
+            // auto-starts playback (and shows the footer controls) once the real browser queue
+            // snapshot arrives.
+            queueTrackIds = [];
         }
+    }
+
+    if (typeof openQueueWebsocket !== 'undefined') {
+        // On /queue/, the websocket endpoint/session depend on the mode just toggled above -
+        // reconnect so the server sends updates for the right (browser vs server) queue.
+        openQueueWebsocket();
     }
 }
 
