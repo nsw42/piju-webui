@@ -387,18 +387,16 @@ function addTrackToQueue(trackId, successCallback) {
 }
 
 function addTracksToQueue(trackIds) {
-    if (currentModeRemoteControl) {
-        if (trackIds.length == 0) {
-            return;
-        }
-        let nextIndexToSend = 0;
-        function addNextTrack() {
-            if (nextIndexToSend < trackIds.length) {
-                addTrackToQueue(trackIds[nextIndexToSend++], addNextTrack);
-            }
-        }
-        addNextTrack()
+    if (trackIds.length == 0) {
+        return;
     }
+    let nextIndexToSend = 0;
+    function addNextTrack() {
+        if (nextIndexToSend < trackIds.length) {
+            addTrackToQueue(trackIds[nextIndexToSend++], addNextTrack);
+        }
+    }
+    addNextTrack()
 }
 
 function removeFromQueue(index, trackId) {
