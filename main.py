@@ -33,6 +33,7 @@ class PijuWebuiApp(Flask):
         self.server: str | None = None
         self.cache = Cache(self)
         self.server_from_ui_client: Callable[[], str] = lambda: ''
+        self.version: str = "unknown"
 
 
 RANDOM_COOKIE_NAME = 'random'
@@ -89,7 +90,15 @@ def root():
 
 @app.route("/admin/")
 def get_admin_page():
-    return render_template('admin.html', **get_default_template_args())
+    response = requests.get(f"{app.server}/", timeout=TIMEOUT_QUICK_ACTION)
+    if response.ok:
+        server_version = response.json().get('ServerVersion')
+    else:
+        server_version = None
+    return render_template('admin.html',
+                           **get_default_template_args(),
+                           server_version=server_version or "unknown",
+                           ui_version=app.version)
 
 
 @app.post("/admin/empty_cache")
@@ -383,10 +392,19 @@ def populate_cache(cache: Cache, shutdown_event: threading.Event):
         logging.debug("Cache populated")
 
 
+def get_ui_version() -> str:
+    try:
+        child = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError:
+        return 'unknown'
+    return child.stdout.strip()
+
+
 def main():
     args = parse_args()
     app.dev_reload = args.dev_reload
     app.server = args.server
+    app.version = get_ui_version()
     if args.server_tuple.hostname in ('localhost', '', None):
         app.server_from_ui_client = lambda: server_for_client(args.server_tuple)
     else:
