@@ -1,5 +1,5 @@
-{% set header_links=[("/", "PiJu"), ("/genre/"+genre_name, genre_name)] %}
-{% set title=genre_name %}
+{% set header_links=[("/", "PiJu"), ("/genre/"+genre.id, genre.name)] %}
+{% set title=genre.name %}
 {% extends "base.html" %}
 
 {% block content %}
@@ -64,7 +64,7 @@
 </template>
 
 <script type="text/javascript">
-    const VIEW_STYLE='{{view_style}}'
+    const VIEW_STYLE='{{genre.view_style}}'
 </script>
 <script defer src="/static/genre.js"></script>
 {% endblock %}

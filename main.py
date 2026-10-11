@@ -18,7 +18,6 @@ from werkzeug.serving import make_server
 import requests
 
 from cache import Cache, Artist
-import genre_view
 
 
 QueuedTrack = namedtuple('QueuedTrack', 'id, artist, title, link, artwork')
@@ -155,24 +154,24 @@ def get_artist(artist):
     return render_template('artist.html', **get_default_template_args(), artist=artist_info)
 
 
-@app.route("/genre/<genre_name>")
-def get_genre(genre_name):
+@app.route("/genre/<genre_id>")
+def get_genre(genre_id):
     random_subset_selected = parse_bool(request.cookies.get(RANDOM_COOKIE_NAME))
-    genre = genre_view.GENRE_VIEWS.get(genre_name)
+    app.cache.ensure_genre_cache(cache_refresh_requested())
+    genre = app.cache.display_genres_by_id.get(genre_id)
     if not genre:
         abort(404)
     return render_template('genre.html', **get_default_template_args(),
                            include_random_toggle=True,
                            random_enabled=random_subset_selected,
-                           view_style=genre.view_style,
-                           genre_name=genre_name)
+                           genre=genre)
 
 
-@app.route("/genre_contents/<genre_name>")
-def get_genre_content(genre_name):
+@app.route("/genre_contents/<genre_id>")
+def get_genre_content(genre_id):
     timeout = int(request.args.get('timeout', 5000))
     include_artists = parse_bool(request.args.get('include_artists', default='False'))
-    albums = app.cache.ensure_genre_contents_cache(genre_name, timeout, cache_refresh_requested())
+    albums = app.cache.ensure_genre_contents_cache(genre_id, timeout, cache_refresh_requested())
     if albums is None:
         abort(404)
     first_album_for_anchor = {}
@@ -382,9 +381,9 @@ def populate_cache(cache: Cache, shutdown_event: threading.Event):
     logging.debug("Populating overall genre cache")
     cache.ensure_genre_cache()
     cache.ensure_radio_station_cache()
-    for display_genre in genre_view.GENRE_VIEWS.keys():
-        logging.debug(f"Populating genre cache for {display_genre}")
-        cache.ensure_genre_contents_cache(display_genre, timeout=None)
+    for display_genre in cache.display_genres:
+        logging.debug(f"Populating genre cache for {display_genre.name}")
+        cache.ensure_genre_contents_cache(display_genre.id, timeout=None)
         if shutdown_event.is_set():
             logging.debug("Populating cache interrupted")
             break
@@ -409,7 +408,7 @@ def main():
         app.server_from_ui_client = lambda: server_for_client(args.server_tuple)
     else:
         app.server_from_ui_client = lambda: args.server
-    connection_test(app.server, required_api_version='8.1')
+    connection_test(app.server, required_api_version='9.0')
     host, port = '0.0.0.0', args.port
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
