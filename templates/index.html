@@ -9,8 +9,8 @@
     {# large=3 of 12 units per column, ie 4 columns on screen #}
     <div class="col-sm-4 col-lg-3 my-4 mx-auto">
         <p class="text-center">
-            <a href="/genre/{{ genre.displayed_name }}" class="lineawesomelink"> <i class="{{genre.icon}} la-6x" aria-hidden="true"></i></a><br>
-            <a href="/genre/{{ genre.displayed_name }}">{{genre.displayed_name}}</a>
+            <a href="/genre/{{ genre.id }}" class="lineawesomelink"> <i class="{{genre.icon}} la-6x" aria-hidden="true"></i></a><br>
+            <a href="/genre/{{ genre.id }}">{{genre.name}}</a>
         </p>
     </div>
     {% endfor %}
