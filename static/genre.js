@@ -3,7 +3,9 @@ let imageObserver;
 // GENRE_ID is defined in the html
 // VIEW_STYLE is defined in the html, as either "artists" or "albums"
 
-const GENRE_PAGE_SIZE = 100;  // the largest page size that the server allows
+// Fetch a small first page so something appears quickly, then the rest in large pages
+const GENRE_FIRST_PAGE_SIZE = 20;
+const GENRE_PAGE_SIZE = 1000;  // the largest page size that the server allows
 const GENRE_PAGE_TIMEOUT = 30000;
 const GENRE_PAGE_RETRY_DELAY = 5000;
 
@@ -33,7 +35,7 @@ $(function() {
             })
         })
     }
-    fetchGenrePage(`/display_genre/${GENRE_ID}?albums=summary&playlists=none&limit=${GENRE_PAGE_SIZE}`);
+    fetchGenrePage(`/display_genre/${GENRE_ID}?albums=summary&playlists=none&limit=${GENRE_FIRST_PAGE_SIZE}`);
 });
 
 
@@ -45,7 +47,7 @@ function fetchGenrePage(link) {
             addAlbums(page['albums'].map(albumFromJson));
             const next = page['pagination']['next'];
             if (next) {
-                fetchGenrePage(next);
+                fetchGenrePage(withPageSize(next, GENRE_PAGE_SIZE));
             } else {
                 loadComplete = true;
                 if (randomSelected()) {
@@ -59,6 +61,14 @@ function fetchGenrePage(link) {
         },
         timeout: GENRE_PAGE_TIMEOUT,
     });
+}
+
+
+function withPageSize(link, pageSize) {
+    // The server's pagination links keep the limit of the current page: replace it
+    const url = new URL(link, server);
+    url.searchParams.set('limit', pageSize);
+    return url.pathname + url.search;
 }
 
 
