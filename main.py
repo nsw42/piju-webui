@@ -9,14 +9,14 @@ import socket
 import subprocess
 import threading
 import time
-from typing import Callable, Optional
-from urllib.parse import urlparse, urlunparse
+from typing import Callable
+from urllib.parse import quote, urlparse, urlunparse
 
 from flask import Flask, abort, redirect, render_template, request
 from werkzeug.serving import make_server
 import requests
 
-from cache import Cache, Artist, display_genre_from_json
+from cache import Cache, Artist, album_from_json, display_genre_from_json, id_from_link, playlist_from_json
 
 
 QueuedTrack = namedtuple('QueuedTrack', 'id, artist, title, link, artwork')
@@ -132,20 +132,54 @@ def check_for_updates():
                            redirect_to_front_screen=redirect_to_front_screen)
 
 
+def fetch_display_genre_json(genre_id):
+    """
+    Fetch just the details of the given display genre (not its contents).
+    Returns None if the server doesn't know the genre; aborts on any other error.
+    """
+    response = requests.get(f"{app.server}/display_genre/{genre_id}?albums=none&playlists=none&limit=1",
+                            timeout=TIMEOUT_QUICK_ACTION)
+    if response.status_code == HTTPStatus.NOT_FOUND:
+        return None
+    if not response.ok:
+        abort(502, f"Error from server: fetching display genre {genre_id} returned {response.status_code}")
+    return response.json()
+
+
 @app.route("/albums/<album_id>")
 def get_album(album_id):
-    album = app.cache.ensure_album_cache(album_id, cache_refresh_requested())
-    if album is None:
+    if not album_id.isdigit():
         abort(404)
+    response = requests.get(f"{app.server}/albums/{album_id}?tracks=all", timeout=TIMEOUT_LONG_REQUEST)
+    if response.status_code == HTTPStatus.NOT_FOUND:
+        abort(404)
+    if not response.ok:
+        abort(502, f"Error from server: fetching album {album_id} returned {response.status_code}")
+    album_json = response.json()
+    # The album only links to its display genres, so fetch the first one's name for the header link
+    display_genre_links = album_json.get('display_genres', [])
+    genre_json = fetch_display_genre_json(id_from_link(display_genre_links[0])) if display_genre_links else None
+    genre = display_genre_from_json(genre_json) if genre_json else None
+    album = album_from_json(album_json, genre)
     to_highlight = request.args.get('highlight', None)
     return render_template('album.html', **get_default_template_args(), album=album, to_highlight=to_highlight)
 
 
 @app.route("/artists/<path:artist>")
 def get_artist(artist):
-    artist_info: Optional[Artist] = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
-    if artist_info is None:
+    # The artist page doesn't show tracks or genres, so we don't need to fetch them
+    response = requests.get(f"{app.server}/artists/{quote(artist)}?tracks=none", timeout=TIMEOUT_LONG_REQUEST)
+    if response.status_code == HTTPStatus.NOT_FOUND:
         abort(404)
+    if not response.ok:
+        abort(502, f"Error from server: fetching artist {artist} returned {response.status_code}")
+    # We'd normally only expect a single artist in the response
+    # but this works if there are multiple, e.g. for artist aliases
+    albums = [album_from_json(album_json, genre=None)
+              for albums_json in response.json().values()
+              for album_json in albums_json]
+    albums.sort(key=lambda album: (album.year if album.year else 9999, album.title if album.title else ''))
+    artist_info = Artist(artist, albums)
     if not parse_bool(request.args.get('aliases', default='True')):
         # filter out albums by the artist's aliases
         albums_without_aliases = [album for album in artist_info.albums if album.artist.lower() == artist.lower()]
@@ -160,13 +194,10 @@ def get_genre(genre_id):
     random_subset_selected = parse_bool(request.cookies.get(RANDOM_COOKIE_NAME))
     # The contents of the genre are fetched directly from the server by genre.js:
     # we only need the genre's details to render the page
-    response = requests.get(f"{app.server}/display_genre/{genre_id}?albums=none&playlists=none&limit=1",
-                            timeout=TIMEOUT_QUICK_ACTION)
-    if response.status_code == HTTPStatus.NOT_FOUND:
+    genre_json = fetch_display_genre_json(genre_id)
+    if genre_json is None:
         abort(404)
-    if not response.ok:
-        abort(502, f"Error from server: fetching display genre {genre_id} returned {response.status_code}")
-    genre = display_genre_from_json(response.json())
+    genre = display_genre_from_json(genre_json)
     return render_template('genre.html', **get_default_template_args(),
                            include_random_toggle=True,
                            random_enabled=random_subset_selected,
@@ -214,9 +245,14 @@ def playlists():
 
 @app.route("/playlists/<playlist_id>")
 def get_playlist(playlist_id):
-    playlist = app.cache.ensure_playlist_cache(playlist_id, cache_refresh_requested())
-    if playlist is None:
+    if not playlist_id.isdigit():
         abort(404)
+    response = requests.get(f"{app.server}/playlists/{playlist_id}?tracks=all", timeout=TIMEOUT_LONG_REQUEST)
+    if response.status_code == HTTPStatus.NOT_FOUND:
+        abort(404)
+    if not response.ok:
+        abort(502, f"Error from server: fetching playlist {playlist_id} returned {response.status_code}")
+    playlist = playlist_from_json(response.json())
     return render_template('playlist.html', **get_default_template_args(),
                            enumerate=enumerate,
                            playlist=playlist)
