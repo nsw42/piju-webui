@@ -9,18 +9,19 @@ import socket
 import subprocess
 import threading
 import time
-from typing import Callable, Optional
-from urllib.parse import urlparse, urlunparse
+from typing import Callable
+from urllib.parse import quote, urlparse, urlunparse
 
-from flask import Flask, abort, redirect, render_template, request
+from flask import Flask, abort, render_template, request
 from werkzeug.serving import make_server
 import requests
 
-from cache import Cache, Artist, display_genre_from_json
+from models import (Artist, album_from_json, display_genre_from_json, id_from_link, playlist_from_json,
+                    playlist_summary_from_json, radio_station_from_json)
 
 
 QueuedTrack = namedtuple('QueuedTrack', 'id, artist, title, link, artwork')
-# different from a cache.Track, because it accommodates YouTube 'tracks', too
+# different from a models.Track, because it accommodates YouTube 'tracks', too
 
 
 class PijuWebuiApp(Flask):
@@ -29,7 +30,6 @@ class PijuWebuiApp(Flask):
         self.exit_code: int | None = None
         self.dev_reload = False  # may be updated later
         self.server: str | None = None
-        self.cache = Cache(self)
         self.server_from_ui_client: Callable[[], str] = lambda: ''
         self.version: str = "unknown"
 
@@ -59,10 +59,6 @@ def get_default_template_args():
     }
 
 
-def cache_refresh_requested():
-    return request.headers.get('Cache-Control') == 'no-cache'
-
-
 @app.errorhandler(requests.exceptions.ConnectionError)
 def request_failed(_):
     abort(503, "Connection error from piju-server")
@@ -73,17 +69,46 @@ def request_timeout(_):
     abort(504, "Unable to get a response from the server")
 
 
+def fetch_server_json(url_suffix, timeout=TIMEOUT_LONG_REQUEST):
+    """
+    Fetch the given path from piju-server, returning the decoded json response.
+    Aborts with a 404 if the server doesn't recognise the path, or a 502 on any other error.
+    """
+    url = f"{app.server}/{url_suffix}"
+    response = requests.get(url, timeout=timeout)
+    if response.status_code == HTTPStatus.NOT_FOUND:
+        abort(404)
+    if not response.ok:
+        abort(502, f"Error from server: {url} returned {response.status_code}")
+    return response.json()
+
+
+def fetch_display_genres():
+    """
+    Return the display genres that have something in them, in the order they should be shown
+    """
+    return [display_genre_from_json(display_genre_json)
+            for display_genre_json in fetch_server_json('display_genre/', timeout=TIMEOUT_QUICK_ACTION)
+            if display_genre_json['album_count'] > 0]
+
+
+def fetch_playlist_summaries():
+    return [playlist_summary_from_json(playlist_json)
+            for playlist_json in fetch_server_json('playlists', timeout=TIMEOUT_QUICK_ACTION)]
+
+
+def fetch_radio_stations():
+    return [radio_station_from_json(station_json)
+            for station_json in fetch_server_json('radio', timeout=TIMEOUT_QUICK_ACTION)]
+
+
 @app.route("/")
 def root():
-    refresh_requested = cache_refresh_requested()
-    app.cache.ensure_genre_cache(refresh_requested)
-    app.cache.ensure_radio_station_cache(refresh_requested)
-    app.cache.ensure_playlist_summary(refresh_requested)
     return render_template('index.html',
                            **get_default_template_args(),
-                           genres=app.cache.display_genres,
-                           has_playlists=len(app.cache.playlist_summaries) > 0,
-                           has_radio=len(app.cache.radio_stations) > 0)
+                           genres=fetch_display_genres(),
+                           has_playlists=len(fetch_playlist_summaries()) > 0,
+                           has_radio=len(fetch_radio_stations()) > 0)
 
 
 @app.route("/admin/")
@@ -97,13 +122,6 @@ def get_admin_page():
                            **get_default_template_args(),
                            server_version=server_version or "unknown",
                            ui_version=app.version)
-
-
-@app.post("/admin/empty_cache")
-def empty_cache():
-    app.cache = Cache(app)
-    app.cache.ensure_genre_cache()
-    return redirect("/")
 
 
 @app.post("/admin/check_for_updates")
@@ -132,20 +150,45 @@ def check_for_updates():
                            redirect_to_front_screen=redirect_to_front_screen)
 
 
+def fetch_display_genre_json(genre_id):
+    """
+    Fetch just the details of the given display genre (not its contents).
+    Returns None if the server doesn't know the genre; aborts on any other error.
+    """
+    response = requests.get(f"{app.server}/display_genre/{genre_id}?albums=none&playlists=none&limit=1",
+                            timeout=TIMEOUT_QUICK_ACTION)
+    if response.status_code == HTTPStatus.NOT_FOUND:
+        return None
+    if not response.ok:
+        abort(502, f"Error from server: fetching display genre {genre_id} returned {response.status_code}")
+    return response.json()
+
+
 @app.route("/albums/<album_id>")
 def get_album(album_id):
-    album = app.cache.ensure_album_cache(album_id, cache_refresh_requested())
-    if album is None:
+    if not album_id.isdigit():
         abort(404)
+    album_json = fetch_server_json(f'albums/{album_id}?tracks=all')
+    # The album only links to its display genres, so fetch the first one's name for the header link
+    display_genre_links = album_json.get('display_genres', [])
+    genre_json = fetch_display_genre_json(id_from_link(display_genre_links[0])) if display_genre_links else None
+    genre = display_genre_from_json(genre_json) if genre_json else None
+    album = album_from_json(album_json, genre)
     to_highlight = request.args.get('highlight', None)
     return render_template('album.html', **get_default_template_args(), album=album, to_highlight=to_highlight)
 
 
 @app.route("/artists/<path:artist>")
 def get_artist(artist):
-    artist_info: Optional[Artist] = app.cache.ensure_artist_cache(artist, cache_refresh_requested())
-    if artist_info is None:
-        abort(404)
+    # The artist page doesn't show tracks or genres, so we don't need to fetch them
+    artist_json = fetch_server_json(f'artists/{quote(artist)}?tracks=none')
+    # We'd normally only expect a single artist in the response
+    # but this works if there are multiple, e.g. for artist aliases
+    albums = [album_from_json(album_json, genre=None)
+              for albums_json in artist_json.values()
+              for album_json in albums_json]
+    albums.sort(key=lambda album: (album.year if album.year else 9999, album.title if album.title else ''))
+    artist_info = Artist(artist, albums)
     if not parse_bool(request.args.get('aliases', default='True')):
         # filter out albums by the artist's aliases
         albums_without_aliases = [album for album in artist_info.albums if album.artist.lower() == artist.lower()]
@@ -160,13 +203,10 @@ def get_genre(genre_id):
     random_subset_selected = parse_bool(request.cookies.get(RANDOM_COOKIE_NAME))
     # The contents of the genre are fetched directly from the server by genre.js:
     # we only need the genre's details to render the page
-    response = requests.get(f"{app.server}/display_genre/{genre_id}?albums=none&playlists=none&limit=1",
-                            timeout=TIMEOUT_QUICK_ACTION)
-    if response.status_code == HTTPStatus.NOT_FOUND:
+    genre_json = fetch_display_genre_json(genre_id)
+    if genre_json is None:
         abort(404)
-    if not response.ok:
-        abort(502, f"Error from server: fetching display genre {genre_id} returned {response.status_code}")
-    genre = display_genre_from_json(response.json())
+    genre = display_genre_from_json(genre_json)
     return render_template('genre.html', **get_default_template_args(),
                            include_random_toggle=True,
                            random_enabled=random_subset_selected,
@@ -207,16 +247,15 @@ def play_radio(station_id):
 
 @app.route("/playlists")
 def playlists():
-    app.cache.ensure_playlist_summary(cache_refresh_requested())
     return render_template('playlists.html', **get_default_template_args(),
-                           playlists=sorted(app.cache.playlist_summaries.values(), key=lambda p: p.title))
+                           playlists=sorted(fetch_playlist_summaries(), key=lambda p: p.title))
 
 
 @app.route("/playlists/<playlist_id>")
 def get_playlist(playlist_id):
-    playlist = app.cache.ensure_playlist_cache(playlist_id, cache_refresh_requested())
-    if playlist is None:
+    if not playlist_id.isdigit():
         abort(404)
+    playlist = playlist_from_json(fetch_server_json(f'playlists/{playlist_id}?tracks=all'))
     return render_template('playlist.html', **get_default_template_args(),
                            enumerate=enumerate,
                            playlist=playlist)
@@ -235,9 +274,8 @@ def quit_request():
 
 @app.route("/radio")
 def radio():
-    app.cache.ensure_radio_station_cache(cache_refresh_requested())
     return render_template('radio.html', **get_default_template_args(),
-                           stations=sorted(app.cache.radio_stations.values(), key=lambda s: s.name))
+                           stations=sorted(fetch_radio_stations(), key=lambda s: s.name))
 
 
 @app.route("/search")
@@ -356,13 +394,6 @@ def connection_test(server, required_api_version):
     return True
 
 
-def populate_cache(cache: Cache):
-    logging.debug("Populating cache")
-    cache.ensure_genre_cache()
-    cache.ensure_radio_station_cache()
-    logging.debug("Cache populated")
-
-
 def get_ui_version() -> str:
     try:
         child = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], check=True, capture_output=True, text=True)
@@ -389,8 +420,6 @@ def main():
         webui = make_server(host, port, app, threaded=True)
         server_thread = threading.Thread(target=webui.serve_forever)
         server_thread.start()
-        cache_thread = threading.Thread(target=populate_cache, args=(app.cache,))
-        cache_thread.start()
         while app.exit_code is None:
             try:
                 time.sleep(1)
@@ -398,7 +427,6 @@ def main():
                 app.exit_code = 0
         webui.shutdown()
         server_thread.join()
-        cache_thread.join()
         exit(app.exit_code)
 
 
