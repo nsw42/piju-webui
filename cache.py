@@ -54,7 +54,7 @@ class Cache:
         # The following instance variables are populated by ensure_genre_cache()
         self.display_genres = None  # list of DisplayGenre, in the order they should be shown
         self.display_genres_by_id = {}
-        self.display_genres_from_links = {}  # map from server genre link to DisplayGenre
+        self.display_genres_by_link = {}
         # The following instance variables are populated by ensure_genre_contents_cache(genre_id)
         self.albums_in_genre = {}  # map from display genre id to list of Album
         self.partial_cache = {}
@@ -71,13 +71,14 @@ class Cache:
 
     def _add_album_from_json(self, album_json):
         album_id = id_from_link(album_json['link'])
-        first_genre = album_json['genres'][0] if album_json['genres'] else None
+        display_genre_links = album_json.get('display_genres', [])
+        first_genre = display_genre_links[0] if display_genre_links else None
         if first_genre:
-            genre = self.display_genres_from_links.get(first_genre)
+            genre = self.display_genres_by_link.get(first_genre)
             if not genre:
                 # We need to refresh our cache of genres
                 self.ensure_genre_cache(refresh=True)
-                genre = self.display_genres_from_links.get(first_genre)
+                genre = self.display_genres_by_link.get(first_genre)
         else:
             genre = None
         is_compilation = album_json['iscompilation']
@@ -160,22 +161,19 @@ class Cache:
         self.app.logger.debug("ensure_genre_cache")
         if refresh or self.display_genres is None:
             display_genres_by_link = {}
+            in_use = []
             for display_genre_json in self._wrapped_requests_get('display_genre/'):  # in display order
                 display_genre = DisplayGenre(id=str(display_genre_json['id']),
                                              name=display_genre_json['name'],
                                              icon=GENRE_ICONS.get(display_genre_json['icon'], DEFAULT_GENRE_ICON),
                                              view_style=display_genre_json['view_style'])
                 display_genres_by_link[display_genre_json['link']] = display_genre
-            display_genres_from_links = {}
-            for server_genre in self._wrapped_requests_get('genres/'):
-                display_genre = display_genres_by_link.get(server_genre.get('display_genre'))
-                if display_genre:
-                    display_genres_from_links[server_genre['link']] = display_genre
-            self.display_genres_from_links = display_genres_from_links
+                if display_genre_json['album_count'] > 0:
+                    in_use.append(display_genre)
+            self.display_genres_by_link = display_genres_by_link
             self.display_genres_by_id = {genre.id: genre for genre in display_genres_by_link.values()}
             # Only show the display genres that have something in them
-            in_use = set(display_genres_from_links.values())
-            self.display_genres = [genre for genre in display_genres_by_link.values() if genre in in_use]
+            self.display_genres = in_use
 
     def ensure_genre_contents_cache(self, genre_id, timeout, refresh=False) -> Optional[List[Album]]:
         """
