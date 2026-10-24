@@ -1,15 +1,12 @@
 from collections import namedtuple
-import datetime
-import string
-from typing import List, Optional
+from typing import Optional
 
 from flask import abort
 import requests
-import unidecode
 
 
 Album = namedtuple('Album',
-                   'id, artist, title, year, artwork_link, is_compilation, genre, numberdisks, tracks, anchor')
+                   'id, artist, title, year, artwork_link, is_compilation, genre, numberdisks, tracks')
 Artist = namedtuple('Artist', 'name, albums')
 DisplayGenre = namedtuple('DisplayGenre', 'id, name, icon, view_style')
 Playlist = namedtuple('Playlist', 'id, server_link, title, tracks')
@@ -19,7 +16,6 @@ Track = namedtuple('Track', 'id, artist, title, disknumber, tracknumber')
 
 
 DEFAULT_FETCH_TIMEOUT = 300
-GENRE_CONTENTS_PAGE_SIZE = 100  # the largest page size that the server allows
 
 # Map from the abstract icon identifiers used by the server to the Line Awesome classes to draw them
 DEFAULT_GENRE_ICON = "las la-music"
@@ -30,18 +26,11 @@ GENRE_ICONS = {
 }
 
 
-def get_artist_anchor(artist: str) -> str:
-    # try multiple characters, to cope with things like
-    # '"Weird" Al', who should sort as W
-    for ch in artist[:2]:
-        anchor = ch.upper()
-        anchor = unidecode.unidecode(anchor)
-        if anchor in string.ascii_uppercase:
-            return anchor
-        if anchor in string.digits:
-            return 'num'
-    # first few characters aren't anything obvious
-    return 'num'
+def display_genre_from_json(display_genre_json) -> DisplayGenre:
+    return DisplayGenre(id=str(display_genre_json['id']),
+                        name=display_genre_json['name'],
+                        icon=GENRE_ICONS.get(display_genre_json['icon'], DEFAULT_GENRE_ICON),
+                        view_style=display_genre_json['view_style'])
 
 
 def id_from_link(link):
@@ -55,9 +44,6 @@ class Cache:
         self.display_genres = None  # list of DisplayGenre, in the order they should be shown
         self.display_genres_by_id = {}
         self.display_genres_by_link = {}
-        # The following instance variables are populated by ensure_genre_contents_cache(genre_id)
-        self.albums_in_genre = {}  # map from display genre id to list of Album
-        self.partial_cache = {}
         # The following instance variables are populated by ensure_album_cache(album_id)
         self.album_details = {}
         # The following instance variables are populated by ensure_artist_cache(artist)
@@ -85,7 +71,6 @@ class Cache:
         artist = album_json['artist']
         if not artist:
             artist = 'Various Artists' if is_compilation else 'Unknown Artist'
-        anchor = get_artist_anchor(artist)
         tracks = self.track_list_from_json(album_json['tracks'])
         tracks.sort(key=lambda t: (t.disknumber if (t and t.disknumber is not None) else 9999,
                                    t.tracknumber if (t and t.tracknumber is not None) else 0))
@@ -97,8 +82,7 @@ class Cache:
                               is_compilation=is_compilation,
                               genre=genre,
                               numberdisks=album_json['numberdisks'],
-                              tracks=tracks,
-                              anchor=anchor)
+                              tracks=tracks)
         self.album_details[album_id] = album_details
         return album_details
 
@@ -163,10 +147,7 @@ class Cache:
             display_genres_by_link = {}
             in_use = []
             for display_genre_json in self._wrapped_requests_get('display_genre/'):  # in display order
-                display_genre = DisplayGenre(id=str(display_genre_json['id']),
-                                             name=display_genre_json['name'],
-                                             icon=GENRE_ICONS.get(display_genre_json['icon'], DEFAULT_GENRE_ICON),
-                                             view_style=display_genre_json['view_style'])
+                display_genre = display_genre_from_json(display_genre_json)
                 display_genres_by_link[display_genre_json['link']] = display_genre
                 if display_genre_json['album_count'] > 0:
                     in_use.append(display_genre)
@@ -174,39 +155,6 @@ class Cache:
             self.display_genres_by_id = {genre.id: genre for genre in display_genres_by_link.values()}
             # Only show the display genres that have something in them
             self.display_genres = in_use
-
-    def ensure_genre_contents_cache(self, genre_id, timeout, refresh=False) -> Optional[List[Album]]:
-        """
-        Ensure we have a cache of the contents of the given display genre,
-        and return a list of the albums in that Genre.
-        Albums are in the order provided by the server
-        """
-        start = datetime.datetime.now()
-        self.ensure_genre_cache()
-        if genre_id not in self.display_genres_by_id:  # Could be a request for an unknown genre
-            return None
-        if refresh or self.albums_in_genre.get(genre_id) is None:
-            albums = []
-            link = f'display_genre/{genre_id}?albums=all&playlists=none&limit={GENRE_CONTENTS_PAGE_SIZE}'
-            while link:
-                time_delta = datetime.datetime.now() - start
-                ms_elapsed = (time_delta.seconds * 1000) + time_delta.microseconds / 1000
-                if (timeout is not None) and (ms_elapsed > timeout):
-                    abort(504)  # gateway timeout, sort of accurate
-                self.app.logger.debug(link)
-                if (link in self.partial_cache) and not refresh:
-                    page_json = self.partial_cache[link]
-                else:
-                    page_json = self._wrapped_requests_get(link, timeout=timeout)
-                    self.partial_cache[link] = page_json
-                for album_json in page_json['albums']:
-                    albums.append(self._add_album_from_json(album_json))
-                link = (page_json['pagination']['next'] or '').lstrip('/')
-
-            self.albums_in_genre[genre_id] = albums
-            for link in [link for link in self.partial_cache if link.startswith(f'display_genre/{genre_id}?')]:
-                del self.partial_cache[link]
-        return self.albums_in_genre[genre_id]
 
     def ensure_playlist_cache(self, playlist_id, refresh=False):
         self.app.logger.debug(f"ensure_playlist_cache({playlist_id})")
