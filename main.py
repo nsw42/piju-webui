@@ -4,7 +4,6 @@ import datetime
 from http import HTTPStatus
 import html
 from itertools import zip_longest
-import json
 import logging
 import socket
 import subprocess
@@ -17,7 +16,7 @@ from flask import Flask, abort, redirect, render_template, request
 from werkzeug.serving import make_server
 import requests
 
-from cache import Cache, Artist
+from cache import Cache, Artist, display_genre_from_json
 
 
 QueuedTrack = namedtuple('QueuedTrack', 'id, artist, title, link, artwork')
@@ -156,42 +155,22 @@ def get_artist(artist):
 
 @app.route("/genre/<genre_id>")
 def get_genre(genre_id):
-    random_subset_selected = parse_bool(request.cookies.get(RANDOM_COOKIE_NAME))
-    app.cache.ensure_genre_cache(cache_refresh_requested())
-    genre = app.cache.display_genres_by_id.get(genre_id)
-    if not genre:
+    if not genre_id.isdigit():
         abort(404)
+    random_subset_selected = parse_bool(request.cookies.get(RANDOM_COOKIE_NAME))
+    # The contents of the genre are fetched directly from the server by genre.js:
+    # we only need the genre's details to render the page
+    response = requests.get(f"{app.server}/display_genre/{genre_id}?albums=none&playlists=none&limit=1",
+                            timeout=TIMEOUT_QUICK_ACTION)
+    if response.status_code == HTTPStatus.NOT_FOUND:
+        abort(404)
+    if not response.ok:
+        abort(502, f"Error from server: fetching display genre {genre_id} returned {response.status_code}")
+    genre = display_genre_from_json(response.json())
     return render_template('genre.html', **get_default_template_args(),
                            include_random_toggle=True,
                            random_enabled=random_subset_selected,
                            genre=genre)
-
-
-@app.route("/genre_contents/<genre_id>")
-def get_genre_content(genre_id):
-    timeout = int(request.args.get('timeout', 5000))
-    include_artists = parse_bool(request.args.get('include_artists', default='False'))
-    albums = app.cache.ensure_genre_contents_cache(genre_id, timeout, cache_refresh_requested())
-    if albums is None:
-        abort(404)
-    first_album_for_anchor = {}
-    for album in albums:
-        if album.anchor not in first_album_for_anchor:
-            first_album_for_anchor[album.anchor] = album.id
-    rtn = {
-        "albums": [{
-            "id": a.id,
-            "anchor": a.anchor,
-            "artwork_link": a.artwork_link,
-            "artist": a.artist,
-            "title": a.title,
-            "year": a.year,
-        } for a in albums],
-        "anchors": first_album_for_anchor
-    }
-    if include_artists:
-        rtn['artists'] = list(dict.fromkeys(a.artist for a in albums))
-    return json.dumps(rtn)
 
 
 @app.route("/play_album", methods=["POST"])
@@ -377,18 +356,11 @@ def connection_test(server, required_api_version):
     return True
 
 
-def populate_cache(cache: Cache, shutdown_event: threading.Event):
-    logging.debug("Populating overall genre cache")
+def populate_cache(cache: Cache):
+    logging.debug("Populating cache")
     cache.ensure_genre_cache()
     cache.ensure_radio_station_cache()
-    for display_genre in cache.display_genres:
-        logging.debug(f"Populating genre cache for {display_genre.name}")
-        cache.ensure_genre_contents_cache(display_genre.id, timeout=None)
-        if shutdown_event.is_set():
-            logging.debug("Populating cache interrupted")
-            break
-    else:
-        logging.debug("Cache populated")
+    logging.debug("Cache populated")
 
 
 def get_ui_version() -> str:
@@ -408,7 +380,7 @@ def main():
         app.server_from_ui_client = lambda: server_for_client(args.server_tuple)
     else:
         app.server_from_ui_client = lambda: args.server
-    connection_test(app.server, required_api_version='9.2')
+    connection_test(app.server, required_api_version='9.3')
     host, port = '0.0.0.0', args.port
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
@@ -417,8 +389,7 @@ def main():
         webui = make_server(host, port, app, threaded=True)
         server_thread = threading.Thread(target=webui.serve_forever)
         server_thread.start()
-        cache_shutdown_event = threading.Event()
-        cache_thread = threading.Thread(target=populate_cache, args=(app.cache, cache_shutdown_event))
+        cache_thread = threading.Thread(target=populate_cache, args=(app.cache,))
         cache_thread.start()
         while app.exit_code is None:
             try:
@@ -426,7 +397,6 @@ def main():
             except KeyboardInterrupt:
                 app.exit_code = 0
         webui.shutdown()
-        cache_shutdown_event.set()
         server_thread.join()
         cache_thread.join()
         exit(app.exit_code)

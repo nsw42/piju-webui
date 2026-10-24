@@ -1,4 +1,3 @@
 # needs python >= 3.11
 Flask
-Unidecode
 requests
