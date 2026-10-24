@@ -411,7 +411,7 @@ def main():
         app.server_from_ui_client = lambda: server_for_client(args.server_tuple)
     else:
         app.server_from_ui_client = lambda: args.server
-    connection_test(app.server, required_api_version='9.3')
+    connection_test(app.server, required_api_version='9.4')
     host, port = '0.0.0.0', args.port
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
