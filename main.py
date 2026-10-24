@@ -124,29 +124,48 @@ def get_admin_page():
                            ui_version=app.version)
 
 
+def update_server():
+    """
+    Ask piju-server to update itself. Returns a message describing the outcome.
+    """
+    try:
+        response = requests.post(f"{app.server}/update", timeout=TIMEOUT_LONG_REQUEST)
+    except requests.RequestException as exc:
+        logging.debug(f"server update error: {exc}")
+        return 'Server update failed'
+    if response.status_code == HTTPStatus.OK:
+        return 'Server already up to date'
+    if response.status_code == HTTPStatus.ACCEPTED:
+        data = response.json()
+        return f"Server updated ({data.get('from')} → {data.get('to')}), restarting"
+    logging.debug(f"server update returned {response.status_code}: {response.text}")
+    return 'Server update failed'
+
+
 @app.post("/admin/check_for_updates")
 def check_for_updates():
+    server_result_message = update_server()
     try:
         git_output = subprocess.check_output(['git', 'pull'], text=True)
     except subprocess.CalledProcessError as exc:
         logging.debug(f"git error: {exc}")
         git_output = ''
     if not git_output:
-        result_message = 'Check failed'
+        result_message = 'WebUI update check failed'
         redirect_to_front_screen = False
     elif git_output.strip() == 'Already up to date.':
-        result_message = git_output.strip()[:-1]
+        result_message = 'WebUI already up to date'
         redirect_to_front_screen = False
     else:
         logging.debug(f"git pull returned:\n{git_output}.\nExiting.")
         app.exit_code = 1
         if app.dev_reload:
-            result_message = 'Updates found. Restarting suppressed in dev mode.'
+            result_message = 'WebUI updates found. Restarting suppressed in dev mode.'
         else:
-            result_message = 'Updates found. Restarting.'
+            result_message = 'WebUI updates found. Restarting.'
         redirect_to_front_screen = True
     return render_template('admin.html', **get_default_template_args(),
-                           check_for_updates_result=result_message,
+                           check_for_updates_result=f"{server_result_message}. {result_message}",
                            redirect_to_front_screen=redirect_to_front_screen)
 
 
@@ -411,7 +430,7 @@ def main():
         app.server_from_ui_client = lambda: server_for_client(args.server_tuple)
     else:
         app.server_from_ui_client = lambda: args.server
-    connection_test(app.server, required_api_version='9.4')
+    connection_test(app.server, required_api_version='9.6')
     host, port = '0.0.0.0', args.port
     if args.dev_reload:
         app.run(host=host, port=port, debug=True)
