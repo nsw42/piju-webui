@@ -30,17 +30,6 @@ GENRE_ICONS = {
 }
 
 
-def get_album_sort_order(album):
-    artist = album.artist
-    artist = artist.replace('"', '')
-    artist = unidecode.unidecode(artist)
-    artist = artist.lower()
-    title = album.title if album.title else "ZZZZZZZZZZZ"
-    title = unidecode.unidecode(title)
-    title = title.lower()
-    return (artist, album.year or 0, title)
-
-
 def get_artist_anchor(artist: str) -> str:
     # try multiple characters, to cope with things like
     # '"Weird" Al', who should sort as W
@@ -192,7 +181,7 @@ class Cache:
         """
         Ensure we have a cache of the contents of the given display genre,
         and return a list of the albums in that Genre.
-        Albums are sorted by artist then release year, and finally title
+        Albums are in the order provided by the server
         """
         start = datetime.datetime.now()
         self.ensure_genre_cache()
@@ -216,9 +205,6 @@ class Cache:
                     albums.append(self._add_album_from_json(album_json))
                 link = (page_json['pagination']['next'] or '').lstrip('/')
 
-            # The server's ordering is close to ours, but doesn't know about
-            # the special cases that get_artist_anchor() has to cope with
-            albums.sort(key=get_album_sort_order)
             self.albums_in_genre[genre_id] = albums
             for link in [link for link in self.partial_cache if link.startswith(f'display_genre/{genre_id}?')]:
                 del self.partial_cache[link]

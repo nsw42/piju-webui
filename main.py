@@ -190,7 +190,7 @@ def get_genre_content(genre_id):
         "anchors": first_album_for_anchor
     }
     if include_artists:
-        rtn['artists'] = sorted({a.artist for a in albums})
+        rtn['artists'] = list(dict.fromkeys(a.artist for a in albums))
     return json.dumps(rtn)
 
 
