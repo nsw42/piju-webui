@@ -29,12 +29,7 @@ body.piju-dark .piju-show-if-light-mode, body.piju-light .piju-hide-if-light-mod
     display: none !important
 
 .fullscreen-content
-    height: calc(100vh - theme.$header-height - theme.$footer-height)
-
-// iPad specific fixes
-@media screen and (min-height: 920px) and (max-height: 1000px)
-    .fullscreen-content
-        padding-bottom: 64px
+    height: calc(100dvh - theme.$header-height - theme.$footer-height)
 
 .header
     height: theme.$header-height
@@ -56,18 +51,18 @@ body.piju-dark .piju-show-if-light-mode, body.piju-light .piju-hide-if-light-mod
     height: 100%
     transform: translateX(math.div(theme.$anchor-container-width, 2))
 
+    height: calc(100dvh - theme.$header-height - theme.$footer-height)
+
     // genre anchor positioning and display:
-    // for phones and tables
+    // for phones and tablets
     @media screen and (max-width: 800px)
-        height: calc(100vh - theme.$header-height - theme.$footer-height - 64px)  // TODO: Not sure where this 64px comes from on the iPad
         font-size: 10pt
 
     // for laptops
     @media screen and (min-width: 800px)
-        height: calc(100vh - theme.$header-height - theme.$footer-height)
         font-size: 14pt
 
-    // ... specifically, big laptops
+    // big laptops
     @media screen and (min-width: 800px) and (min-height: 1140px)
         font-size: 16pt
 
